@@ -3,7 +3,7 @@
 <head>
     <style>
         canvas {
-            background-color: red;
+            background-color: darkgray;
         }
     </style>
 </head>
@@ -13,9 +13,9 @@
 <script>
     const canvas = document.getElementById('gridCanvas');
     const ctx = canvas.getContext('2d');
-    const cellSize = 20;
-    const gridWidth = 100;
-    const gridHeight = 100;
+    const cellSize = 4;
+    const gridWidth = 1000;
+    const gridHeight = 1000;
 
     canvas.width = cellSize * gridWidth;
     canvas.height = cellSize * gridHeight;
@@ -81,7 +81,7 @@
         x: 5,
         y: 5,
         color: 'blue',
-        circle: getCircleCoordinates(100, 100, 5, 5)
+        circle: getCircleCoordinates(gridWidth, gridHeight, 5, 5)
     };
 
     let player_2 = {
@@ -89,7 +89,7 @@
         x: 50,
         y: 50,
         color: 'red',
-        circle: getCircleCoordinates(100, 100, 50, 50)
+        circle: getCircleCoordinates(gridWidth, gridHeight, 50, 50)
     };
 
     let player_3 = {
@@ -97,7 +97,7 @@
         x: 80,
         y: 80,
         color: 'yellow',
-        circle: getCircleCoordinates(100, 100, 80, 80)
+        circle: getCircleCoordinates(gridWidth, gridHeight, 80, 80)
     };
 
     function drawCell(x, y, color) {
@@ -146,7 +146,42 @@
         run(player_3);
     }, 10);
 
-    renderGrid();
+    // renderGrid();
+
+    function drawHorizontalLine(y) {
+        ctx.beginPath();
+        ctx.moveTo(0, y);
+        ctx.lineTo(canvas.width, y);
+        ctx.stroke();
+    }
+
+    function drawVerticalLine(x) {
+        ctx.beginPath();
+        ctx.moveTo(x, 0);
+        ctx.lineTo(x, canvas.height);
+        ctx.stroke();
+    }
+
+    function drawGrid() {
+        for (let i = 0; i < gridHeight; i++) {
+            drawHorizontalLine(i * cellSize);
+        }
+
+        for (let j = 0; j < gridWidth; j++) {
+            drawVerticalLine(j * cellSize);
+        }
+    }
+
+    drawGrid();
+
+    canvas.addEventListener('click', function(event) {
+        const rect = canvas.getBoundingClientRect();
+        const mouseX = event.clientX - rect.left;
+        const mouseY = event.clientY - rect.top;
+        const cellX = Math.floor(mouseX / cellSize);
+        const cellY = Math.floor(mouseY /cellSize);
+        alert('Clicked cell: x: ' + cellX + ', y: ' + cellY);
+    });
 </script>
 </body>
 </html>
