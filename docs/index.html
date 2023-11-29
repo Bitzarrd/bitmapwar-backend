@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <style>
+
+
+        .container {
+            background-color: red;
+        }
+
+        .raw {
+            background-color: aqua;
+            display: flex;
+        }
+
+        .cell {
+            /*background-color: yellow;*/
+            height: 20px;
+            width: 20px;
+            border: 1px solid rgb(128, 128, 128);
+        }
+    </style>
+</head>
+<body>
+<!--<pre id="render" style="font-size: 40px">-->
+<!--</pre>-->
+<div id="container" class="container">
+</div>
+
+<script>
+
+
+    function renderGrid(grid) {
+        // 获取包含格子的父元素
+        const container = document.getElementById('container');
+
+        // 清空父元素中的内容
+        container.innerHTML = '';
+
+        // 遍历二维数组
+        for (let i = 0; i < grid.length; i++) {
+            const raw = document.createElement('div');
+            raw.className = 'raw'
+            for (let j = 0; j < grid[i].length; j++) {
+                // 创建一个div元素作为格子
+                const cell = document.createElement('div');
+                cell.className = 'cell'
+                cell.style.backgroundColor = grid[i][j] === 0 ? 'gery' : grid[i][j];
+
+                raw.appendChild(cell);
+            }
+            container.appendChild(raw);
+        }
+    }
+
+    const preElement = document.getElementById("render");
+
+    function generate2DArray(width, height) {
+        var array = [];
+
+        for (var i = 0; i < height; i++) {
+            var row = [];
+
+            for (var j = 0; j < width; j++) {
+                row.push(0); // 这里可以设置初始值，这里使用0作为示例
+            }
+
+            array.push(row);
+        }
+
+        return array;
+    }
+
+    // const grid = [
+    //     [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+    //     [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+    //     [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+    //     [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+    //     [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+    //     [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+    //     [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+    //     [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+    //     [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+    //     [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+    //     [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+    //     [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+    //     [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+    //     [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+    //     [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+    //     [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+    // ];
+
+    function calculateDistance(width, height, x, y) {
+        var distanceLeft = x;
+        var distanceRight = width - x - 1;
+        var distanceUp = y;
+        var distanceDown = height - y - 1;
+
+        var maxDistance = Math.max(distanceLeft, distanceRight, distanceUp, distanceDown);
+
+        return maxDistance;
+    }
+
+
+    const grid = generate2DArray(100, 100);
+
+    renderGrid(grid);
+
+    function printGrid(grid) {
+        const rows = grid.length;
+        const cols = grid[0].length;
+        let gridString = '';
+
+        for (let i = 0; i < rows; i++) {
+            for (let j = 0; j < cols; j++) {
+                gridString += grid[i][j] + ' '; // 添加元素值到字符串
+            }
+            gridString += '\n'; // 添加换行符
+        }
+
+        return (gridString);
+    }
+
+
+    function getCircleCoordinates(radius) {
+        const coordinates = [];
+        let x = 0;
+        let y = 0;
+
+        for (let i = 1; i <= radius; i++) {
+            // 上边
+            for (let j = -i; j <= i; j++) {
+                coordinates.push([x - i, y + j]);
+            }
+
+            // 右边
+            for (let j = -i + 1; j <= i; j++) {
+                coordinates.push([x + j, y + i]);
+            }
+
+            // 下边
+            for (let j = -i + 1; j <= i; j++) {
+                coordinates.push([x + i, y - j]);
+            }
+
+            // 左边
+            for (let j = -i + 1; j < i; j++) {
+                coordinates.push([x - j, y - i]);
+            }
+        }
+
+        return coordinates;
+    }
+
+
+    function isCoordinateInArray(array, x, y) {
+        if (x < 0 || y < 0 || x >= array.length || y >= array[0].length) {
+            return false;
+        }
+
+        return true;
+    }
+
+    let player_1 = {
+        i: 0,
+        x: 5,
+        y: 5,
+        color: "blue",
+        circle: getCircleCoordinates(100, 100, 10, 10)
+    };
+
+    let player_2 = {
+        i: 0,
+        x: 50,
+        y: 50,
+        color: "red",
+        circle: getCircleCoordinates(100, 100, 20, 20)
+    };
+
+
+    let player_3 = {
+        i: 0,
+        x: 80,
+        y: 80,
+        color: "yellow",
+        circle: getCircleCoordinates(100, 100, 80, 80)
+    };
+    const run = (player) => {
+        if (player.i <= player.circle.length) {
+            let cell = player.circle[player.i];
+            let x = player.x + cell[0];
+            let y = player.y + cell[1];
+            while (!isCoordinateInArray(grid, x, y)) {
+                player.i++;
+                let cell = player.circle[player.i];
+                x = player.x  + cell[0];
+                y = player.y + cell[1];
+            }
+            grid[x][y] = player.color;
+            player.i++;
+        }
+
+    };
+
+    // grid[player_1.x][player_1.y] = 'x';
+    // grid[player_2.x][player_2.y] = 'y';
+    // preElement.textContent = printGrid(grid);
+
+    let delta = 10;
+
+    setInterval(() => {
+        run(player_1)
+        run(player_2)
+        run(player_3);
+        renderGrid(grid);
+    }, delta);
+
+
+</script>
+</body>
+</html>
