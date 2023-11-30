@@ -6,7 +6,7 @@ export default {
   name: "GameView",
   components: {MapRender},
   computed: {
-    ...mapState(['']),
+    ...mapState(['socket']),
   },
   data() {
     return {
@@ -36,6 +36,7 @@ export default {
 <template>
   <div>
     <div>
+      <span style="margin-right: 10px;">Socket Connect: {{ socket.isConnected ? "YES" : socket.reconnectError}}</span>
       <el-button @click="onClickStartGame">Start Game</el-button>
     </div>
     <div>
