@@ -1,10 +1,10 @@
 export function generate2DArray(width, height) {
-    var array = [];
+    let array = [];
 
-    for (var i = 0; i < height; i++) {
-        var row = [];
+    for (let i = 0; i < height; i++) {
+        let row = [];
 
-        for (var j = 0; j < width; j++) {
+        for (let j = 0; j < width; j++) {
             row.push(0); // 这里可以设置初始值，这里使用0作为示例
         }
 
