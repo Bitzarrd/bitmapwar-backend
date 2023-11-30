@@ -79,6 +79,21 @@ wss.on('connection', (ws) => {
                         }));
                     }
                 });
+
+
+                setInterval(() => {
+                    clients.forEach((client) => {
+                        if (client.readyState === WebSocket.OPEN) {
+                            client.send(JSON.stringify({
+                                method: "Update",
+                                gridWidth: gridWidth,
+                                gridHeight: gridHeight,
+
+                            }));
+                        }
+                    });
+                }, 500)
+
                 break;
             case "StopGame":
                 break;
