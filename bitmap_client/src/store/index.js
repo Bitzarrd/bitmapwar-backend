@@ -1,4 +1,4 @@
-import { createStore } from "vuex";
+import {createStore} from "vuex";
 // import {app} from "../main";
 
 export const store = createStore({
@@ -14,7 +14,8 @@ export const store = createStore({
             heartBeatInterval: 50000,
             // 心跳定时器
             heartBeatTimer: 0
-        }
+        },
+        game_started: false,
     },
     mutations: {
         // 连接打开

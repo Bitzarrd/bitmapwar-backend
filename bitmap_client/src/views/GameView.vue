@@ -25,7 +25,7 @@ export default {
     onClickStartGame() {
       this.$socket.sendObj(
           {
-            msg: "start"
+            method: "GameStart"
           }
       );
     }
@@ -36,7 +36,7 @@ export default {
 <template>
   <div>
     <div>
-      <span style="margin-right: 10px;">Socket Connect: {{ socket.isConnected ? "YES" : socket.reconnectError}}</span>
+      <span style="margin-right: 10px;">Socket Connect: {{ socket.isConnected ? "YES" : socket.reconnectError }}</span>
       <el-button @click="onClickStartGame">Start Game</el-button>
     </div>
     <div>
