@@ -92,7 +92,7 @@ wss.on('connection', (ws) => {
                         payload.push({
                             x: x,
                             y: y,
-                            color: color
+                            color: player.color
                         })
                     });
 
