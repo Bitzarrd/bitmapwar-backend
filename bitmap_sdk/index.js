@@ -27,6 +27,7 @@ export function getCircleCoordinates(radius) {
     let x = 0;
     let y = 0;
 
+    //顺时针
     for (let i = 1; i <= radius; i++) {
         // 上边
         for (let j = -i; j <= i; j++) {
@@ -48,6 +49,29 @@ export function getCircleCoordinates(radius) {
             coordinates.push([x - j, y - i]);
         }
     }
+    //逆时针
+    // for (let i = 1; i <= radius; i++) {
+    //     // 上边
+    //     for (let j = -i; j <= i; j++) {
+    //         coordinates.push([x - i, y + j]);
+    //     }
+    //
+    //     // 右边
+    //     for (let j = -i + 1; j <= i; j++) {
+    //         coordinates.push([x + j, y + i]);
+    //     }
+    //
+    //     // 下边
+    //     for (let j = -i + 1; j <= i; j++) {
+    //         coordinates.push([x + i, y - j]);
+    //     }
+    //
+    //     // 左边
+    //     for (let j = -i + 1; j < i; j++) {
+    //         coordinates.push([x - j, y - i]);
+    //     }
+    // }
+
 
     return coordinates;
 }

@@ -1,21 +1,13 @@
 <script setup>
-import MapRender from "@/components/MapRender.vue";
+import GameView from "@/views/GameView.vue";
 </script>
 
 <template>
-  <div>
-    <div>
-      <el-button>Connect to server</el-button>
-      <el-button>Start Game</el-button>
-    </div>
-    <div>
-      <MapRender></MapRender>
-    </div>
-  </div>
+  <GameView/>
 </template>
 
 <style scoped>
-body{
+body {
   margin: 0;
 }
 </style>
