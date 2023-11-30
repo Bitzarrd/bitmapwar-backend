@@ -1,5 +1,5 @@
 import {generate2DArray} from 'bitmap_sdk';
-import WebSocket, { WebSocketServer } from 'ws';
+import WebSocket, {WebSocketServer} from 'ws';
 import winston from "winston";
 
 const logger = winston.createLogger({
@@ -7,21 +7,32 @@ const logger = winston.createLogger({
 });
 
 // 创建WebSocket服务器实例
-const wss = new WebSocketServer({ port: 3000 });
+const wss = new WebSocketServer({port: 3000});
 
 // 用于存储连接的客户端
 const clients = new Set();
 
 // 当有新的连接建立时触发
 wss.on('connection', (ws) => {
-    logger.debug("connection")
+    logger.info("connection")
 
     // 将新连接的客户端添加到集合中
     clients.add(ws);
 
     // 接收消息
     ws.on('message', (message) => {
-        logger.debug(`Received message: ${message}`);
+        logger.info(`Received message: ${message}`);
+
+        let decode = JSON.parse(message);
+        switch (decode.method) {
+            case "StartGame":
+                logger.info("StartGame");
+                break;
+            case "StopGame":
+                break;
+        }
+
+
         // 将消息发送给所有客户端
         clients.forEach((client) => {
             if (client !== ws && client.readyState === WebSocket.OPEN) {
