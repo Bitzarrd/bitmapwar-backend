@@ -8,9 +8,12 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@vue/cli-service": "^5.0.8",
+    "bitmap_sdk": "file:../bitmap_sdk/",
+    "element-plus": "^2.4.3",
     "vue": "^3.3.4",
     "vue-router": "^4.2.5",
-    "bitmap_sdk": "file:../bitmap_sdk/"
+    "vuex": "^4.1.0"
   },
   "devDependencies": {
     "@vitejs/plugin-vue": "^4.4.0",

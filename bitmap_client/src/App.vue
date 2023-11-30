@@ -3,7 +3,15 @@ import MapRender from "@/components/MapRender.vue";
 </script>
 
 <template>
-  <MapRender></MapRender>
+  <div>
+    <div>
+      <el-button>Connect to server</el-button>
+      <el-button>Start Game</el-button>
+    </div>
+    <div>
+      <MapRender></MapRender>
+    </div>
+  </div>
 </template>
 
 <style scoped>

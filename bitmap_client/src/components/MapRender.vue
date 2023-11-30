@@ -13,20 +13,20 @@ export default {
           x: 5,
           y: 5,
           color: 'blue',
-          circle: getCircleCoordinates(100)
+          circle: getCircleCoordinates(500)
         },
         {
           i: 0,
           x: 50,
           y: 50,
           color: 'red',
-          circle: getCircleCoordinates(100)
+          circle: getCircleCoordinates(500)
         }, {
           i: 0,
           x: 80,
           y: 80,
           color: 'yellow',
-          circle: getCircleCoordinates(100)
+          circle: getCircleCoordinates(500)
         }
       ]
     }
