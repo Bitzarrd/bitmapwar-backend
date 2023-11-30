@@ -1,12 +1,42 @@
-<script setup>
+<script>
 import MapRender from "@/components/MapRender.vue";
+import {mapActions, mapMutations, mapState} from "vuex";
+
+export default {
+  name: "GameView",
+  components: {MapRender},
+  computed: {
+    ...mapState(['']),
+  },
+  data() {
+    return {
+      loading: false
+    }
+  },
+  mounted() {
+
+  },
+  methods: {
+    ...mapActions([]),
+    ...mapMutations([]),
+    async onClickEquip() {
+      alert("asd")
+    },
+    onClickStartGame() {
+      this.$socket.sendObj(
+          {
+            msg: "start"
+          }
+      );
+    }
+  }
+}
 </script>
 
 <template>
   <div>
     <div>
-      <el-button>Connect to server</el-button>
-      <el-button>Start Game</el-button>
+      <el-button @click="onClickStartGame">Start Game</el-button>
     </div>
     <div>
       <MapRender></MapRender>

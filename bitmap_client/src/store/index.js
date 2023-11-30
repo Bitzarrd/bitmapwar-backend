@@ -1,4 +1,5 @@
 import { createStore } from "vuex";
+// import {app} from "../main";
 
 export const store = createStore({
     state: {
@@ -56,5 +57,6 @@ export const store = createStore({
             state.socket.reconnectError = true;
         }
     },
+
     modules: {}
 });
