@@ -97,9 +97,9 @@ export function updateCell(x, y, color) {
     drawCell(x, y, color);
 }
 
-export function runTurn(player, grid) {
-    if (player.i <= player.circle.length) {
-        let cell = player.circle[player.i];
+export function runTurn(player, grid, circle) {
+    if (player.i <= circle.length) {
+        let cell = circle[player.i];
         if (!cell) {
             return;
         }
@@ -107,7 +107,7 @@ export function runTurn(player, grid) {
         let y = player.y + cell[1];
         while (!isCoordinateInArray(grid, x, y)) {
             player.i++;
-            let cell = player.circle[player.i];
+            let cell = circle[player.i];
             x = player.x + cell[0];
             y = player.y + cell[1];
         }

@@ -59,7 +59,6 @@ wss.on('connection', (ws) => {
                     x: x,
                     y: y,
                     color: color,
-                    circle: circle
                 };
                 players.push(player)
                 clients.forEach((client) => {
@@ -90,7 +89,7 @@ wss.on('connection', (ws) => {
                 interval = setInterval(() => {
                     let payload = [];
                     players.forEach(player => {
-                        let {x, y} = runTurn(player, grid);
+                        let {x, y} = runTurn(player, grid, circle);
                         grid[x][y] = player.color;
                         //drawCell(ctx, cellSize, x, y, player.color);
                         payload.push({
