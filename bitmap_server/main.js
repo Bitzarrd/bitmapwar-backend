@@ -20,6 +20,8 @@ const colors = ['red', 'blue', 'yellow'];
 let grid = generate2DArray(gridWidth, gridHeight);
 let players = [];
 let interval = null;
+let history = [];
+
 
 function getRandomInt(min, max) {
     min = Math.ceil(min); // 向上取整，确保范围内的最小值为整数
@@ -40,6 +42,14 @@ wss.on('connection', (ws) => {
 
     // 将新连接的客户端添加到集合中
     clients.add(ws);
+
+    ws.send(JSON.stringify(
+        {
+            method: "Reload",
+            history: history,
+            // started: started,
+        }
+    ));
 
     // 接收消息
     ws.on('message', (message) => {

@@ -7,6 +7,7 @@ export default {
   name: "MapRender",
   computed: {
     ...mapState(['game_started', 'new_player', 'new_update']),
+
   },
   watch: {
     game_started(newValue, oldValue) {
@@ -41,6 +42,7 @@ export default {
       mouseOffsetY: 0,
       canvas: null,
       ctx: null,
+      scaleValue: 1 // 初始缩放比例为0.5
       // players: [
       //   {
       //     i: 0,
@@ -65,6 +67,7 @@ export default {
       // ]
     }
   },
+
   mounted() {
     this.canvas = document.getElementById('gridCanvas');
     this.ctx = this.canvas.getContext('2d');
@@ -75,6 +78,10 @@ export default {
 
   },
   methods: {
+    scaledStyle() {
+      console.log(`transform: scale(${this.scaleValue})`);
+      return `transform: scale(${this.scaleValue})`;
+    },
     startDragging(e) {
       this.isDragging = true;
       this.mouseOffsetX = e.offsetX;
@@ -116,27 +123,34 @@ export default {
       drawGrid(this.canvas, this.ctx, this.gridWidth, this.gridHeight, this.cellSize);
 
       // 添加鼠标滚轮事件监听器
-      this.canvas.addEventListener('wheel', handleWheel);
-
-      // 缩放函数
-      function handleWheel(event) {
+      this.canvas.addEventListener('wheel', () => {
         event.preventDefault();
-
-        // 获取鼠标滚动事件的delta值
         const delta = event.deltaY;
-
-        // 根据delta值进行缩放操作
-        // 这里是一个简单的示例，你可以根据你的需求进行适当的缩放计算
         const scaleFactor = 1; // 缩放因子
         const scaleMultiplier = delta > 0 ? 1 - scaleFactor : 1 + scaleFactor;
-        console.log("scaleMultiplier", scaleMultiplier);
-        // ctx.scale(scaleMultiplier, scaleMultiplier);
-      }
+        if (scaleMultiplier === 0) {
+          this.scaleValue -= 0.1;
+        }
+
+        if (scaleMultiplier === 2) {
+          this.scaleValue += 0.1;
+        }
+
+        if (this.scaleValue < 0.5) {
+          this.scaleValue = 0.5;
+        }
+        if (this.scaleValue > 2) {
+          this.scaleValue = 2;
+        }
+      });
+
+      // 缩放函数
 
       const innerDiv = document.querySelector(".inner");
       innerDiv.addEventListener("mousedown", this.startDragging);
       innerDiv.addEventListener("mouseup", this.stopDragging);
       innerDiv.addEventListener("mousemove", this.drag);
+
     }
   }
 }
@@ -144,7 +158,7 @@ export default {
 
 <template>
   <div class="outer">
-    <div class="inner">
+    <div class="inner" :style="scaledStyle()">
       <!-- 内部内容 -->
       <canvas id="gridCanvas"></canvas>
     </div>
