@@ -60,6 +60,15 @@ export const store = createStore({
         // 收到服务端发送的消息
         [SOCKET_ONMESSAGE](state, message) {
             console.log("SOCKET_ONMESSAGE", message);
+            switch (message.method) {
+                case "GameStarted":
+                    state.game_started = true;
+                    break;
+                case "GameStopped":
+                    state.game_started = false;
+                    break;
+
+            }
             state.socket.message = message;
         },
         // 自动重连

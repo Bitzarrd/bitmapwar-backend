@@ -20,19 +20,10 @@ export default {
     ...mapActions([]),
     ...mapMutations([]),
     onClickStartGame() {
-      // this.conn.sendObj(
-      //     {
-      //       method: "StartGame"
-      //     }
-      // );
-
-      this.conn.send(
-          JSON.stringify(
-              {
-                method: "StartGame"
-              }
-          )
-      );
+      this.conn.sendObj({method: "StartGame"});
+    },
+    onClickJoinGame() {
+      this.conn.sendObj({method: "JoinGame"});
     }
   }
 }
@@ -42,6 +33,7 @@ export default {
   <div>
     <div>
       <span style="margin-right: 10px;">Socket Connect: {{ socket.isConnected ? "YES" : socket.reconnectError }}</span>
+      <el-button @click="onClickJoinGame">Join Game</el-button>
       <el-button @click="onClickStartGame">Start Game</el-button>
     </div>
     <div>

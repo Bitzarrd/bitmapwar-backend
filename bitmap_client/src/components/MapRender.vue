@@ -1,12 +1,29 @@
 <script>
 import {drawGrid, generate2DArray, runTurn, getCircleCoordinates, drawCell} from "bitmap_sdk";
+import {mapState} from "vuex";
 
 export default {
   name: "MapRender",
+  computed: {
+    ...mapState(['game_started']),
+  },
+  watch: {
+    game_started(newValue, oldValue) {
+      // Perform actions based on the changes in myProperty
+      console.log('MapRender watch game_started:', newValue);
+      if (newValue == true) {
+        this.init();
+
+      }
+    }
+  },
   data() {
     return {
       gridWidth: 300,
       gridHeight: 300,
+      isDragging: false,
+      mouseOffsetX: 0,
+      mouseOffsetY: 0,
       players: [
         {
           i: 0,
@@ -32,72 +49,78 @@ export default {
     }
   },
   mounted() {
-    const canvas = document.getElementById('gridCanvas');
-    const ctx = canvas.getContext('2d');
-    const cellSize = 10;
+    this.init();
+  },
+  created() {
 
-    canvas.width = cellSize * this.gridWidth;
-    canvas.height = cellSize * this.gridHeight;
+  },
+  methods: {
+    startDragging(e) {
+      this.isDragging = true;
+      this.mouseOffsetX = e.offsetX;
+      this.mouseOffsetY = e.offsetY;
+    },
 
-    let grid = generate2DArray(this.gridWidth, this.gridHeight);
+    stopDragging() {
+      this.isDragging = false;
+    },
 
-    // console.log(grid);
+    drag(e) {
+      if (this.isDragging) {
+        const innerDiv = document.querySelector(".inner");
 
-    setInterval(() => {
-      this.players.forEach(player => {
-        let {x, y} = runTurn(player, grid);
-        grid[x][y] = player.color;
-        drawCell(ctx, cellSize, x, y, player.color);
-      });
-    }, 10);
-
-    drawGrid(canvas, ctx, this.gridWidth, this.gridHeight, cellSize);
-
-    // 添加鼠标滚轮事件监听器
-    canvas.addEventListener('wheel', handleWheel);
-
-    // 缩放函数
-    function handleWheel(event) {
-      event.preventDefault();
-
-      // 获取鼠标滚动事件的delta值
-      const delta = event.deltaY;
-
-      // 根据delta值进行缩放操作
-      // 这里是一个简单的示例，你可以根据你的需求进行适当的缩放计算
-      const scaleFactor = 1; // 缩放因子
-      const scaleMultiplier = delta > 0 ? 1 - scaleFactor : 1 + scaleFactor;
-      console.log("scaleMultiplier", scaleMultiplier);
-      // ctx.scale(scaleMultiplier, scaleMultiplier);
-    }
-
-
-    const innerDiv = document.querySelector(".inner");
-    let isDragging = false;
-    let mouseOffsetX = 0;
-    let mouseOffsetY = 0;
-
-    innerDiv.addEventListener("mousedown", startDragging);
-    innerDiv.addEventListener("mouseup", stopDragging);
-    innerDiv.addEventListener("mousemove", drag);
-
-    function startDragging(e) {
-      isDragging = true;
-      mouseOffsetX = e.offsetX;
-      mouseOffsetY = e.offsetY;
-    }
-
-    function stopDragging() {
-      isDragging = false;
-    }
-
-    function drag(e) {
-      if (isDragging) {
-        const newX = e.clientX - mouseOffsetX;
-        const newY = e.clientY - mouseOffsetY;
+        const newX = e.clientX - this.mouseOffsetX;
+        const newY = e.clientY - this.mouseOffsetY;
         innerDiv.style.left = `${newX}px`;
         innerDiv.style.top = `${newY}px`;
       }
+    },
+    init() {
+      const canvas = document.getElementById('gridCanvas');
+      const ctx = canvas.getContext('2d');
+      const cellSize = 10;
+
+      canvas.width = cellSize * this.gridWidth;
+      canvas.height = cellSize * this.gridHeight;
+
+      let grid = generate2DArray(this.gridWidth, this.gridHeight);
+
+      // console.log(grid);
+
+      // setInterval(() => {
+      //   this.players.forEach(player => {
+      //     let {x, y} = runTurn(player, grid);
+      //     grid[x][y] = player.color;
+      //     drawCell(ctx, cellSize, x, y, player.color);
+      //   });
+      // }, 10);
+
+      drawGrid(canvas, ctx, this.gridWidth, this.gridHeight, cellSize);
+
+      // 添加鼠标滚轮事件监听器
+      canvas.addEventListener('wheel', handleWheel);
+
+      // 缩放函数
+      function handleWheel(event) {
+        event.preventDefault();
+
+        // 获取鼠标滚动事件的delta值
+        const delta = event.deltaY;
+
+        // 根据delta值进行缩放操作
+        // 这里是一个简单的示例，你可以根据你的需求进行适当的缩放计算
+        const scaleFactor = 1; // 缩放因子
+        const scaleMultiplier = delta > 0 ? 1 - scaleFactor : 1 + scaleFactor;
+        console.log("scaleMultiplier", scaleMultiplier);
+        // ctx.scale(scaleMultiplier, scaleMultiplier);
+      }
+
+
+      // innerDiv.addEventListener("mousedown", this.startDragging);
+      // innerDiv.addEventListener("mouseup", this.stopDragging);
+      // innerDiv.addEventListener("mousemove", this.drag);
+
+
     }
   }
 }
@@ -122,9 +145,7 @@ export default {
 
 .inner {
   position: absolute;
-  //width: 300px; /* 内部 div 比外部大 */
-  //height: 300px;
-  background-color: #f0f0f0;
+//width: 300px; /* 内部 div 比外部大 */ //height: 300px; background-color: #f0f0f0;
 }
 
 /* 鼠标移动时改变内部 div 的位置 */

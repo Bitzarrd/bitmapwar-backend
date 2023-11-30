@@ -16,6 +16,8 @@ const clients = new Set();
 const gridWidth = 300;
 const gridHeight = 300;
 const grid = generate2DArray(gridWidth, gridHeight);
+const colors = ['red', 'blue', 'yellow'];
+let players = [];
 
 
 //////////////////////////////////////////////////////
@@ -33,6 +35,28 @@ wss.on('connection', (ws) => {
 
         let decode = JSON.parse(message);
         switch (decode.method) {
+            case "JoinGame":
+                let x = Math.random() % gridWidth;
+                let y = Math.random() % gridHeight;
+                let index = players.length;
+                let color = colors[index % colors.length];
+                grid[x][y] = color;
+                let player = {
+                    x: x,
+                    y: y,
+                    color: color,
+                };
+                players.push(player)
+                clients.forEach((client) => {
+                    if (client.readyState === WebSocket.OPEN) {
+                        client.send(JSON.stringify({
+                            method: "JoinedGame",
+                            player: player,
+                            index: index
+                        }));
+                    }
+                });
+                break;
             case "StartGame":
                 logger.info("StartGame");
                 // 将消息发送给所有客户端
