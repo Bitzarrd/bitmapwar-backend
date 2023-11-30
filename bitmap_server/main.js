@@ -7,7 +7,7 @@ const logger = winston.createLogger({
 });
 
 // 创建WebSocket服务器实例
-const wss = new WebSocketServer({ port: 6000 });
+const wss = new WebSocketServer({ port: 3000 });
 
 // 用于存储连接的客户端
 const clients = new Set();
@@ -38,4 +38,4 @@ wss.on('connection', (ws) => {
     });
 });
 
-logger.info('WebSocket chat server is running on port 6000');
+logger.info('WebSocket chat server is running on port 3000');
