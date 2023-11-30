@@ -37,7 +37,7 @@ wss.on('connection', (ws) => {
                 logger.info("StartGame");
                 // 将消息发送给所有客户端
                 clients.forEach((client) => {
-                    if (client !== ws && client.readyState === WebSocket.OPEN) {
+                    if (client.readyState === WebSocket.OPEN) {
                         client.send(JSON.stringify({
                             method: "GameStarted",
                             gridWidth: gridWidth,

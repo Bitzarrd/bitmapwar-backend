@@ -1,9 +1,17 @@
 import {createStore} from "vuex";
 import main from "../main";
+import {
+    SOCKET_ONOPEN,
+    SOCKET_ONCLOSE,
+    SOCKET_ONERROR,
+    SOCKET_ONMESSAGE,
+    SOCKET_RECONNECT,
+    SOCKET_RECONNECT_ERROR
+} from "./mutation-types"
 
 export const store = createStore({
     state: {
-        conn:null,
+        conn: null,
         socket: {
             // 连接状态
             isConnected: false,
@@ -20,9 +28,9 @@ export const store = createStore({
     },
     mutations: {
         // 连接打开
-        SOCKET_ONOPEN(state, event) {
+        [SOCKET_ONOPEN](state, event) {
             console.log("SOCKET_ONOPEN")
-            console.log(event.currentTarget);
+            // console.log(event.currentTarget);
             main.config.globalProperties.$socket = event.currentTarget;
             state.conn = event.currentTarget;
             state.socket.isConnected = true;
@@ -37,28 +45,29 @@ export const store = createStore({
             }, state.socket.heartBeatInterval);
         },
         // 连接关闭
-        SOCKET_ONCLOSE(state, event) {
+        [SOCKET_ONCLOSE](state, event) {
+            console.log("连接已断开: " + new Date());
             state.socket.isConnected = false;
             // 连接关闭时停掉心跳消息
             clearInterval(state.socket.heartBeatTimer);
             state.socket.heartBeatTimer = 0;
-            console.log("连接已断开: " + new Date());
             console.log(event);
         },
         // 发生错误
-        SOCKET_ONERROR(state, event) {
+        [SOCKET_ONERROR](state, event) {
             console.error(state, event);
         },
         // 收到服务端发送的消息
-        SOCKET_ONMESSAGE(state, message) {
+        [SOCKET_ONMESSAGE](state, message) {
+            console.log("SOCKET_ONMESSAGE", message);
             state.socket.message = message;
         },
         // 自动重连
-        SOCKET_RECONNECT(state, count) {
+        [SOCKET_RECONNECT](state, count) {
             console.info("消息系统重连中...", state, count);
         },
         // 重连错误
-        SOCKET_RECONNECT_ERROR(state) {
+        [SOCKET_RECONNECT_ERROR](state) {
             state.socket.reconnectError = true;
         }
     },

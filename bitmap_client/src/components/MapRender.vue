@@ -41,7 +41,7 @@ export default {
 
     let grid = generate2DArray(this.gridWidth, this.gridHeight);
 
-    console.log(grid);
+    // console.log(grid);
 
     setInterval(() => {
       this.players.forEach(player => {

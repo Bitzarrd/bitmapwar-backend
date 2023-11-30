@@ -20,10 +20,18 @@ export default {
     ...mapActions([]),
     ...mapMutations([]),
     onClickStartGame() {
-      this.conn.sendObj(
-          {
-            method: "StartGame"
-          }
+      // this.conn.sendObj(
+      //     {
+      //       method: "StartGame"
+      //     }
+      // );
+
+      this.conn.send(
+          JSON.stringify(
+              {
+                method: "StartGame"
+              }
+          )
       );
     }
   }
