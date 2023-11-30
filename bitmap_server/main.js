@@ -1,4 +1,4 @@
-import {generate2DArray, runTurn} from 'bitmap_sdk';
+import {generate2DArray, runTurn, getCircleCoordinates} from 'bitmap_sdk';
 import WebSocket, {WebSocketServer} from 'ws';
 import winston from "winston";
 
