@@ -1,61 +1,108 @@
 <script>
-import {drawGrid, generate2DArray, run, getCircleCoordinates, drawCell} from "bitmap_sdk";
+import {drawGrid, generate2DArray, runTurn, getCircleCoordinates, drawCell} from "bitmap_sdk";
 
 export default {
   name: "MapRender",
+  data() {
+    return {
+      gridWidth: 300,
+      gridHeight: 300,
+      players: [
+        {
+          i: 0,
+          x: 5,
+          y: 5,
+          color: 'blue',
+          circle: getCircleCoordinates(100)
+        },
+        {
+          i: 0,
+          x: 50,
+          y: 50,
+          color: 'red',
+          circle: getCircleCoordinates(100)
+        }, {
+          i: 0,
+          x: 80,
+          y: 80,
+          color: 'yellow',
+          circle: getCircleCoordinates(100)
+        }
+      ]
+    }
+  },
   mounted() {
     const canvas = document.getElementById('gridCanvas');
     const ctx = canvas.getContext('2d');
-    const cellSize = 4;
-    const gridWidth = 100;
-    const gridHeight = 100;
+    const cellSize = 10;
 
-    canvas.width = cellSize * gridWidth;
-    canvas.height = cellSize * gridHeight;
+    canvas.width = cellSize * this.gridWidth;
+    canvas.height = cellSize * this.gridHeight;
 
-    let grid = generate2DArray(gridWidth, gridHeight);
+    let grid = generate2DArray(this.gridWidth, this.gridHeight);
 
     console.log(grid);
-    let players = [{
-      i: 0,
-      x: 5,
-      y: 5,
-      color: 'blue',
-      circle: getCircleCoordinates(gridWidth, gridHeight, 5, 5)
-    },
-      {
-        i: 0,
-        x: 50,
-        y: 50,
-        color: 'red',
-        circle: getCircleCoordinates(gridWidth, gridHeight, 50, 50)
-      }, {
-        i: 0,
-        x: 80,
-        y: 80,
-        color: 'yellow',
-        circle: getCircleCoordinates(gridWidth, gridHeight, 80, 80)
-      }];
 
     setInterval(() => {
-      for (let i in players) {
-        let {x, y} = run(players[i], grid);
-        grid[x][y] = players[i].color;
-        drawCell(ctx, cellSize, x, y, players[i].color);
-      }
-    }, 1000);
+      this.players.forEach(player => {
+        let {x, y} = runTurn(player, grid);
+        grid[x][y] = player.color;
+        drawCell(ctx, cellSize, x, y, player.color);
+      });
+    }, 10);
 
-    drawGrid(canvas, ctx, gridWidth, gridHeight, cellSize);
+    drawGrid(canvas, ctx, this.gridWidth, this.gridHeight, cellSize);
 
+    // 添加鼠标滚轮事件监听器
+    canvas.addEventListener('wheel', handleWheel);
+
+    // 缩放函数
+    function handleWheel(event) {
+      event.preventDefault();
+
+      // 获取鼠标滚动事件的delta值
+      const delta = event.deltaY;
+
+      // 根据delta值进行缩放操作
+      // 这里是一个简单的示例，你可以根据你的需求进行适当的缩放计算
+      const scaleFactor = 1; // 缩放因子
+      const scaleMultiplier = delta > 0 ? 1 - scaleFactor : 1 + scaleFactor;
+      console.log("scaleMultiplier", scaleMultiplier);
+      // ctx.scale(scaleMultiplier, scaleMultiplier);
+    }
   }
 }
 </script>
 
 <template>
+  <div class="outer">
+    <div class="inner">
+      <!-- 内部内容 -->
+    </div>
+  </div>
   <canvas id="gridCanvas"></canvas>
 </template>
 
 <style scoped>
+.outer {
+  position: relative;
+  width: 200px;
+  height: 200px;
+  overflow: hidden; /* 超出部分裁剪 */
+}
+
+.inner {
+  position: absolute;
+  width: 300px; /* 内部 div 比外部大 */
+  height: 300px;
+  background-color: #f0f0f0;
+}
+
+/* 鼠标移动时改变内部 div 的位置 */
+.inner:hover {
+  cursor: move;
+}
+
 canvas {
   background-color: darkgray;
 //width: 100%; //height: 100%;

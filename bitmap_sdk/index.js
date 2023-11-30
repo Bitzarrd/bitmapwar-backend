@@ -73,7 +73,7 @@ export function updateCell(x, y, color) {
     drawCell(x, y, color);
 }
 
-export function run(player, grid) {
+export function runTurn(player, grid) {
     if (player.i <= player.circle.length) {
         let cell = player.circle[player.i];
         if (!cell) {
