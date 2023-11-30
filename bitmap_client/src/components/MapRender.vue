@@ -70,6 +70,35 @@ export default {
       console.log("scaleMultiplier", scaleMultiplier);
       // ctx.scale(scaleMultiplier, scaleMultiplier);
     }
+
+
+    const innerDiv = document.querySelector(".inner");
+    let isDragging = false;
+    let mouseOffsetX = 0;
+    let mouseOffsetY = 0;
+
+    innerDiv.addEventListener("mousedown", startDragging);
+    innerDiv.addEventListener("mouseup", stopDragging);
+    innerDiv.addEventListener("mousemove", drag);
+
+    function startDragging(e) {
+      isDragging = true;
+      mouseOffsetX = e.offsetX;
+      mouseOffsetY = e.offsetY;
+    }
+
+    function stopDragging() {
+      isDragging = false;
+    }
+
+    function drag(e) {
+      if (isDragging) {
+        const newX = e.clientX - mouseOffsetX;
+        const newY = e.clientY - mouseOffsetY;
+        innerDiv.style.left = `${newX}px`;
+        innerDiv.style.top = `${newY}px`;
+      }
+    }
   }
 }
 </script>
@@ -78,23 +107,23 @@ export default {
   <div class="outer">
     <div class="inner">
       <!-- 内部内容 -->
+      <canvas id="gridCanvas"></canvas>
     </div>
   </div>
-  <canvas id="gridCanvas"></canvas>
 </template>
 
 <style scoped>
 .outer {
   position: relative;
-  width: 200px;
-  height: 200px;
+  width: 100vw;
+  height: 100vh;
   overflow: hidden; /* 超出部分裁剪 */
 }
 
 .inner {
   position: absolute;
-  width: 300px; /* 内部 div 比外部大 */
-  height: 300px;
+  //width: 300px; /* 内部 div 比外部大 */
+  //height: 300px;
   background-color: #f0f0f0;
 }
 
