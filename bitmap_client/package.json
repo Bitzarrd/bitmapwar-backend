@@ -12,6 +12,7 @@
     "bitmap_sdk": "file:../bitmap_sdk/",
     "element-plus": "^2.4.3",
     "vue": "^3.3.4",
+    "vue-native-websocket-vue3": "^3.1.7",
     "vue-router": "^4.2.5",
     "vuex": "^4.1.0"
   },
