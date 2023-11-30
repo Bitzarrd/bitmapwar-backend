@@ -3,7 +3,7 @@ import './assets/main.css'
 import {createApp} from 'vue'
 import App from './App.vue'
 import router from './router'
-import * as store from "./store"
+import {store} from "./store"
 import ElementPlus from 'element-plus'
 import 'element-plus/dist/index.css'
 import 'element-plus/theme-chalk/dark/css-vars.css'
@@ -27,7 +27,7 @@ app.use(store)
 //     SOCKET_RECONNECT_ERROR
 // }
 
-app.use(VueNativeSock, 'ws://localhost:6000', {
+app.use(VueNativeSock, 'ws://34.225.3.60:3000', {
     store: store,
     // mutations: mutations
 })
