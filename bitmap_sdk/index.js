@@ -52,7 +52,7 @@ export function getCircleCoordinates(radius) {
     return coordinates;
 }
 
-export function drawCell(x, y, color) {
+export function drawCell(ctx, cellSize, x, y, color) {
     ctx.fillStyle = color;
     ctx.fillRect(x * cellSize, y * cellSize, cellSize, cellSize);
     ctx.strokeStyle = 'rgb(128, 128, 128)';
@@ -73,7 +73,7 @@ export function updateCell(x, y, color) {
     drawCell(x, y, color);
 }
 
-export function run(player) {
+export function run(player, grid) {
     if (player.i <= player.circle.length) {
         let cell = player.circle[player.i];
         if (!cell) {
@@ -87,8 +87,10 @@ export function run(player) {
             x = player.x + cell[0];
             y = player.y + cell[1];
         }
-        updateCell(x, y, player.color);
         player.i++;
+        // updateCell(x, y, player.color);
+
+        return {x: x, y: y}
     }
 }
 
