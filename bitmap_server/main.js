@@ -15,9 +15,11 @@ const clients = new Set();
 //////////////////////////////////////////////////////
 const gridWidth = 300;
 const gridHeight = 300;
-const grid = generate2DArray(gridWidth, gridHeight);
 const colors = ['red', 'blue', 'yellow'];
+
+let grid = generate2DArray(gridWidth, gridHeight);
 let players = [];
+let interval = null;
 
 function getRandomInt(min, max) {
     min = Math.ceil(min); // 向上取整，确保范围内的最小值为整数
@@ -83,7 +85,7 @@ wss.on('connection', (ws) => {
                 });
 
 
-                setInterval(() => {
+                interval = setInterval(() => {
                     let payload = [];
                     players.forEach(player => {
                         let {x, y} = runTurn(player, grid);
@@ -109,6 +111,12 @@ wss.on('connection', (ws) => {
 
                 break;
             case "StopGame":
+                if (interval) {
+                    clearInterval(interval);
+                    interval = null;
+                }
+                grid = generate2DArray(gridWidth, gridHeight);
+                players = [];
                 break;
         }
 

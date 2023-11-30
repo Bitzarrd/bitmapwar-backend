@@ -22,6 +22,9 @@ export default {
     onClickStartGame() {
       this.conn.sendObj({method: "StartGame"});
     },
+    onClickStopGame() {
+      this.conn.sendObj({method: "StopGame"});
+    },
     onClickJoinGame() {
       this.conn.sendObj({method: "JoinGame"});
     }
@@ -35,6 +38,7 @@ export default {
       <span style="margin-right: 10px;">Socket Connect: {{ socket.isConnected ? "YES" : socket.reconnectError }}</span>
       <el-button @click="onClickJoinGame">Join Game</el-button>
       <el-button @click="onClickStartGame">Start Game</el-button>
+      <el-button @click="onClickStopGame">Stop Game</el-button>
     </div>
     <div>
       <MapRender></MapRender>
