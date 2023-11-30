@@ -6,7 +6,7 @@ import {ElMessage} from "element-plus";
 export default {
   name: "MapRender",
   computed: {
-    ...mapState(['game_started', 'new_player']),
+    ...mapState(['game_started', 'new_player', 'new_update']),
   },
   watch: {
     game_started(newValue, oldValue) {
@@ -23,6 +23,12 @@ export default {
         message: "new player joined at " + newValue.x + ":" + newValue.y,
         type: 'success',
       })
+    },
+    new_update(newValue, oldValue) {
+      for (let i = 0; i < newValue.length; i++) {
+        let cellValue = newValue[i];
+        drawCell(this.ctx, this.cellSize, cellValue.x, cellValue.y, cellValue.color);
+      }
     }
   },
   data() {

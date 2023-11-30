@@ -26,7 +26,8 @@ export const store = createStore({
         },
         ///////////
         game_started: false,
-        new_player: null
+        new_player: null,
+        new_update: null,
     },
     mutations: {
         // 连接打开
@@ -72,6 +73,9 @@ export const store = createStore({
                 case "JoinedGame":
                     state.new_player = message.player;
                     break;
+                case "Update": {
+                    state.new_update = message.payload;
+                }
 
             }
             state.socket.message = message;
