@@ -42,7 +42,11 @@ export default {
       mouseOffsetY: 0,
       canvas: null,
       ctx: null,
-      scaleValue: 1 // 初始缩放比例为0.5
+
+      scaleValue: 1, // 初始缩放比例为0.5
+      left: 0,
+      top: 0,
+
       // players: [
       //   {
       //     i: 0,
@@ -78,47 +82,18 @@ export default {
 
   },
   methods: {
-    scaledStyle() {
-      console.log(`transform: scale(${this.scaleValue})`);
-      return `transform: scale(${this.scaleValue})`;
-    },
-    startDragging(e) {
-      this.isDragging = true;
-      this.mouseOffsetX = e.offsetX;
-      this.mouseOffsetY = e.offsetY;
-    },
-
-    stopDragging() {
-      this.isDragging = false;
-    },
-
-    drag(e) {
-      if (this.isDragging) {
-        const innerDiv = document.querySelector(".inner");
-
-        const newX = e.clientX - this.mouseOffsetX;
-        const newY = e.clientY - this.mouseOffsetY;
-        innerDiv.style.left = `${newX}px`;
-        innerDiv.style.top = `${newY}px`;
-      }
+    innerStyle() {
+      let offsetY = this.top;
+      let offsetX = this.left;
+      let scale = this.scaleValue;
+      let result = `translate: ${offsetX}px  ${offsetY}px; scale: ${scale};`;
+      return result;
     },
     init() {
 
 
       this.canvas.width = this.cellSize * this.gridWidth;
       this.canvas.height = this.cellSize * this.gridHeight;
-
-      let grid = generate2DArray(this.gridWidth, this.gridHeight);
-
-      // console.log(grid);
-
-      // setInterval(() => {
-      //   this.players.forEach(player => {
-      //     let {x, y} = runTurn(player, grid);
-      //     grid[x][y] = player.color;
-      //     drawCell(ctx, cellSize, x, y, player.color);
-      //   });
-      // }, 10);
 
       drawGrid(this.canvas, this.ctx, this.gridWidth, this.gridHeight, this.cellSize);
 
@@ -144,12 +119,31 @@ export default {
         }
       });
 
-      // 缩放函数
 
-      const innerDiv = document.querySelector(".inner");
-      innerDiv.addEventListener("mousedown", this.startDragging);
-      innerDiv.addEventListener("mouseup", this.stopDragging);
-      innerDiv.addEventListener("mousemove", this.drag);
+      const innerContainer = document.querySelector('.inner');
+
+      innerContainer.addEventListener('mousedown', (event) => {
+        event.preventDefault();
+
+        const initialX = event.clientX;
+        const initialY = event.clientY;
+        const that = this;
+
+        document.addEventListener('mousemove', moveContainer);
+        document.addEventListener('mouseup', removeListeners);
+
+        function moveContainer(event) {
+          const offsetX = event.clientX - initialX;
+          const offsetY = event.clientY - initialY;
+          that.top = offsetY;
+          that.left = offsetX;
+        }
+
+        function removeListeners() {
+          document.removeEventListener('mousemove', moveContainer);
+          document.removeEventListener('mouseup', removeListeners);
+        }
+      });
 
     }
   }
@@ -158,7 +152,7 @@ export default {
 
 <template>
   <div class="outer">
-    <div class="inner" :style="scaledStyle()">
+    <div class="inner" :style="innerStyle()">
       <!-- 内部内容 -->
       <canvas id="gridCanvas"></canvas>
     </div>
@@ -166,22 +160,21 @@ export default {
 </template>
 
 <style scoped>
+
+
 .outer {
-  position: relative;
   width: 100vw;
   height: 100vh;
-  overflow: hidden; /* 超出部分裁剪 */
+  overflow: hidden;
+  position: relative;
 }
 
 .inner {
-  position: absolute;
-//width: 300px; /* 内部 div 比外部大 */ //height: 300px; background-color: #f0f0f0;
-}
-
-/* 鼠标移动时改变内部 div 的位置 */
-.inner:hover {
+//width: 300px; //height: 300px; position: absolute; top: -50px; left: -50px;
+  background-color: #f1f1f1;
   cursor: move;
 }
+
 
 canvas {
   background-color: darkgray;
