@@ -1,4 +1,4 @@
-import {generate2DArray} from 'bitmap_sdk';
+import {generate2DArray, runTurn} from 'bitmap_sdk';
 import WebSocket, {WebSocketServer} from 'ws';
 import winston from "winston";
 
@@ -82,13 +82,24 @@ wss.on('connection', (ws) => {
 
 
                 setInterval(() => {
+                    let payload = [];
+                    players.forEach(player => {
+                        let {x, y} = runTurn(player, grid);
+                        grid[x][y] = player.color;
+                        //drawCell(ctx, cellSize, x, y, player.color);
+                        payload.push({
+                            x: x,
+                            y: y,
+                            color: color
+                        })
+                    });
+
+
                     clients.forEach((client) => {
                         if (client.readyState === WebSocket.OPEN) {
                             client.send(JSON.stringify({
                                 method: "Update",
-                                gridWidth: gridWidth,
-                                gridHeight: gridHeight,
-
+                                payload: payload
                             }));
                         }
                     });
