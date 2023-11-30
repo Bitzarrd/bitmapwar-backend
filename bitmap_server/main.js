@@ -20,6 +20,8 @@ const colors = ['red', 'blue', 'yellow'];
 let players = [];
 
 
+console.log(grid);
+
 //////////////////////////////////////////////////////
 
 // 当有新的连接建立时触发
@@ -40,6 +42,7 @@ wss.on('connection', (ws) => {
                 let y = Math.random() % gridHeight;
                 let index = players.length;
                 let color = colors[index % colors.length];
+                console.log(x,y,color);
                 grid[x][y] = color;
                 let player = {
                     x: x,
