@@ -92,26 +92,26 @@ export function run(player) {
     }
 }
 
-export function drawHorizontalLine(y) {
+export function drawHorizontalLine(canvas, ctx, y) {
     ctx.beginPath();
     ctx.moveTo(0, y);
     ctx.lineTo(canvas.width, y);
     ctx.stroke();
 }
 
-export function drawVerticalLine(x) {
+export function drawVerticalLine(canvas, ctx, x) {
     ctx.beginPath();
     ctx.moveTo(x, 0);
     ctx.lineTo(x, canvas.height);
     ctx.stroke();
 }
 
-export function drawGrid() {
+export function drawGrid(canvas, ctx, gridWidth, gridHeight, cellSize) {
     for (let i = 0; i < gridHeight; i++) {
-        drawHorizontalLine(i * cellSize);
+        drawHorizontalLine(canvas, ctx, i * cellSize);
     }
 
     for (let j = 0; j < gridWidth; j++) {
-        drawVerticalLine(j * cellSize);
+        drawVerticalLine(canvas, ctx, j * cellSize);
     }
 }
