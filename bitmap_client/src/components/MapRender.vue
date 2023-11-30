@@ -1,11 +1,12 @@
 <script>
 import {drawGrid, generate2DArray, runTurn, getCircleCoordinates, drawCell} from "bitmap_sdk";
 import {mapState} from "vuex";
+import {ElMessage} from "element-plus";
 
 export default {
   name: "MapRender",
   computed: {
-    ...mapState(['game_started']),
+    ...mapState(['game_started', 'new_player']),
   },
   watch: {
     game_started(newValue, oldValue) {
@@ -15,40 +16,53 @@ export default {
         this.init();
 
       }
+    },
+    new_player(newValue, oldValue) {
+      drawCell(this.ctx, this.cellSize, newValue.x, newValue.y, newValue.color);
+      ElMessage({
+        message: "new player joined at " + newValue.x + ":" + newValue.y,
+        type: 'success',
+      })
     }
   },
   data() {
     return {
       gridWidth: 300,
       gridHeight: 300,
+      cellSize: 10,
       isDragging: false,
       mouseOffsetX: 0,
       mouseOffsetY: 0,
-      players: [
-        {
-          i: 0,
-          x: 5,
-          y: 5,
-          color: 'blue',
-          circle: getCircleCoordinates(500)
-        },
-        {
-          i: 0,
-          x: 50,
-          y: 50,
-          color: 'red',
-          circle: getCircleCoordinates(500)
-        }, {
-          i: 0,
-          x: 80,
-          y: 80,
-          color: 'yellow',
-          circle: getCircleCoordinates(500)
-        }
-      ]
+      canvas: null,
+      ctx: null,
+      // players: [
+      //   {
+      //     i: 0,
+      //     x: 5,
+      //     y: 5,
+      //     color: 'blue',
+      //     circle: getCircleCoordinates(500)
+      //   },
+      //   {
+      //     i: 0,
+      //     x: 50,
+      //     y: 50,
+      //     color: 'red',
+      //     circle: getCircleCoordinates(500)
+      //   }, {
+      //     i: 0,
+      //     x: 80,
+      //     y: 80,
+      //     color: 'yellow',
+      //     circle: getCircleCoordinates(500)
+      //   }
+      // ]
     }
   },
   mounted() {
+    this.canvas = document.getElementById('gridCanvas');
+    this.ctx = this.canvas.getContext('2d');
+
     this.init();
   },
   created() {
@@ -76,12 +90,10 @@ export default {
       }
     },
     init() {
-      const canvas = document.getElementById('gridCanvas');
-      const ctx = canvas.getContext('2d');
-      const cellSize = 10;
 
-      canvas.width = cellSize * this.gridWidth;
-      canvas.height = cellSize * this.gridHeight;
+
+      this.canvas.width = this.cellSize * this.gridWidth;
+      this.canvas.height = this.cellSize * this.gridHeight;
 
       let grid = generate2DArray(this.gridWidth, this.gridHeight);
 
@@ -95,10 +107,10 @@ export default {
       //   });
       // }, 10);
 
-      drawGrid(canvas, ctx, this.gridWidth, this.gridHeight, cellSize);
+      drawGrid(this.canvas, this.ctx, this.gridWidth, this.gridHeight, this.cellSize);
 
       // 添加鼠标滚轮事件监听器
-      canvas.addEventListener('wheel', handleWheel);
+      this.canvas.addEventListener('wheel', handleWheel);
 
       // 缩放函数
       function handleWheel(event) {
