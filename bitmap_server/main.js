@@ -19,6 +19,12 @@ const grid = generate2DArray(gridWidth, gridHeight);
 const colors = ['red', 'blue', 'yellow'];
 let players = [];
 
+function getRandomInt(min, max) {
+    min = Math.ceil(min); // 向上取整，确保范围内的最小值为整数
+    max = Math.floor(max); // 向下取整，确保范围内的最大值为整数
+    return Math.floor(Math.random() * (max - min + 1)) + min;
+}
+
 
 console.log(grid);
 
@@ -38,11 +44,11 @@ wss.on('connection', (ws) => {
         let decode = JSON.parse(message);
         switch (decode.method) {
             case "JoinGame":
-                let x = Math.random() % gridWidth;
-                let y = Math.random() % gridHeight;
+                let x = getRandomInt(0, gridWidth);
+                let y = getRandomInt(0, gridHeight);
                 let index = players.length;
                 let color = colors[index % colors.length];
-                console.log(x,y,color);
+                console.log(x, y, color);
                 grid[x][y] = color;
                 let player = {
                     x: x,
