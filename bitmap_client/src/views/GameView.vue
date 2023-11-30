@@ -19,18 +19,10 @@ export default {
   methods: {
     ...mapActions([]),
     ...mapMutations([]),
-    async onClickEquip() {
-      alert("asd")
-    },
     onClickStartGame() {
-
-      this.conn.send('some data');
-      // 如果fomat配置为了json，即可调用sendObj方法来发送数据
-      this.conn.sendObj({awesome: 'data'});
-
       this.conn.sendObj(
           {
-            method: "GameStart"
+            method: "StartGame"
           }
       );
     }

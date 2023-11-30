@@ -12,6 +12,14 @@ const wss = new WebSocketServer({port: 3000});
 // 用于存储连接的客户端
 const clients = new Set();
 
+//////////////////////////////////////////////////////
+const gridWidth = 300;
+const gridHeight = 300;
+const grid = generate2DArray(gridWidth, gridHeight);
+
+
+//////////////////////////////////////////////////////
+
 // 当有新的连接建立时触发
 wss.on('connection', (ws) => {
     logger.info("connection")
@@ -27,18 +35,23 @@ wss.on('connection', (ws) => {
         switch (decode.method) {
             case "StartGame":
                 logger.info("StartGame");
+                // 将消息发送给所有客户端
+                clients.forEach((client) => {
+                    if (client !== ws && client.readyState === WebSocket.OPEN) {
+                        client.send(JSON.stringify({
+                            method: "GameStarted",
+                            gridWidth: gridWidth,
+                            gridHeight: gridHeight,
+
+                        }));
+                    }
+                });
                 break;
             case "StopGame":
                 break;
         }
 
 
-        // 将消息发送给所有客户端
-        clients.forEach((client) => {
-            if (client !== ws && client.readyState === WebSocket.OPEN) {
-                client.send(message);
-            }
-        });
     });
 
     // 当连接关闭时触发
