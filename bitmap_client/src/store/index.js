@@ -1,8 +1,9 @@
 import {createStore} from "vuex";
-// import {app} from "../main";
+import main from "../main";
 
 export const store = createStore({
     state: {
+        conn:null,
         socket: {
             // 连接状态
             isConnected: false,
@@ -20,16 +21,19 @@ export const store = createStore({
     mutations: {
         // 连接打开
         SOCKET_ONOPEN(state, event) {
-            // app.config.globalProperties.$socket = event.currentTarget;
+            console.log("SOCKET_ONOPEN")
+            console.log(event.currentTarget);
+            main.config.globalProperties.$socket = event.currentTarget;
+            state.conn = event.currentTarget;
             state.socket.isConnected = true;
             // 连接成功时启动定时发送心跳消息，避免被服务器断开连接
             state.socket.heartBeatTimer = setInterval(() => {
                 const message = "心跳消息";
-                // state.socket.isConnected &&
-                // app.config.globalProperties.$socket.sendObj({
-                //     code: 200,
-                //     msg: message
-                // });
+                state.socket.isConnected &&
+                main.config.globalProperties.$socket.sendObj({
+                    code: 200,
+                    msg: message
+                });
             }, state.socket.heartBeatInterval);
         },
         // 连接关闭

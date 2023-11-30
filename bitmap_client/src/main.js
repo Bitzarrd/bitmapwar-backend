@@ -27,11 +27,20 @@ app.use(store)
 //     SOCKET_RECONNECT_ERROR
 // }
 
-// app.use(VueNativeSock, 'ws://127.0.0.1:3000', {
-app.use(VueNativeSock, 'ws://34.225.3.60:3000', {
-    store: store,
-    // mutations: mutations
-})
+
 
 app.mount('#app')
 
+// app.use(VueNativeSock, 'ws://127.0.0.1:3000', {
+app.use(VueNativeSock, 'ws://34.225.3.60:3000', {
+// 启用Vuex集成
+    store: store,
+    // 数据发送/接收使用使用json
+    format: "json",
+    // 开启手动调用 connect() 连接服务器
+    connectManually: false,
+    // 关闭自动重连
+    reconnection: false    // mutations: mutations
+})
+
+export default app;

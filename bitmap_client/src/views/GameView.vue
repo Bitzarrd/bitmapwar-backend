@@ -6,7 +6,7 @@ export default {
   name: "GameView",
   components: {MapRender},
   computed: {
-    ...mapState(['socket']),
+    ...mapState(['socket', 'conn']),
   },
   data() {
     return {
@@ -23,7 +23,12 @@ export default {
       alert("asd")
     },
     onClickStartGame() {
-      this.$socket.sendObj(
+
+      this.conn.send('some data');
+      // 如果fomat配置为了json，即可调用sendObj方法来发送数据
+      this.conn.sendObj({awesome: 'data'});
+
+      this.conn.sendObj(
           {
             method: "GameStart"
           }
