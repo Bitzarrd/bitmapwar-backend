@@ -51,9 +51,11 @@ wss.on('connection', (ws) => {
                 console.log(x, y, color);
                 grid[x][y] = color;
                 let player = {
+                    i: 0,
                     x: x,
                     y: y,
                     color: color,
+                    circle: getCircleCoordinates(500)
                 };
                 players.push(player)
                 clients.forEach((client) => {
