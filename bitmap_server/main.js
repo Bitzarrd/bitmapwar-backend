@@ -27,6 +27,8 @@ function getRandomInt(min, max) {
     return Math.floor(Math.random() * (max - min + 1)) + min;
 }
 
+const circle = getCircleCoordinates(500)
+
 
 console.log(grid);
 
@@ -57,7 +59,7 @@ wss.on('connection', (ws) => {
                     x: x,
                     y: y,
                     color: color,
-                    circle: getCircleCoordinates(500)
+                    circle: circle
                 };
                 players.push(player)
                 clients.forEach((client) => {
