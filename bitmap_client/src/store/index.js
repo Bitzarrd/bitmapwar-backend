@@ -24,7 +24,9 @@ export const store = createStore({
             // 心跳定时器
             heartBeatTimer: 0
         },
+        ///////////
         game_started: false,
+        new_player: null
     },
     mutations: {
         // 连接打开
@@ -66,6 +68,9 @@ export const store = createStore({
                     break;
                 case "GameStopped":
                     state.game_started = false;
+                    break;
+                case "JoinedGame":
+                    state.new_player = message.player;
                     break;
 
             }

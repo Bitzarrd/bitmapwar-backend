@@ -115,12 +115,10 @@ export default {
         // ctx.scale(scaleMultiplier, scaleMultiplier);
       }
 
-
-      // innerDiv.addEventListener("mousedown", this.startDragging);
-      // innerDiv.addEventListener("mouseup", this.stopDragging);
-      // innerDiv.addEventListener("mousemove", this.drag);
-
-
+      const innerDiv = document.querySelector(".inner");
+      innerDiv.addEventListener("mousedown", this.startDragging);
+      innerDiv.addEventListener("mouseup", this.stopDragging);
+      innerDiv.addEventListener("mousemove", this.drag);
     }
   }
 }
