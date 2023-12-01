@@ -58,6 +58,12 @@
   font-weight: normal;
 }
 
+
+@font-face {
+  font-family: 'VT323-Regular';
+  src: url('./fonts/VT323-Regular.ttf')
+}
+
 body {
   min-height: 100vh;
   color: var(--color-text);
@@ -67,6 +73,7 @@ body {
     background-color 0.5s;
   line-height: 1.6;
   font-family:
+          /*VT323-Regular,*/
     Inter,
     -apple-system,
     BlinkMacSystemFont,
