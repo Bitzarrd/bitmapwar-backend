@@ -1,17 +1,35 @@
+import pako from "pako";
+
 export function generate2DArray(width, height) {
-    let array = [];
+    let array = new Array(height);
 
     for (let i = 0; i < height; i++) {
-        let row = [];
-
-        for (let j = 0; j < width; j++) {
-            row.push(0); // 这里可以设置初始值，这里使用0作为示例
-        }
-
-        array.push(row);
+        array[i] = new Uint8Array(width);
     }
 
     return array;
+}
+
+export function generate2DArrayFull(width, height) {
+    let array = new Array(height);
+
+    for (let i = 0; i < height; i++) {
+        array[i] = new Uint8Array(width);
+
+        for (let j = 0; j < width; j++) {
+            array[i][j] = Math.floor(Math.random() * 256); // 生成 0 到 255 之间的随机整数
+        }
+    }
+
+    return array;
+}
+
+export function uint8ArrayToBase64(uint8Array) {
+    let binaryString = '';
+    for (let i = 0; i < uint8Array.length; i++) {
+        binaryString += String.fromCharCode(uint8Array[i]);
+    }
+    return btoa(binaryString);
 }
 
 export function isCoordinateInArray(array, x, y) {
@@ -141,3 +159,23 @@ export function drawGrid(canvas, ctx, gridWidth, gridHeight, cellSize) {
         drawVerticalLine(canvas, ctx, j * cellSize);
     }
 }
+
+export function compress(grid) {
+    let str = "";
+    for (let i = 0; i < grid.length; i++) {
+        const raw = uint8ArrayToBase64(grid[i]);
+        str += raw + "\n";
+    }
+    console.log(str.length)
+}
+
+export function compress2(grid) {
+    let str = "";
+    for (let i = 0; i < grid.length; i++) {
+        const raw = uint8ArrayToBase64(pako.deflate(grid[i]));
+        str += raw + "\n";
+    }
+    console.log(str.length)
+    return str
+}
+

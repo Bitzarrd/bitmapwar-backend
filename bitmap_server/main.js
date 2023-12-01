@@ -1,13 +1,16 @@
-import {generate2DArray, runTurn, getCircleCoordinates} from 'bitmap_sdk';
+import {generate2DArray, runTurn, getCircleCoordinates, compress2} from 'bitmap_sdk';
 import WebSocket, {WebSocketServer} from 'ws';
 import winston from "winston";
+import dotenv from "dotenv";
+
+dotenv.config();
 
 const logger = winston.createLogger({
     transports: [new winston.transports.Console()],
 });
 
 // 创建WebSocket服务器实例
-const wss = new WebSocketServer({port: 3000});
+const wss = new WebSocketServer({port: process.env.PORT});
 
 // 用于存储连接的客户端
 const clients = new Set();
@@ -30,9 +33,6 @@ function getRandomInt(min, max) {
 }
 
 const circle = getCircleCoordinates(500)
-
-
-console.log(grid);
 
 //////////////////////////////////////////////////////
 
@@ -60,7 +60,6 @@ wss.on('connection', (ws) => {
             case "JoinGame":
                 let x = getRandomInt(0, gridWidth);
                 let y = getRandomInt(0, gridHeight);
-                let index = players.length;
                 let color = colors[index % colors.length];
                 console.log(x, y, color);
                 grid[x][y] = color;
@@ -75,8 +74,8 @@ wss.on('connection', (ws) => {
                     if (client.readyState === WebSocket.OPEN) {
                         client.send(JSON.stringify({
                             method: "JoinedGame",
-                            player: player,
-                            index: index
+                            players: players,
+                            grid: compress2(grid)
                         }));
                     }
                 });
@@ -98,16 +97,17 @@ wss.on('connection', (ws) => {
 
                 interval = setInterval(() => {
                     let payload = [];
-                    players.forEach(player => {
+                    for (let i = 0; i < players.length; i++) {
+                        let player = players[i];
                         let {x, y} = runTurn(player, grid, circle);
-                        grid[x][y] = player.color;
+                        grid[x][y] = i;
                         //drawCell(ctx, cellSize, x, y, player.color);
                         payload.push({
                             x: x,
                             y: y,
                             color: player.color
                         })
-                    });
+                    }
 
 
                     clients.forEach((client) => {
@@ -142,4 +142,4 @@ wss.on('connection', (ws) => {
     });
 });
 
-logger.info('WebSocket chat server is running on port 3000');
+logger.info('WebSocket chat server is running on port ' + process.env.PORT);
