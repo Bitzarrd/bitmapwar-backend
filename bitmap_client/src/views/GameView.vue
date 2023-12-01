@@ -10,7 +10,51 @@ export default {
   },
   data() {
     return {
-      scaleValue: 1
+      scaleValue: 1,
+      dialogVisible: false,
+      value: "Option1",
+      landList: [
+        {
+          team:"red",
+          land:1000,
+          virus:100,
+          loss:1000
+        },
+        {
+          team:"yellow",
+          land:1000,
+          virus:100,
+          loss:1000
+        },
+        {
+          team:"green",
+          land:1000,
+          virus:100,
+          loss:1000
+        }
+      ],
+      options: [
+        {
+          value: 'Option1',
+          label: 'Option1',
+        },
+        {
+          value: 'Option2',
+          label: 'Option2',
+        },
+        {
+          value: 'Option3',
+          label: 'Option3',
+        },
+        {
+          value: 'Option4',
+          label: 'Option4',
+        },
+        {
+          value: 'Option5',
+          label: 'Option5',
+        },
+      ]
     }
   },
   mounted() {
@@ -54,6 +98,9 @@ export default {
     async onClickConnWallet() {
       await this.connectWallet();
     },
+    onClickSubmit() {
+      this.dialogVisible = true
+    },
     innerStyle() {
 
       let scale = this.scaleValue;
@@ -80,7 +127,18 @@ export default {
         <div class="left">
           <div class="mycard">
             <el-card class="box-card">
-              asdasdasdsdasd
+              <template #header>
+                <div class="card-header">
+                  <span>Land List</span>
+                </div>
+                <el-table :data="landList" style="width: 100%">
+                  <el-table-column prop="team" label="Team"/>
+                  <el-table-column prop="land" label="Land" />
+                  <el-table-column prop="virus" label="Virus"/>
+                  <el-table-column prop="loss" label="Loss"/>
+                </el-table>
+              </template>
+
             </el-card>
           </div>
 
@@ -89,21 +147,7 @@ export default {
               asdasdasdsdasd
             </el-card>
           </div>
-          <div class="mycard">
-            <el-card class="box-card">
-              asdasdasdsdasd
-            </el-card>
-          </div>
-          <div class="mycard">
-            <el-card class="box-card">
-              asdasdasdsdasd
-            </el-card>
-          </div>
-          <div class="mycard">
-            <el-card class="box-card">
-              asdasdasdsdasd
-            </el-card>
-          </div>
+
         </div>
         <div class="middle">
           <div id="resizeable" :style="innerStyle()">
@@ -118,6 +162,15 @@ export default {
                   <span>UserInfo</span>
                 </div>
               </template>
+              <el-select v-model="value" class="m-2" placeholder="Select">
+                <el-option
+                    v-for="item in options"
+                    :key="item.value"
+                    :label="item.label"
+                    :value="item.value"
+                />
+              </el-select>
+              <el-button @click="onClickSubmit">Submit</el-button>
             </el-card>
           </div>
 
@@ -145,6 +198,24 @@ export default {
       </div>
     </div>
   </div>
+
+  <el-dialog
+      v-model="dialogVisible"
+      title="Tips"
+      width="30%"
+      :before-close="handleClose"
+  >
+    <span>This is a message</span>
+    <template #footer>
+      <span class="dialog-footer">
+        <el-button @click="dialogVisible = false">Cancel</el-button>
+        <el-button type="primary" @click="dialogVisible = false">
+          Confirm
+        </el-button>
+      </span>
+    </template>
+  </el-dialog>
+
 </template>
 
 <style>
@@ -174,7 +245,7 @@ export default {
 
 .left {
   float: left;
-  width: 300px;
+  width: 400px;
 //background-color: #1d3043;
 }
 
