@@ -100,7 +100,7 @@ wss.on('connection', (ws) => {
                     for (let i = 0; i < players.length; i++) {
                         let player = players[i];
                         let {x, y} = runTurn(player, grid, circle);
-                        grid[x][y] = i;
+                        grid[x][y] = i + 1;
                         //drawCell(ctx, cellSize, x, y, player.color);
                         payload.push({
                             x: x,
