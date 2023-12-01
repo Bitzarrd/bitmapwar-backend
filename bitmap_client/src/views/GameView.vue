@@ -1,10 +1,11 @@
 <script>
 import MapRender from "@/components/MapRender.vue";
 import {mapActions, mapMutations, mapState} from "vuex";
+import {CirclePlus} from "@element-plus/icons-vue";
 
 export default {
   name: "GameView",
-  components: {MapRender},
+  components: {CirclePlus, MapRender},
   computed: {
     ...mapState(['socket', 'conn', 'wallet_address']),
   },
@@ -204,47 +205,75 @@ export default {
                 </div>
               </template>
               <div>ID: bc1q0......luwvg</div>
-              <div>Profit:10BNB</div>
-              <div>Bitmaps:700</div>
-              <div>Virus:100
+
+              <div>
+                Profit:10BNB
                 <el-button>
-                  <el-icon color="#409EFC" class="no-inherit">
-                    <Share />
+                  <el-icon color="white" class="no-inherit">
+                    <Coin/>
                   </el-icon>
-              </el-button>
+                </el-button>
               </div>
-              <el-select v-model="value" class="m-2" placeholder="Select">
-                <el-option
-                    v-for="item in options"
-                    :key="item.value"
-                    :label="item.label"
-                    :value="item.value"
-                />
-              </el-select>
+
+              <div>
+                Bitmaps:700
+                <el-button>
+                  <el-icon color="white" class="no-inherit">
+                    <View/>
+                  </el-icon>
+                </el-button>
+              </div>
+
+              <div>
+                Virus:100
+                <el-button>
+                  <el-icon color="white" class="no-inherit">
+                    <CirclePlus/>
+                  </el-icon>
+                </el-button>
+              </div>
+            </el-card>
+          </div>
+
+
+          <div class="mycard">
+            <el-card class="box-card">
+              <template #header>
+                <div class="card-header">
+                  <span>Action</span>
+                </div>
+              </template>
+
+              <div>
+                Choose a function
+                <el-select v-model="value" class="m-2" placeholder="Select">
+                  <el-option
+                      v-for="item in options"
+                      :key="item.value"
+                      :label="item.label"
+                      :value="item.value"
+                  />
+                </el-select>
+              </div>
+
+              <div>
+                Bitmap: #123456
+              </div>
+
+              <div>
+                Ownwer: fhswf....asdad
+              </div>
+
+
+              <div>
+                Intrusion Virus
+                <el-input-number></el-input-number>
+              </div>
+
               <el-button @click="onClickSubmit">Submit</el-button>
             </el-card>
           </div>
 
-          <div class="mycard">
-            <el-card class="box-card">
-              asdasdasdsdasd
-            </el-card>
-          </div>
-          <div class="mycard">
-            <el-card class="box-card">
-              asdasdasdsdasd
-            </el-card>
-          </div>
-          <div class="mycard">
-            <el-card class="box-card">
-              asdasdasdsdasd
-            </el-card>
-          </div>
-          <div class="mycard">
-            <el-card class="box-card">
-              asdasdasdsdasd
-            </el-card>
-          </div>
         </div>
       </div>
     </div>
