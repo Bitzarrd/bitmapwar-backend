@@ -32,6 +32,18 @@ export function uint8ArrayToBase64(uint8Array) {
     return btoa(binaryString);
 }
 
+export function base64ToUint8Array(base64) {
+    const binaryString =  window.atob(base64);
+    const length = binaryString.length;
+    const uint8Array = new Uint8Array(length);
+
+    for (let i = 0; i < length; i++) {
+        uint8Array[i] = binaryString.charCodeAt(i);
+    }
+
+    return uint8Array;
+}
+
 export function isCoordinateInArray(array, x, y) {
     if (x < 0 || y < 0 || x >= array.length || y >= array[0].length) {
         return false;
@@ -167,6 +179,7 @@ export function compress(grid) {
         str += raw + "\n";
     }
     console.log(str.length)
+    return str;
 }
 
 export function compress2(grid) {
@@ -175,7 +188,20 @@ export function compress2(grid) {
         const raw = uint8ArrayToBase64(pako.deflate(grid[i]));
         str += raw + "\n";
     }
-    console.log(str.length)
+    // console.log(str.length)
     return str
 }
 
+export function decompress2(str) {
+    const lines = str.trim().split("\n");
+    const grid = [];
+
+    for (let i = 0; i < lines.length; i++) {
+        const raw = lines[i];
+        const compressed = base64ToUint8Array(raw);
+        const decompressed = pako.inflate(compressed);
+        grid.push(decompressed);
+    }
+
+    return grid;
+}
