@@ -117,8 +117,19 @@ export function renderGrid(ctx, gridWidth, gridHeight, cellSize, grid, players) 
     for (let i = 0; i < gridWidth; i++) {
         for (let j = 0; j < gridHeight; j++) {
             if (grid[i][j] !== 0) {
-                let player_index = grid[i][j];
-                drawCell(ctx, cellSize, i, j, players[player_index - 1].color);
+                let player_index;
+
+                if (grid[i] && grid[i][j]) {
+                    player_index = grid[i][j];
+                    if (players[player_index - 1]) {
+                        let color = players[player_index - 1].color;
+                        drawCell(ctx, cellSize, i, j, color);
+                    } else {
+                        console.warn("player at " + player_index - 1 + " not exist")
+                    }
+                } else {
+                    console.warn("grid cell not exist")
+                }
             }
         }
     }

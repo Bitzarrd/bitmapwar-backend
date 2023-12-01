@@ -52,29 +52,6 @@ export default {
       scaleValue: 1, // 初始缩放比例为0.5
       left: 0,
       top: 0,
-
-      // players: [
-      //   {
-      //     i: 0,
-      //     x: 5,
-      //     y: 5,
-      //     color: 'blue',
-      //     circle: getCircleCoordinates(500)
-      //   },
-      //   {
-      //     i: 0,
-      //     x: 50,
-      //     y: 50,
-      //     color: 'red',
-      //     circle: getCircleCoordinates(500)
-      //   }, {
-      //     i: 0,
-      //     x: 80,
-      //     y: 80,
-      //     color: 'yellow',
-      //     circle: getCircleCoordinates(500)
-      //   }
-      // ]
     }
   },
 
@@ -169,8 +146,8 @@ export default {
 
 
 .outer {
-  width: 100vw;
-  height: 100vh;
+  width: 100%;
+  height: 100%;
   overflow: hidden;
   position: relative;
 }
