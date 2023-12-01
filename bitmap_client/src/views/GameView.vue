@@ -15,23 +15,57 @@ export default {
       value: "Option1",
       landList: [
         {
-          team:"red",
-          land:1000,
-          virus:100,
-          loss:1000
+          team: "red",
+          land: 1000,
+          virus: 100,
+          loss: 1000
         },
         {
-          team:"yellow",
-          land:1000,
-          virus:100,
-          loss:1000
+          team: "yellow",
+          land: 1000,
+          virus: 100,
+          loss: 1000
         },
         {
-          team:"green",
-          land:1000,
-          virus:100,
-          loss:1000
+          team: "green",
+          land: 1000,
+          virus: 100,
+          loss: 1000
         }
+      ],
+      lastRanking: [
+        {
+          id: "bc1q0......luwvg",
+          lands: 1000
+        },
+        {
+          id: "bc1q0......luwvg",
+          lands: 1000
+        },
+        {
+          id: "bc1q0......luwvg",
+          lands: 1000
+        },
+        {
+          id: "bc1q0......luwvg",
+          lands: 1000
+        },
+        {
+          id: "bc1q0......luwvg",
+          lands: 1000
+        },
+        {
+          id: "bc1q0......luwvg",
+          lands: 1000
+        }, {
+          id: "bc1q0......luwvg",
+          lands: 1000
+        }, {
+          id: "bc1q0......luwvg",
+          lands: 1000
+        },
+
+
       ],
       options: [
         {
@@ -133,18 +167,25 @@ export default {
                 </div>
                 <el-table :data="landList" style="width: 100%">
                   <el-table-column prop="team" label="Team"/>
-                  <el-table-column prop="land" label="Land" />
+                  <el-table-column prop="land" label="Land"/>
                   <el-table-column prop="virus" label="Virus"/>
                   <el-table-column prop="loss" label="Loss"/>
                 </el-table>
               </template>
-
             </el-card>
           </div>
 
           <div class="mycard">
             <el-card class="box-card">
-              asdasdasdsdasd
+              <template #header>
+                <div class="card-header">
+                  <span>Last Ranking</span>
+                </div>
+                <el-table :data="lastRanking" style="width: 100%">
+                  <el-table-column prop="id" label="ID"/>
+                  <el-table-column prop="lands" label="Lands"/>
+                </el-table>
+              </template>
             </el-card>
           </div>
 
@@ -162,6 +203,16 @@ export default {
                   <span>UserInfo</span>
                 </div>
               </template>
+              <div>ID: bc1q0......luwvg</div>
+              <div>Profit:10BNB</div>
+              <div>Bitmaps:700</div>
+              <div>Virus:100
+                <el-button>
+                  <el-icon color="#409EFC" class="no-inherit">
+                    <Share />
+                  </el-icon>
+              </el-button>
+              </div>
               <el-select v-model="value" class="m-2" placeholder="Select">
                 <el-option
                     v-for="item in options"
