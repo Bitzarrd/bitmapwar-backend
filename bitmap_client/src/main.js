@@ -9,13 +9,11 @@ import 'element-plus/dist/index.css'
 import 'element-plus/theme-chalk/dark/css-vars.css'
 import VueNativeSock from "vue-native-websocket-vue3";
 
-
 const app = createApp(App)
 
 app.use(ElementPlus)
 app.use(router)
 app.use(store)
-
 
 // const mutations = {
 //     SOCKET_ONOPEN,
