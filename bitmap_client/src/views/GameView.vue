@@ -247,7 +247,7 @@ export default {
         </div>
         <div class="middle">
           <div class="round">
-            <div style="float: left;padding: 2px">
+            <div style="float: left;padding-top: 12px;color: #E5EAF3">
               Rounds:1000
               NextRounds:03:00
             </div>
@@ -520,6 +520,7 @@ export default {
 }
 
 .round {
+  height: 50px;
   margin-bottom: 10px;
   z-index: 9999;
   background-color: black;
