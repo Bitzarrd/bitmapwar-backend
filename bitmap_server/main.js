@@ -46,7 +46,8 @@ wss.on('connection', (ws) => {
     ws.send(JSON.stringify(
         {
             method: "Reload",
-            history: history,
+            grid: compress2(grid),
+            players: players
             // started: started,
         }
     ));
@@ -60,7 +61,7 @@ wss.on('connection', (ws) => {
             case "JoinGame":
                 let x = getRandomInt(0, gridWidth);
                 let y = getRandomInt(0, gridHeight);
-                let color = colors[index % colors.length];
+                let color = colors[players.length % colors.length];
                 console.log(x, y, color);
                 grid[x][y] = color;
                 let player = {
@@ -74,8 +75,7 @@ wss.on('connection', (ws) => {
                     if (client.readyState === WebSocket.OPEN) {
                         client.send(JSON.stringify({
                             method: "JoinedGame",
-                            players: players,
-                            grid: compress2(grid)
+                            player: player,
                         }));
                     }
                 });

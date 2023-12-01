@@ -48,8 +48,8 @@ const mutations = {
     SOCKET_RECONNECT_ERROR
 }
 
-// app.use(VueNativeSock, 'ws://127.0.0.1:3000', {
-app.use(VueNativeSock, 'ws://34.225.3.60:3000', {
+app.use(VueNativeSock, 'ws://127.0.0.1:3000', {
+// app.use(VueNativeSock, 'ws://34.225.3.60:3000', {
     mutations: mutations,
     // 启用Vuex集成
     store: store,
