@@ -199,7 +199,8 @@ export default {
                 <div class="card-header">
                   <span>Land List</span>
                 </div>
-                <el-table :data="landList" style="width: 100%">
+              </template>
+              <el-table :data="landList" style="width: 100%">
                   <el-table-column prop="team" label="Team">
                     <template #default="scope">
                       <div class="team" :style="{ backgroundColor: scope.row.team }"></div>
@@ -209,7 +210,6 @@ export default {
                   <el-table-column prop="virus" label="Virus"/>
                   <el-table-column prop="loss" label="Loss"/>
                 </el-table>
-              </template>
             </el-card>
           </div>
 
@@ -219,11 +219,11 @@ export default {
                 <div class="card-header">
                   <span>Last Ranking</span>
                 </div>
-                <el-table :data="lastRanking" style="width: 100%">
+              </template>
+              <el-table :data="lastRanking" style="width: 100%">
                   <el-table-column prop="id" label="ID"/>
                   <el-table-column prop="lands" label="Lands"/>
                 </el-table>
-              </template>
             </el-card>
           </div>
 
@@ -255,66 +255,43 @@ export default {
             <el-card class="box-card">
               <template #header>
                 <div class="card-header">
-                  <span>User Info</span>
+                  <el-icon color="white" class="no-inherit">
+                    <Search/>
+                  </el-icon>
+                  <span> User Info</span>
                 </div>
               </template>
 
 
-              <table class="mytable" v-if="wallet_address">
-                <tr>
-                  <td width="80px">
-                    ID:
-                  </td>
-                  <td>
-                    bc1q0......luwvg
-                  </td>
-                </tr>
-
-                <tr>
-                  <td width="80px">
-                    Profit:
-                  </td>
-                  <td>
-                    10 BTC
-                    <el-button @click="onClickProfits">
-                      <el-icon color="white" class="no-inherit">
-                        <Coin/>
-                      </el-icon>
-                    </el-button>
-                  </td>
-                </tr>
-
-                <tr>
-                  <td width="80px">
-                    Bitmaps:
-                  </td>
-                  <td>
-                    700
-                    <el-button @click="onClickBitmapList">
-                      <el-icon color="white" class="no-inherit">
-                        <View/>
-                      </el-icon>
-                    </el-button>
-                  </td>
-                </tr>
-
-                <tr>
-                  <td width="80px">
-                    Virus:
-                  </td>
-                  <td>
-                    100
-                    <el-button @click="onClickPurchase">
-                      <el-icon color="white" class="no-inherit">
-                        <CirclePlus/>
-                      </el-icon>
-                    </el-button>
-                  </td>
-                </tr>
-
-              </table>
-
-
+              <el-form label-width="70px" v-if="wallet_address">
+                <el-form-item label="ID:">
+                  <el-input value="bc1q0......luwvg" disabled/>
+                </el-form-item>
+                <el-form-item label="Profit:">
+                  <el-input value="10 BTC" disabled style="float: left;display: inline;width: 100px;margin-right: 10px" />
+                  <el-button @click="onClickProfits" style="float: right;display: inline">
+                    <el-icon color="white" class="no-inherit">
+                      <Coin/>
+                    </el-icon>
+                  </el-button>
+                </el-form-item>
+                <el-form-item label="Bitmaps:">
+                  <el-input value="740" disabled style="float: left;display: inline;width: 100px;margin-right: 10px" />
+                  <el-button @click="onClickBitmapList" style="float: right;display: inline">
+                    <el-icon color="white" class="no-inherit">
+                      <View/>
+                    </el-icon>
+                  </el-button>
+                </el-form-item>
+                <el-form-item label="Virus:">
+                  <el-input value="100" disabled style="float: left;display: inline;width: 100px;margin-right: 10px" />
+                  <el-button @click="onClickPurchase" style="float: right;display: inline">
+                    <el-icon color="white" class="no-inherit">
+                      <CirclePlus/>
+                    </el-icon>
+                  </el-button>
+                </el-form-item>
+              </el-form>
             </el-card>
           </div>
 
