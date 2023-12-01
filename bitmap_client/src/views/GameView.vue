@@ -71,22 +71,39 @@ export default {
 
 
       ],
-      options: [
+      selected_map:"1231241231",
+      maps: [
         {
-          value: 'red',
-          label: 'Red',
+          value: '#1231241231',
+          label: '#1231241231',
         },
         {
-          value: 'blue',
-          label: 'Blue',
+          value: '#5747453345',
+          label: '#5747453345',
         },
         {
-          value: 'yellow',
-          label: 'Yellow',
+          value: '#9432341241',
+          label: '#9432341241',
         },
-      ]
+      ],
+      options:
+          [
+            {
+              value: 'red',
+              label: 'Red',
+            },
+            {
+              value: 'blue',
+              label: 'Blue',
+            },
+            {
+              value: 'yellow',
+              label: 'Yellow',
+            },
+          ]
     }
-  },
+  }
+  ,
   mounted() {
     // 添加鼠标滚轮事件监听器
     let resizeable = document.getElementById('gridCanvas');
@@ -112,40 +129,52 @@ export default {
       }
     });
 
-  },
+  }
+  ,
   methods: {
-    ...mapActions(['connectWallet']),
-    ...mapMutations([]),
+    ...
+        mapActions(['connectWallet']),
+    ...
+        mapMutations([]),
     onClickStartGame() {
       this.conn.sendObj({method: "StartGame"});
-    },
+    }
+    ,
     onClickStopGame() {
       this.conn.sendObj({method: "StopGame"});
-    },
+    }
+    ,
     onClickJoinGame() {
       this.conn.sendObj({method: "JoinGame"});
-    },
+    }
+    ,
     async onClickConnWallet() {
       await this.connectWallet();
-    },
+    }
+    ,
     onClickSubmit() {
       this.dialogVisible = true
-    },
+    }
+    ,
     onClickPurchase() {
       this.purchaseDialogVisible = true;
-    },
+    }
+    ,
     onClickProfits() {
       this.profitDialogVisible = true;
-    },
+    }
+    ,
     onClickBitmapList() {
       this.bitmapListDialogVisible = true;
-    },
+    }
+    ,
     innerStyle() {
 
       let scale = this.scaleValue;
       let result = `scale: ${scale};`;
       return result;
-    },
+    }
+    ,
   }
 }
 </script>
@@ -201,8 +230,10 @@ export default {
         </div>
         <div class="middle">
           <div class="round">
-            Rounds:1000
-            NextRounds:03:00
+            <div style="float: left;padding: 2px">
+              Rounds:1000
+              NextRounds:03:00
+            </div>
             <div style="float: right">
               <el-input size="small" placeholder="Search Bitmap">
                 <template #prepend>
@@ -299,7 +330,7 @@ export default {
               <div class="mytable" v-if="wallet_address">
                 <table>
                   <tr>
-                    <td width="100px"> Choose a function</td>
+                    <td width="100px">Function</td>
                     <td>
                       <el-select v-model="value" class="m-2" placeholder="Select">
                         <el-option
@@ -333,7 +364,7 @@ export default {
                   </tr>
                   <tr>
                     <td width="100px">
-                      Intrusion Virus:
+                      Virus:
                     </td>
                     <td>
                       <el-input-number></el-input-number>
@@ -359,7 +390,7 @@ export default {
       width="30%"
       :before-close="handleClose"
   >
-    <span>This is a message</span>
+    <span>After selecting a faction, this match cannot be modified. Are you sure?</span>
     <template #footer>
       <span class="dialog-footer">
         <el-button @click="dialogVisible = false">Cancel</el-button>
@@ -375,6 +406,19 @@ export default {
       title="Extract Profit"
       width="30%"
   >
+    <div class="">
+      <el-form label-width="100px">
+        <el-form-item label="Profit">
+          <el-input value="10 BTC" disabled/>
+        </el-form-item>
+        <el-form-item label="EnterAmount">
+          <el-input value="0" placeholder="please enter"/>
+        </el-form-item>
+        <el-form-item label="Fee">
+          <el-input value="0.004 BTC" disabled/>
+        </el-form-item>
+      </el-form>
+    </div>
     <template #footer>
       <span class="dialog-footer">
         <el-button @click="profitDialogVisible = false">Cancel</el-button>
@@ -390,6 +434,19 @@ export default {
       title="Bitmap List"
       width="30%"
   >
+    <el-form label-width="100px">
+      <el-form-item label="Maps">
+        <el-select v-model="selected_map" filterable placeholder="Select">
+          <el-option
+              v-for="item in maps"
+              :key="item.value"
+              :label="item.label"
+              :value="item.value"
+          />
+        </el-select>
+      </el-form-item>
+    </el-form>
+
     <template #footer>
       <span class="dialog-footer">
         <el-button @click="bitmapListDialogVisible = false">Cancel</el-button>
@@ -405,6 +462,12 @@ export default {
       title="Purchase"
       width="30%"
   >
+    <div class="dialog_center">
+      <div>
+        <el-input-number placeholder="Virus"></el-input-number>
+      </div>
+      <div style="margin:20px;font-size: 20px">1BTC = 0.004</div>
+    </div>
     <template #footer>
       <span class="dialog-footer">
         <el-button @click="purchaseDialogVisible = false">Cancel</el-button>
@@ -414,7 +477,6 @@ export default {
       </span>
     </template>
   </el-dialog>
-
 
 
 </template>
@@ -482,5 +544,11 @@ export default {
   margin-bottom: 10px;
   z-index: 9999;
   background-color: black;
+}
+
+.dialog_center {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 }
 </style>
