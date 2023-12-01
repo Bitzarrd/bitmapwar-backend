@@ -167,7 +167,11 @@ export default {
                   <span>Land List</span>
                 </div>
                 <el-table :data="landList" style="width: 100%">
-                  <el-table-column prop="team" label="Team"/>
+                  <el-table-column prop="team" label="Team">
+                    <template #default="scope">
+                      <div class="team" :style="{ backgroundColor: scope.row.team }"></div>
+                    </template>
+                  </el-table-column>
                   <el-table-column prop="land" label="Land"/>
                   <el-table-column prop="virus" label="Virus"/>
                   <el-table-column prop="loss" label="Loss"/>
@@ -196,11 +200,11 @@ export default {
             Rounds:1000
             NextRounds:03:00
             <div style="float: right">
-              <el-input size="small" placeholder="Search Bitmap" >
+              <el-input size="small" placeholder="Search Bitmap">
                 <template #prepend>
                   <el-button>
                     <el-icon color="white" class="no-inherit">
-                    <Search/>
+                      <Search/>
                     </el-icon>
                   </el-button>
                 </template>
@@ -387,8 +391,14 @@ export default {
   margin: 10px;
 }
 
-.mytable{
+.mytable {
   border-collapse: separate;
   border-spacing: 10px; /* 设置行间距的像素值 */
+}
+
+.team {
+  background-color: red;
+  width: 14px;
+  height: 14px
 }
 </style>
