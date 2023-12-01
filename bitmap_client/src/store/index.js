@@ -9,6 +9,7 @@ import {
     SOCKET_RECONNECT_ERROR
 } from "./mutation-types"
 import {decompress2} from "bitmap_sdk";
+import axios from "axios";
 
 export const store = createStore({
     state: {
@@ -33,10 +34,14 @@ export const store = createStore({
         players: [],
         grid: [],
         wallet_address: null,
+        map_list:[],
     },
     mutations: {
         setWalletAddress(state, address) {
             state.wallet_address = address;
+        },
+        setMapList(state,list){
+            state.map_list = list
         },
         // 连接打开
         [SOCKET_ONOPEN](state, event) {
@@ -111,6 +116,12 @@ export const store = createStore({
                 context.commit('setWalletAddress', account[0])
 
             }
+        },
+        async getBitMapList(context) {
+            let url = "https://develop.oasis.world/service/open/bitmap/list?address=bc1qnjfw8qkzfysg7cvdqkll8mp89pjfxk9flqxh0z";
+            let result = await axios.get(url);
+            console.log(result.data.data.list);
+            context.commit('setMapList', result.data.data.list)
         }
     },
     modules: {}

@@ -7,7 +7,24 @@ export default {
   name: "GameView",
   components: {Edit, Histogram, Rank, CirclePlus, MapRender},
   computed: {
-    ...mapState(['socket', 'conn', 'wallet_address']),
+    ...mapState(['socket', 'conn', 'wallet_address', 'map_list']),
+    bitmap_list() {
+      let origin = this.map_list;
+      let result = [];
+      for (let i = 0; i < origin.length; i++) {
+        // console.log(origin)
+        if (i === 0) {
+          this.selected_map = "#" + origin[i].info.bit_number;
+        }
+        result.push(
+            {
+              value: "#" + origin[i].info.bit_number,
+              label: "#" + origin[i].info.bit_number,
+            }
+        )
+      }
+      return result;
+    }
   },
   data() {
     return {
@@ -78,20 +95,6 @@ export default {
 
       ],
       selected_map: "1231241231",
-      maps: [
-        {
-          value: '#1231241231',
-          label: '#1231241231',
-        },
-        {
-          value: '#5747453345',
-          label: '#5747453345',
-        },
-        {
-          value: '#9432341241',
-          label: '#9432341241',
-        },
-      ],
       options:
           [
             {
@@ -143,7 +146,7 @@ export default {
   ,
   methods: {
     ...
-        mapActions(['connectWallet']),
+        mapActions(['connectWallet', 'getBitMapList']),
     ...
         mapMutations([]),
     onClickStartGame() {
@@ -160,6 +163,7 @@ export default {
     ,
     async onClickConnWallet() {
       await this.connectWallet();
+      await this.getBitMapList()
     }
     ,
     onClickSubmit() {
@@ -237,7 +241,7 @@ export default {
                 </div>
               </template>
               <el-table :data="lastRanking" style="width: 100%">
-                <el-table-column type="index" width="50" />
+                <el-table-column type="index" width="50"/>
                 <el-table-column prop="id" label="ID"/>
                 <el-table-column prop="lands" label="Lands"/>
               </el-table>
@@ -294,7 +298,7 @@ export default {
                   </el-button>
                 </el-form-item>
                 <el-form-item label="Bitmaps:">
-                  <el-input value="740" disabled style="float: left;display: inline;width: 100px;margin-right: 10px"/>
+                  <el-input :value="selected_map" disabled style="float: left;display: inline;width: 100px;margin-right: 10px"/>
                   <el-button @click="onClickBitmapList" style="float: right;display: inline">
                     <el-icon color="white" class="no-inherit">
                       <View/>
@@ -351,7 +355,7 @@ export default {
               </el-form>
               <template #footer>
                 <div style="display: flex; justify-content: right;" v-if="wallet_address">
-                <el-button @click="onClickSubmit">Submit</el-button>
+                  <el-button @click="onClickSubmit">Submit</el-button>
                 </div>
               </template>
 
@@ -417,7 +421,7 @@ export default {
       <el-form-item label="Maps">
         <el-select v-model="selected_map" filterable placeholder="Select">
           <el-option
-              v-for="item in maps"
+              v-for="item in bitmap_list"
               :key="item.value"
               :label="item.label"
               :value="item.value"
