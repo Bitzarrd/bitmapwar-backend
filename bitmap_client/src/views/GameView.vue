@@ -192,6 +192,21 @@ export default {
 
         </div>
         <div class="middle">
+          <div style=";margin: 10px;z-index: 1">
+            Rounds:1000
+            NextRounds:03:00
+            <div style="float: right">
+              <el-input size="small" placeholder="Search Bitmap" >
+                <template #prepend>
+                  <el-button>
+                    <el-icon color="white" class="no-inherit">
+                    <Search/>
+                    </el-icon>
+                  </el-button>
+                </template>
+              </el-input>
+            </div>
+          </div>
           <div id="resizeable" :style="innerStyle()">
             <MapRender></MapRender>
           </div>
@@ -204,34 +219,62 @@ export default {
                   <span>UserInfo</span>
                 </div>
               </template>
-              <div>ID: bc1q0......luwvg</div>
 
-              <div>
-                Profit:10BNB
-                <el-button>
-                  <el-icon color="white" class="no-inherit">
-                    <Coin/>
-                  </el-icon>
-                </el-button>
-              </div>
+              <table class="mytable">
+                <tr>
+                  <td width="80px">
+                    ID:
+                  </td>
+                  <td>
+                    bc1q0......luwvg
+                  </td>
+                </tr>
 
-              <div>
-                Bitmaps:700
-                <el-button>
-                  <el-icon color="white" class="no-inherit">
-                    <View/>
-                  </el-icon>
-                </el-button>
-              </div>
+                <tr>
+                  <td width="80px">
+                    Profit:
+                  </td>
+                  <td>
+                    10BNB
+                    <el-button>
+                      <el-icon color="white" class="no-inherit">
+                        <Coin/>
+                      </el-icon>
+                    </el-button>
+                  </td>
+                </tr>
 
-              <div>
-                Virus:100
-                <el-button>
-                  <el-icon color="white" class="no-inherit">
-                    <CirclePlus/>
-                  </el-icon>
-                </el-button>
-              </div>
+                <tr>
+                  <td width="80px">
+                    Bitmaps:
+                  </td>
+                  <td>
+                    700
+                    <el-button>
+                      <el-icon color="white" class="no-inherit">
+                        <View/>
+                      </el-icon>
+                    </el-button>
+                  </td>
+                </tr>
+
+                <tr>
+                  <td width="80px">
+                    Virus:
+                  </td>
+                  <td>
+                    100
+                    <el-button>
+                      <el-icon color="white" class="no-inherit">
+                        <CirclePlus/>
+                      </el-icon>
+                    </el-button>
+                  </td>
+                </tr>
+
+              </table>
+
+
             </el-card>
           </div>
 
@@ -342,5 +385,10 @@ export default {
 
 .mycard {
   margin: 10px;
+}
+
+.mytable{
+  border-collapse: separate;
+  border-spacing: 10px; /* 设置行间距的像素值 */
 }
 </style>
