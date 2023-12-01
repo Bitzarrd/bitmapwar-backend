@@ -1,11 +1,11 @@
 <script>
 import MapRender from "@/components/MapRender.vue";
 import {mapActions, mapMutations, mapState} from "vuex";
-import {CirclePlus} from "@element-plus/icons-vue";
+import {CirclePlus, Edit, Histogram, Rank} from "@element-plus/icons-vue";
 
 export default {
   name: "GameView",
-  components: {CirclePlus, MapRender},
+  components: {Edit, Histogram, Rank, CirclePlus, MapRender},
   computed: {
     ...mapState(['socket', 'conn', 'wallet_address']),
   },
@@ -32,6 +32,12 @@ export default {
         },
         {
           team: "green",
+          land: 1000,
+          virus: 100,
+          loss: 1000
+        },
+        {
+          team: "purple",
           land: 1000,
           virus: 100,
           loss: 1000
@@ -71,7 +77,7 @@ export default {
 
 
       ],
-      selected_map:"1231241231",
+      selected_map: "1231241231",
       maps: [
         {
           value: '#1231241231',
@@ -97,8 +103,12 @@ export default {
               label: 'Blue',
             },
             {
-              value: 'yellow',
-              label: 'Yellow',
+              value: 'green',
+              label: 'Green',
+            },
+            {
+              value: 'purple',
+              label: 'Purple',
             },
           ]
     }
@@ -197,19 +207,22 @@ export default {
             <el-card class="box-card">
               <template #header>
                 <div class="card-header">
-                  <span>Land List</span>
+                  <el-icon color="white" class="no-inherit">
+                    <Histogram/>
+                  </el-icon>
+                  <span> Land List</span>
                 </div>
               </template>
               <el-table :data="landList" style="width: 100%">
-                  <el-table-column prop="team" label="Team">
-                    <template #default="scope">
-                      <div class="team" :style="{ backgroundColor: scope.row.team }"></div>
-                    </template>
-                  </el-table-column>
-                  <el-table-column prop="land" label="Land"/>
-                  <el-table-column prop="virus" label="Virus"/>
-                  <el-table-column prop="loss" label="Loss"/>
-                </el-table>
+                <el-table-column prop="team" label="Team">
+                  <template #default="scope">
+                    <div class="team" :style="{ backgroundColor: scope.row.team }"></div>
+                  </template>
+                </el-table-column>
+                <el-table-column prop="land" label="Land"/>
+                <el-table-column prop="virus" label="Virus"/>
+                <el-table-column prop="loss" label="Loss"/>
+              </el-table>
             </el-card>
           </div>
 
@@ -217,13 +230,17 @@ export default {
             <el-card class="box-card">
               <template #header>
                 <div class="card-header">
-                  <span>Last Ranking</span>
+                  <el-icon color="white" class="no-inherit">
+                    <Rank/>
+                  </el-icon>
+                  <span> Last Ranking</span>
                 </div>
               </template>
               <el-table :data="lastRanking" style="width: 100%">
-                  <el-table-column prop="id" label="ID"/>
-                  <el-table-column prop="lands" label="Lands"/>
-                </el-table>
+                <el-table-column type="index" width="50" />
+                <el-table-column prop="id" label="ID"/>
+                <el-table-column prop="lands" label="Lands"/>
+              </el-table>
             </el-card>
           </div>
 
@@ -234,7 +251,7 @@ export default {
               Rounds:1000
               NextRounds:03:00
             </div>
-            <div style="float: right">
+            <div style="float: right;margin-top: 10px">
               <el-input size="small" placeholder="Search Bitmap">
                 <template #prepend>
                   <el-button>
@@ -256,7 +273,7 @@ export default {
               <template #header>
                 <div class="card-header">
                   <el-icon color="white" class="no-inherit">
-                    <Search/>
+                    <User/>
                   </el-icon>
                   <span> User Info</span>
                 </div>
@@ -268,7 +285,8 @@ export default {
                   <el-input value="bc1q0......luwvg" disabled/>
                 </el-form-item>
                 <el-form-item label="Profit:">
-                  <el-input value="10 BTC" disabled style="float: left;display: inline;width: 100px;margin-right: 10px" />
+                  <el-input value="10 BTC" disabled
+                            style="float: left;display: inline;width: 100px;margin-right: 10px"/>
                   <el-button @click="onClickProfits" style="float: right;display: inline">
                     <el-icon color="white" class="no-inherit">
                       <Coin/>
@@ -276,7 +294,7 @@ export default {
                   </el-button>
                 </el-form-item>
                 <el-form-item label="Bitmaps:">
-                  <el-input value="740" disabled style="float: left;display: inline;width: 100px;margin-right: 10px" />
+                  <el-input value="740" disabled style="float: left;display: inline;width: 100px;margin-right: 10px"/>
                   <el-button @click="onClickBitmapList" style="float: right;display: inline">
                     <el-icon color="white" class="no-inherit">
                       <View/>
@@ -284,7 +302,7 @@ export default {
                   </el-button>
                 </el-form-item>
                 <el-form-item label="Virus:">
-                  <el-input value="100" disabled style="float: left;display: inline;width: 100px;margin-right: 10px" />
+                  <el-input value="100" disabled style="float: left;display: inline;width: 100px;margin-right: 10px"/>
                   <el-button @click="onClickPurchase" style="float: right;display: inline">
                     <el-icon color="white" class="no-inherit">
                       <CirclePlus/>
@@ -300,58 +318,42 @@ export default {
             <el-card class="box-card">
               <template #header>
                 <div class="card-header">
-                  <span>Action</span>
+                  <el-icon color="white" class="no-inherit">
+                    <Edit/>
+                  </el-icon>
+                  <span> Action</span>
                 </div>
               </template>
-
-              <div class="mytable" v-if="wallet_address">
-                <table>
-                  <tr>
-                    <td width="100px">Function</td>
-                    <td>
-                      <el-select v-model="value" class="m-2" placeholder="Select">
-                        <el-option
-                            v-for="item in options"
-                            :key="item.value"
-                            :label="item.label"
-                            :value="item.value"
-                        >
+              <el-form label-width="80px" v-if="wallet_address">
+                <el-form-item label="Function:">
+                  <el-select v-model="value" class="m-2" placeholder="Select">
+                    <el-option
+                        v-for="item in options"
+                        :key="item.value"
+                        :label="item.label"
+                        :value="item.value"
+                    >
                         <span :style="{ color: item.value }">
                           {{ item.label }}
                         </span>
-                        </el-option>
-                      </el-select>
-                    </td>
-                  </tr>
-                  <tr>
-                    <td width="100px">
-                      Bitmap:
-                    </td>
-                    <td>
-                      #1234155
-                    </td>
-                  </tr>
-                  <tr>
-                    <td width="100px">
-                      Ownwer:
-                    </td>
-                    <td>
-                      fhswf....asdad
-                    </td>
-                  </tr>
-                  <tr>
-                    <td width="100px">
-                      Virus:
-                    </td>
-                    <td>
-                      <el-input-number></el-input-number>
-                    </td>
-                  </tr>
-                </table>
+                    </el-option>
+                  </el-select>
+                </el-form-item>
+                <el-form-item label="Bitmap:">
+                  <el-input value="#12314212" disabled/>
+                </el-form-item>
+                <el-form-item label="Owner:">
+                  <el-input value="fhswf....asdad" disabled/>
+                </el-form-item>
+                <el-form-item label="Virus:">
+                  <el-input value="0"/>
+                </el-form-item>
+              </el-form>
+              <template #footer>
+                <div style="display: flex; justify-content: right;" v-if="wallet_address">
                 <el-button @click="onClickSubmit">Submit</el-button>
-
-              </div>
-
+                </div>
+              </template>
 
             </el-card>
           </div>
