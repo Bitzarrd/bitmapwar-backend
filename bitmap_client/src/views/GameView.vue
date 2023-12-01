@@ -13,7 +13,7 @@ export default {
     return {
       scaleValue: 1,
       dialogVisible: false,
-      value: "Option1",
+      value: "red",
       landList: [
         {
           team: "red",
@@ -70,24 +70,16 @@ export default {
       ],
       options: [
         {
-          value: 'Option1',
-          label: 'Option1',
+          value: 'red',
+          label: 'Red',
         },
         {
-          value: 'Option2',
-          label: 'Option2',
+          value: 'blue',
+          label: 'Blue',
         },
         {
-          value: 'Option3',
-          label: 'Option3',
-        },
-        {
-          value: 'Option4',
-          label: 'Option4',
-        },
-        {
-          value: 'Option5',
-          label: 'Option5',
+          value: 'yellow',
+          label: 'Yellow',
         },
       ]
     }
@@ -196,7 +188,7 @@ export default {
 
         </div>
         <div class="middle">
-          <div style=";margin: 10px;z-index: 1">
+          <div class="round">
             Rounds:1000
             NextRounds:03:00
             <div style="float: right">
@@ -220,11 +212,12 @@ export default {
             <el-card class="box-card">
               <template #header>
                 <div class="card-header">
-                  <span>UserInfo</span>
+                  <span>User Info</span>
                 </div>
               </template>
 
-              <table class="mytable">
+
+              <table class="mytable" v-if="wallet_address">
                 <tr>
                   <td width="80px">
                     ID:
@@ -291,33 +284,55 @@ export default {
                 </div>
               </template>
 
-              <div>
-                Choose a function
-                <el-select v-model="value" class="m-2" placeholder="Select">
-                  <el-option
-                      v-for="item in options"
-                      :key="item.value"
-                      :label="item.label"
-                      :value="item.value"
-                  />
-                </el-select>
+              <div class="mytable" v-if="wallet_address">
+                <table>
+                  <tr>
+                    <td width="100px"> Choose a function</td>
+                    <td>
+                      <el-select v-model="value" class="m-2" placeholder="Select">
+                        <el-option
+                            v-for="item in options"
+                            :key="item.value"
+                            :label="item.label"
+                            :value="item.value"
+                        >
+                        <span :style="{ color: item.value }">
+                          {{ item.label }}
+                        </span>
+                        </el-option>
+                      </el-select>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td width="100px">
+                      Bitmap:
+                    </td>
+                    <td>
+                      #1234155
+                    </td>
+                  </tr>
+                  <tr>
+                    <td width="100px">
+                      Ownwer:
+                    </td>
+                    <td>
+                      fhswf....asdad
+                    </td>
+                  </tr>
+                  <tr>
+                    <td width="100px">
+                      Intrusion Virus:
+                    </td>
+                    <td>
+                      <el-input-number></el-input-number>
+                    </td>
+                  </tr>
+                </table>
+                <el-button @click="onClickSubmit">Submit</el-button>
+
               </div>
 
-              <div>
-                Bitmap: #123456
-              </div>
 
-              <div>
-                Ownwer: fhswf....asdad
-              </div>
-
-
-              <div>
-                Intrusion Virus
-                <el-input-number></el-input-number>
-              </div>
-
-              <el-button @click="onClickSubmit">Submit</el-button>
             </el-card>
           </div>
 
@@ -377,6 +392,8 @@ export default {
 }
 
 .middle {
+  display: flex;
+  flex-direction:column;
   flex-grow: 1;
 //background-color: green; overflow: hidden; /* 设置溢出内容隐藏 */
 }
@@ -400,5 +417,11 @@ export default {
   background-color: red;
   width: 14px;
   height: 14px
+}
+
+.round {
+  margin-bottom: 10px;
+  z-index: 9999;
+  background-color: black;
 }
 </style>
