@@ -6,7 +6,7 @@ export default {
   name: "GameView",
   components: {MapRender},
   computed: {
-    ...mapState(['socket', 'conn']),
+    ...mapState(['socket', 'conn', 'wallet_address']),
   },
   data() {
     return {
@@ -40,7 +40,7 @@ export default {
 
   },
   methods: {
-    ...mapActions([]),
+    ...mapActions(['connectWallet']),
     ...mapMutations([]),
     onClickStartGame() {
       this.conn.sendObj({method: "StartGame"});
@@ -50,6 +50,9 @@ export default {
     },
     onClickJoinGame() {
       this.conn.sendObj({method: "JoinGame"});
+    },
+    async onClickConnWallet() {
+      await this.connectWallet();
     },
     innerStyle() {
 
@@ -68,10 +71,77 @@ export default {
       <el-button @click="onClickJoinGame">Join Game</el-button>
       <el-button @click="onClickStartGame">Start Game</el-button>
       <el-button @click="onClickStopGame">Stop Game</el-button>
+      <div style="float: right">
+        <el-button @click="onClickConnWallet">{{ wallet_address ? wallet_address : "Conn Wallet" }}</el-button>
+      </div>
     </div>
     <div class="bottom-div" id="bottom-div">
-      <div id="resizeable" :style="innerStyle()">
-        <MapRender></MapRender>
+      <div class="box">
+        <div class="left">
+          <div class="mycard">
+            <el-card class="box-card">
+              asdasdasdsdasd
+            </el-card>
+          </div>
+
+          <div class="mycard">
+            <el-card class="box-card">
+              asdasdasdsdasd
+            </el-card>
+          </div>
+          <div class="mycard">
+            <el-card class="box-card">
+              asdasdasdsdasd
+            </el-card>
+          </div>
+          <div class="mycard">
+            <el-card class="box-card">
+              asdasdasdsdasd
+            </el-card>
+          </div>
+          <div class="mycard">
+            <el-card class="box-card">
+              asdasdasdsdasd
+            </el-card>
+          </div>
+        </div>
+        <div class="middle">
+          <div id="resizeable" :style="innerStyle()">
+            <MapRender></MapRender>
+          </div>
+        </div>
+        <div class="right">
+          <div class="mycard">
+            <el-card class="box-card">
+              <template #header>
+                <div class="card-header">
+                  <span>UserInfo</span>
+                </div>
+              </template>
+            </el-card>
+          </div>
+
+          <div class="mycard">
+            <el-card class="box-card">
+              asdasdasdsdasd
+            </el-card>
+          </div>
+          <div class="mycard">
+            <el-card class="box-card">
+              asdasdasdsdasd
+            </el-card>
+          </div>
+          <div class="mycard">
+            <el-card class="box-card">
+              asdasdasdsdasd
+            </el-card>
+          </div>
+          <div class="mycard">
+            <el-card class="box-card">
+              asdasdasdsdasd
+            </el-card>
+          </div>
+        </div>
       </div>
     </div>
   </div>
@@ -87,13 +157,39 @@ export default {
 
 .top-div {
   height: 34px;
-  background-color: black;
+  background-color: #222222;
   z-index: 1;
 }
 
 .bottom-div {
   flex-grow: 1; /* 设置底部 div 自动撑满剩余空间 */
-  background-color: #1d3043;
+  background-color: black;
   overflow: hidden; /* 设置溢出内容隐藏 */
+}
+
+.box {
+  display: flex;
+  height: 100%;
+}
+
+.left {
+  float: left;
+  width: 300px;
+//background-color: #1d3043;
+}
+
+.middle {
+  flex-grow: 1;
+//background-color: green; overflow: hidden; /* 设置溢出内容隐藏 */
+}
+
+.right {
+  float: right;
+  width: 300px;
+//background-color: #2a598a;
+}
+
+.mycard {
+  margin: 10px;
 }
 </style>

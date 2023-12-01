@@ -32,8 +32,12 @@ export const store = createStore({
         new_update: null,
         players: [],
         grid: [],
+        wallet_address: null,
     },
     mutations: {
+        setWalletAddress(state, address) {
+            state.wallet_address = address;
+        },
         // 连接打开
         [SOCKET_ONOPEN](state, event) {
             console.log("SOCKET_ONOPEN")
@@ -98,6 +102,16 @@ export const store = createStore({
             state.socket.reconnectError = true;
         }
     },
+    actions: {
+        async connectWallet(context) {
+            if (typeof window.unisat !== 'undefined') {
+                // alert('UniSat Wallet is installed!');
+                let account = await window.unisat.requestAccounts();
+                console.log(account);
+                context.commit('setWalletAddress', account[0])
 
+            }
+        }
+    },
     modules: {}
 });

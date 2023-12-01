@@ -130,7 +130,7 @@ export default {
 
 
 canvas {
-  background-color: darkgray;
+  background-color: orange;
 }
 
 </style>
