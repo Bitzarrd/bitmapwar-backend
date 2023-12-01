@@ -48,7 +48,9 @@ const mutations = {
     SOCKET_RECONNECT_ERROR
 }
 
-app.use(VueNativeSock, 'ws://127.0.0.1:3000', {
+const websocket_url = process.env.NODE_ENV === "development" ? "ws://localhost:3000" : "ws://34.225.3.60:3000";
+console.log("websocket_url", process.env);
+app.use(VueNativeSock, websocket_url, {
 // app.use(VueNativeSock, 'ws://34.225.3.60:3000', {
     mutations: mutations,
     // 启用Vuex集成
