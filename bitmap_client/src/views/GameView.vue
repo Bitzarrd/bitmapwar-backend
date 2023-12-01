@@ -13,6 +13,9 @@ export default {
     return {
       scaleValue: 1,
       dialogVisible: false,
+      purchaseDialogVisible: false,
+      bitmapListDialogVisible: false,
+      profitDialogVisible: false,
       value: "red",
       landList: [
         {
@@ -128,6 +131,15 @@ export default {
     onClickSubmit() {
       this.dialogVisible = true
     },
+    onClickPurchase() {
+      this.purchaseDialogVisible = true;
+    },
+    onClickProfits() {
+      this.profitDialogVisible = true;
+    },
+    onClickBitmapList() {
+      this.bitmapListDialogVisible = true;
+    },
     innerStyle() {
 
       let scale = this.scaleValue;
@@ -232,8 +244,8 @@ export default {
                     Profit:
                   </td>
                   <td>
-                    10BNB
-                    <el-button>
+                    10 BTC
+                    <el-button @click="onClickProfits">
                       <el-icon color="white" class="no-inherit">
                         <Coin/>
                       </el-icon>
@@ -247,7 +259,7 @@ export default {
                   </td>
                   <td>
                     700
-                    <el-button>
+                    <el-button @click="onClickBitmapList">
                       <el-icon color="white" class="no-inherit">
                         <View/>
                       </el-icon>
@@ -261,7 +273,7 @@ export default {
                   </td>
                   <td>
                     100
-                    <el-button>
+                    <el-button @click="onClickPurchase">
                       <el-icon color="white" class="no-inherit">
                         <CirclePlus/>
                       </el-icon>
@@ -358,6 +370,53 @@ export default {
     </template>
   </el-dialog>
 
+  <el-dialog
+      v-model="profitDialogVisible"
+      title="Extract Profit"
+      width="30%"
+  >
+    <template #footer>
+      <span class="dialog-footer">
+        <el-button @click="profitDialogVisible = false">Cancel</el-button>
+        <el-button type="primary" @click="profitDialogVisible = false">
+          Confirm
+        </el-button>
+      </span>
+    </template>
+  </el-dialog>
+
+  <el-dialog
+      v-model="bitmapListDialogVisible"
+      title="Bitmap List"
+      width="30%"
+  >
+    <template #footer>
+      <span class="dialog-footer">
+        <el-button @click="bitmapListDialogVisible = false">Cancel</el-button>
+        <el-button type="primary" @click="bitmapListDialogVisible = false">
+          Confirm
+        </el-button>
+      </span>
+    </template>
+  </el-dialog>
+
+  <el-dialog
+      v-model="purchaseDialogVisible"
+      title="Purchase"
+      width="30%"
+  >
+    <template #footer>
+      <span class="dialog-footer">
+        <el-button @click="purchaseDialogVisible = false">Cancel</el-button>
+        <el-button type="primary" @click="purchaseDialogVisible = false">
+          Confirm
+        </el-button>
+      </span>
+    </template>
+  </el-dialog>
+
+
+
 </template>
 
 <style>
@@ -393,7 +452,7 @@ export default {
 
 .middle {
   display: flex;
-  flex-direction:column;
+  flex-direction: column;
   flex-grow: 1;
 //background-color: green; overflow: hidden; /* 设置溢出内容隐藏 */
 }
