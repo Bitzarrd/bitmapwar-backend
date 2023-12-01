@@ -49,7 +49,7 @@ const mutations = {
 }
 
 const websocket_url = process.env.NODE_ENV === "development" ? "ws://localhost:3000" : "ws://34.225.3.60:3000";
-console.log("websocket_url", process.env);
+console.log("websocket_url", websocket_url);
 app.use(VueNativeSock, websocket_url, {
 // app.use(VueNativeSock, 'ws://34.225.3.60:3000', {
     mutations: mutations,

@@ -33,7 +33,7 @@ export function uint8ArrayToBase64(uint8Array) {
 }
 
 export function base64ToUint8Array(base64) {
-    const binaryString =  window.atob(base64);
+    const binaryString = window.atob(base64);
     const length = binaryString.length;
     const uint8Array = new Uint8Array(length);
 
@@ -113,11 +113,13 @@ export function drawCell(ctx, cellSize, x, y, color) {
     ctx.strokeRect(x * cellSize, y * cellSize, cellSize, cellSize);
 }
 
-export function renderGrid() {
+export function renderGrid(ctx, gridWidth, gridHeight, cellSize, grid, players) {
     for (let i = 0; i < gridWidth; i++) {
         for (let j = 0; j < gridHeight; j++) {
-            const cellColor = grid[i][j] === 0 ? 'gery' : grid[i][j];
-            drawCell(i, j, cellColor);
+            if (grid[i][j] !== 0) {
+                let player_index = grid[i][j];
+                drawCell(ctx, cellSize, i, j, players[player_index - 1].color);
+            }
         }
     }
 }

@@ -1,12 +1,12 @@
 <script>
-import {drawGrid, generate2DArray, runTurn, getCircleCoordinates, drawCell} from "bitmap_sdk";
+import {drawGrid, generate2DArray, runTurn, getCircleCoordinates, drawCell, renderGrid} from "bitmap_sdk";
 import {mapState} from "vuex";
 import {ElMessage} from "element-plus";
 
 export default {
   name: "MapRender",
   computed: {
-    ...mapState(['game_started', 'new_player', 'new_update']),
+    ...mapState(['game_started', 'new_player', 'new_update', 'loading', 'players', 'grid']),
 
   },
   watch: {
@@ -29,6 +29,12 @@ export default {
       for (let i = 0; i < newValue.length; i++) {
         let cellValue = newValue[i];
         drawCell(this.ctx, this.cellSize, cellValue.x, cellValue.y, cellValue.color);
+      }
+    },
+    loading(newValue, oldValue) {
+      if (newValue === false) {
+        console.log("render");
+        renderGrid(this.ctx, this.gridWidth, this.gridHeight, this.cellSize, this.grid, this.players);
       }
     }
   },
@@ -151,7 +157,7 @@ export default {
 </script>
 
 <template>
-  <div class="outer">
+  <div class="outer" v-loading="loading">
     <div class="inner" :style="innerStyle()">
       <!-- 内部内容 -->
       <canvas id="gridCanvas"></canvas>
@@ -170,9 +176,7 @@ export default {
 }
 
 .inner {
-//width: 300px; //height: 300px; position: absolute; top: -50px; left: -50px;
-  background-color: #f1f1f1;
-  cursor: move;
+//width: 300px; //height: 300px; position: absolute; top: -50px; left: -50px; background-color: #f1f1f1; cursor: move;
 }
 
 

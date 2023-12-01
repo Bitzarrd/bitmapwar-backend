@@ -8,6 +8,7 @@ import {
     SOCKET_RECONNECT,
     SOCKET_RECONNECT_ERROR
 } from "./mutation-types"
+import {decompress2} from "bitmap_sdk";
 
 export const store = createStore({
     state: {
@@ -25,9 +26,12 @@ export const store = createStore({
             heartBeatTimer: 0
         },
         ///////////
+        loading: true,
         game_started: false,
         new_player: null,
         new_update: null,
+        players: [],
+        grid: [],
     },
     mutations: {
         // 连接打开
@@ -64,6 +68,11 @@ export const store = createStore({
         [SOCKET_ONMESSAGE](state, message) {
             console.log("SOCKET_ONMESSAGE", message);
             switch (message.method) {
+                case "Reload":
+                    state.grid = decompress2(message.grid);
+                    state.players = message.players;
+                    state.loading = false;
+                    break;
                 case "GameStarted":
                     state.game_started = true;
                     break;
