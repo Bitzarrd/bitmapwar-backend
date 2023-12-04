@@ -8,7 +8,7 @@ import {
     SOCKET_RECONNECT,
     SOCKET_RECONNECT_ERROR
 } from "./mutation-types"
-import {decompress2} from "bitmap_sdk";
+import {decompress2, decompress3} from "bitmap_sdk";
 import axios from "axios";
 
 export const store = createStore({
@@ -34,17 +34,18 @@ export const store = createStore({
         players: [],
         grid: [],
         wallet_address: null,
-        map_list:[],
+        map_list: [],
+        turn: 0,
 
         gridWidth: 1000,
         gridHeight: 300,
-        cellSize: 20,
+        cellSize: 10,
     },
     mutations: {
         setWalletAddress(state, address) {
             state.wallet_address = address;
         },
-        setMapList(state,list){
+        setMapList(state, list) {
             state.map_list = list
         },
         // 连接打开
@@ -82,10 +83,12 @@ export const store = createStore({
             console.log("SOCKET_ONMESSAGE", message);
             switch (message.method) {
                 case "Reload":
+                    state.turn = message.turn;
                     state.gridWidth = message.gridWidth;
                     state.gridHeight = message.gridHeight;
-                    state.grid = decompress2(message.grid);
+                    state.grid = decompress3(message.grid, message.gridWidth, message.gridHeight);
                     state.players = message.players;
+                    console.log(state.grid.length);
                     state.loading = false;
                     break;
                 case "GameStarted":
@@ -98,6 +101,7 @@ export const store = createStore({
                     state.new_player = message.player;
                     break;
                 case "Update": {
+                    state.turn = message.turn;
                     state.new_update = message.payload;
                 }
 

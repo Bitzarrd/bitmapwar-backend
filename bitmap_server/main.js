@@ -1,4 +1,4 @@
-import {generate2DArray, runTurn, getCircleCoordinates, compress2} from 'bitmap_sdk';
+import {generate2DArray, runTurn, getCircleCoordinates, compress2, compress3} from 'bitmap_sdk';
 import WebSocket, {WebSocketServer} from 'ws';
 import winston from "winston";
 import dotenv from "dotenv";
@@ -18,14 +18,14 @@ const clients = new Set();
 
 //////////////////////////////////////////////////////
 const gridWidth = 1000;
-let gridHeight = 300;
+let gridHeight = 800;
 const colors = ['red', 'blue', 'yellow'];
 
 let grid = generate2DArray(gridWidth, gridHeight);
 let players = [];
 let interval = null;
 let history = [];
-
+let turn = 0;
 
 function getRandomInt(min, max) {
     min = Math.ceil(min); // 向上取整，确保范围内的最小值为整数
@@ -47,10 +47,11 @@ wss.on('connection', (ws) => {
     ws.send(JSON.stringify(
         {
             method: "Reload",
-            grid: compress2(grid),
+            grid: compress3(grid),
             gridWidth: gridWidth,
             gridHeight: gridHeight,
             players: players,
+            turn: 0,
             // started: started,
         }
     ));
@@ -65,8 +66,8 @@ wss.on('connection', (ws) => {
                 let x = getRandomInt(0, gridWidth);
                 let y = getRandomInt(0, gridHeight);
                 let color = colors[players.length % colors.length];
-                console.log(x, y, color);
-                grid[x][y] = color;
+                console.log(grid.length, grid[0].length, x, y, color);
+                grid[y][x] = color;
                 let player = {
                     i: 0,
                     x: x,
@@ -88,6 +89,7 @@ wss.on('connection', (ws) => {
 
                 axios.get("https://develop.oasis.world/service/open/bitmap/count").then(resp => {
                     let map_count = resp.data.data;
+                    turn = 0;
                     gridHeight = Math.ceil(map_count / 1000)
                     grid = generate2DArray(gridWidth, gridHeight);
 
@@ -98,6 +100,7 @@ wss.on('connection', (ws) => {
                                 method: "GameStarted",
                                 gridWidth: gridWidth,
                                 gridHeight: gridHeight,
+                                turn: turn,
                             }));
                         }
                     });
@@ -106,6 +109,7 @@ wss.on('connection', (ws) => {
 
 
                 interval = setInterval(() => {
+                    turn++;
                     let payload = [];
                     for (let i = 0; i < players.length; i++) {
                         let player = players[i];
@@ -115,7 +119,7 @@ wss.on('connection', (ws) => {
                         payload.push({
                             x: x,
                             y: y,
-                            color: player.color
+                            color: player.color,
                         })
                     }
 
@@ -124,7 +128,8 @@ wss.on('connection', (ws) => {
                         if (client.readyState === WebSocket.OPEN) {
                             client.send(JSON.stringify({
                                 method: "Update",
-                                payload: payload
+                                payload: payload,
+                                turn: turn
                             }));
                         }
                     });

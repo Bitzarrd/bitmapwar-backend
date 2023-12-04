@@ -127,8 +127,8 @@ export function drawCell(ctx, cellSize, x, y, color) {
 }
 
 export function renderGrid(ctx, gridWidth, gridHeight, cellSize, grid, players) {
-    for (let i = 0; i < gridWidth; i++) {
-        for (let j = 0; j < gridHeight; j++) {
+    for (let i = 0; i < gridHeight; i++) {
+        for (let j = 0; j < gridWidth; j++) {
             if (grid[i][j] !== 0) {
                 let player_index;
 

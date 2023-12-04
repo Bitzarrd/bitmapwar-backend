@@ -7,7 +7,7 @@ export default {
   name: "GameView",
   components: {Edit, Histogram, Rank, CirclePlus, MapRender},
   computed: {
-    ...mapState(['socket', 'conn', 'wallet_address', 'map_list']),
+    ...mapState(['socket', 'conn', 'wallet_address', 'map_list', 'turn']),
     bitmap_list() {
       let origin = this.map_list;
       let result = [];
@@ -254,6 +254,7 @@ export default {
             <div style="float: left;padding-top: 12px;color: #E5EAF3">
               Rounds:1000
               NextRounds:03:00
+              Turn:{{ turn}}
             </div>
             <div style="float: right;margin-top: 10px">
               <el-input size="small" placeholder="Search Bitmap">
@@ -298,7 +299,8 @@ export default {
                   </el-button>
                 </el-form-item>
                 <el-form-item label="Bitmaps:">
-                  <el-input :value="selected_map" disabled style="float: left;display: inline;width: 100px;margin-right: 10px"/>
+                  <el-input :value="selected_map" disabled
+                            style="float: left;display: inline;width: 100px;margin-right: 10px"/>
                   <el-button @click="onClickBitmapList" style="float: right;display: inline">
                     <el-icon color="white" class="no-inherit">
                       <View/>

@@ -38,7 +38,11 @@ export default {
     },
     loading(newValue, oldValue) {
       if (newValue === false) {
-        console.log("render");
+        // console.log("render",this.ctx, this.gridWidth, this.gridHeight, this.cellSize, this.grid, this.players);
+        this.canvas.width = this.cellSize * this.gridWidth;
+        this.canvas.height = this.cellSize * this.gridHeight;
+        console.log("init", this.canvas, this.ctx, this.gridWidth, this.gridHeight, this.cellSize)
+        drawGrid(this.canvas, this.ctx, this.gridWidth, this.gridHeight, this.cellSize);
         renderGrid(this.ctx, this.gridWidth, this.gridHeight, this.cellSize, this.grid, this.players);
       }
     }
@@ -59,7 +63,7 @@ export default {
     this.canvas = document.getElementById('gridCanvas');
     this.ctx = this.canvas.getContext('2d');
 
-    this.init();
+    // this.init();
   },
   created() {
 
