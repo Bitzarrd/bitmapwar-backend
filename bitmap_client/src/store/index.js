@@ -36,7 +36,7 @@ export const store = createStore({
         wallet_address: null,
         map_list:[],
 
-        gridWidth: 300,
+        gridWidth: 1000,
         gridHeight: 300,
         cellSize: 20,
     },
@@ -82,6 +82,8 @@ export const store = createStore({
             console.log("SOCKET_ONMESSAGE", message);
             switch (message.method) {
                 case "Reload":
+                    state.gridWidth = message.gridWidth;
+                    state.gridHeight = message.gridHeight;
                     state.grid = decompress2(message.grid);
                     state.players = message.players;
                     state.loading = false;

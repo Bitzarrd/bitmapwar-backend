@@ -94,7 +94,7 @@ export default {
 
 
       ],
-      selected_map: "1231241231",
+      selected_map: "",
       options:
           [
             {
@@ -135,7 +135,7 @@ export default {
       }
 
       if (this.scaleValue < 0.1) {
-        this.scaleValue = 0.1;
+        this.scaleValue = 0.02;
       }
       if (this.scaleValue > 4) {
         this.scaleValue = 4;

@@ -10,6 +10,19 @@ export function generate2DArray(width, height) {
     return array;
 }
 
+export function merge2DArray(array) {
+    const totalLength = array.reduce((length, subArray) => length + subArray.length, 0);
+    const mergedArray = new Uint8Array(totalLength);
+    let offset = 0;
+
+    for (const subArray of array) {
+        mergedArray.set(subArray, offset);
+        offset += subArray.length;
+    }
+
+    return mergedArray;
+}
+
 export function generate2DArrayFull(width, height) {
     let array = new Array(height);
 
@@ -33,7 +46,7 @@ export function uint8ArrayToBase64(uint8Array) {
 }
 
 export function base64ToUint8Array(base64) {
-    const binaryString = window.atob(base64);
+    const binaryString = atob(base64);
     const length = binaryString.length;
     const uint8Array = new Uint8Array(length);
 
@@ -205,6 +218,11 @@ export function compress2(grid) {
     return str
 }
 
+export function compress3(grid) {
+    let me = merge2DArray(grid);
+    return uint8ArrayToBase64(pako.deflate(me));
+}
+
 export function decompress2(str) {
     const lines = str.trim().split("\n");
     const grid = [];
@@ -218,3 +236,20 @@ export function decompress2(str) {
 
     return grid;
 }
+
+export function decompress3(str, width, height) {
+    let compressed = base64ToUint8Array(str)
+    const decompressed = pako.inflate(compressed);
+    let grid = new Array(height);
+    for (let i = 0; i < height; i++) {
+        grid[i] = decompressed.slice(i * width, (i + 1) * width);
+    }
+    return grid;
+}
+
+export function mapId2Pos(map_id) {
+    let x = Math.floor(map_id / 1000);
+    let y = map_id % 1000;
+    return {x: x, y: y}
+}
+

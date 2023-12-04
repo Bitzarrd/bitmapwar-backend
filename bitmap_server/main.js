@@ -2,6 +2,7 @@ import {generate2DArray, runTurn, getCircleCoordinates, compress2} from 'bitmap_
 import WebSocket, {WebSocketServer} from 'ws';
 import winston from "winston";
 import dotenv from "dotenv";
+import axios from "axios";
 
 dotenv.config();
 
@@ -16,8 +17,8 @@ const wss = new WebSocketServer({port: process.env.PORT});
 const clients = new Set();
 
 //////////////////////////////////////////////////////
-const gridWidth = 300;
-const gridHeight = 300;
+const gridWidth = 1000;
+let gridHeight = 300;
 const colors = ['red', 'blue', 'yellow'];
 
 let grid = generate2DArray(gridWidth, gridHeight);
@@ -47,7 +48,9 @@ wss.on('connection', (ws) => {
         {
             method: "Reload",
             grid: compress2(grid),
-            players: players
+            gridWidth: gridWidth,
+            gridHeight: gridHeight,
+            players: players,
             // started: started,
         }
     ));
@@ -82,17 +85,24 @@ wss.on('connection', (ws) => {
                 break;
             case "StartGame":
                 logger.info("StartGame");
-                // 将消息发送给所有客户端
-                clients.forEach((client) => {
-                    if (client.readyState === WebSocket.OPEN) {
-                        client.send(JSON.stringify({
-                            method: "GameStarted",
-                            gridWidth: gridWidth,
-                            gridHeight: gridHeight,
 
-                        }));
-                    }
-                });
+                axios.get("https://develop.oasis.world/service/open/bitmap/count").then(resp => {
+                    let map_count = resp.data.data;
+                    gridHeight = Math.ceil(map_count / 1000)
+                    grid = generate2DArray(gridWidth, gridHeight);
+
+                    // 将消息发送给所有客户端
+                    clients.forEach((client) => {
+                        if (client.readyState === WebSocket.OPEN) {
+                            client.send(JSON.stringify({
+                                method: "GameStarted",
+                                gridWidth: gridWidth,
+                                gridHeight: gridHeight,
+                            }));
+                        }
+                    });
+
+                })
 
 
                 interval = setInterval(() => {
