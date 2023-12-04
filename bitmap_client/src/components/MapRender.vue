@@ -9,7 +9,10 @@ export default {
   name: "MapRender",
   components: {Vue3DraggableResizable},
   computed: {
-    ...mapState(['game_started', 'new_player', 'new_update', 'loading', 'players', 'grid']),
+    ...mapState([
+      'game_started', 'new_player', 'new_update', 'loading', 'players', 'grid',
+      'gridWidth', 'gridHeight', 'cellSize'
+    ]),
 
   },
   watch: {
@@ -42,16 +45,11 @@ export default {
   },
   data() {
     return {
-      gridWidth: 300,
-      gridHeight: 300,
-      cellSize: 10,
       isDragging: false,
       mouseOffsetX: 0,
       mouseOffsetY: 0,
       canvas: null,
       ctx: null,
-
-      scaleValue: 1, // 初始缩放比例为0.5
       left: 0,
       top: 0,
     }
@@ -68,39 +66,9 @@ export default {
   },
   methods: {
     init() {
-
-
       this.canvas.width = this.cellSize * this.gridWidth;
       this.canvas.height = this.cellSize * this.gridHeight;
-
       drawGrid(this.canvas, this.ctx, this.gridWidth, this.gridHeight, this.cellSize);
-
-
-
-
-      // const innerContainer = document.querySelector('.inner');
-      // innerContainer.addEventListener('mousedown', (event) => {
-      //   event.preventDefault();
-      //   const initialX = event.clientX;
-      //   const initialY = event.clientY;
-      //   const that = this;
-      //   document.addEventListener('mousemove', moveContainer);
-      //   document.addEventListener('mouseup', removeListeners);
-      //
-      //   function moveContainer(event) {
-      //     const offsetX = event.clientX - initialX;
-      //     const offsetY = event.clientY - initialY;
-      //     console.log(offsetX, offsetX);
-      //     that.top = offsetY;
-      //     that.left = offsetX;
-      //   }
-      //
-      //   function removeListeners() {
-      //     document.removeEventListener('mousemove', moveContainer);
-      //     document.removeEventListener('mouseup', removeListeners);
-      //   }
-      // });
-
     }
   }
 }
@@ -109,24 +77,15 @@ export default {
 <template>
 
   <Vue3DraggableResizable v-loading="loading"
-      :initW="gridWidth*cellSize"
-      :initH="gridHeight*cellSize"
-      :resizable="false"
+                          :initW="gridWidth*cellSize"
+                          :initH="gridHeight*cellSize"
+                          :resizable="false"
   >
     <canvas id="gridCanvas"></canvas>
   </Vue3DraggableResizable>
-
-
-  <!--  <div class="outer" v-loading="loading">-->
-  <!--    <div class="inner" :style="innerStyle()">-->
-  <!--      &lt;!&ndash; 内部内容 &ndash;&gt;-->
-  <!--      <canvas id="gridCanvas"></canvas>-->
-  <!--    </div>-->
-  <!--  </div>-->
 </template>
 
 <style scoped>
-
 
 
 canvas {

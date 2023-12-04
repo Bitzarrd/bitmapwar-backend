@@ -28,7 +28,7 @@ export default {
   },
   data() {
     return {
-      scaleValue: 1,
+      scaleValue: 0.5,
       dialogVisible: false,
       purchaseDialogVisible: false,
       bitmapListDialogVisible: false,

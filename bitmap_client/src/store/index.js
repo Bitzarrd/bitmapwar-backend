@@ -35,6 +35,10 @@ export const store = createStore({
         grid: [],
         wallet_address: null,
         map_list:[],
+
+        gridWidth: 300,
+        gridHeight: 300,
+        cellSize: 20,
     },
     mutations: {
         setWalletAddress(state, address) {
