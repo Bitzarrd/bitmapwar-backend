@@ -3,8 +3,26 @@ import WebSocket, {WebSocketServer} from 'ws';
 import winston from "winston";
 import dotenv from "dotenv";
 import axios from "axios";
+import mysql from "mysql";
+
 
 dotenv.config();
+
+
+let mysql_connection = mysql.createConnection({
+    host: process.env.MYSQL_HOST,
+    user: process.env.MYSQL_USER,
+    password: process.env.MYSQL_PASS,
+    database: process.env.MYSQL_DB
+});
+
+mysql_connection.connect({}, (err) => {
+    if (err) {
+        logger.error("mysql connect error" + err)
+    }
+    logger.info("mysql connected")
+});
+
 
 const logger = winston.createLogger({
     transports: [new winston.transports.Console()],
@@ -62,6 +80,12 @@ wss.on('connection', (ws) => {
 
         let decode = JSON.parse(message);
         switch (decode.method) {
+            case "Login":
+                mysql_connection.query("SELECT * FROM `USER` WHERE `address`=`${message.address}`", function (err, result) {
+                    console.log(err, result);
+                });
+
+                break;
             case "JoinGame":
                 let x = getRandomInt(0, gridWidth);
                 let y = getRandomInt(0, gridHeight);
