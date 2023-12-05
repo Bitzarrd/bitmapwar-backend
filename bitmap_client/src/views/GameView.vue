@@ -254,7 +254,7 @@ export default {
             <div style="float: left;padding-top: 12px;color: #E5EAF3">
               Rounds:1000
               NextRounds:03:00
-              Turn:{{ turn}}
+              Turn:{{ turn }}
             </div>
             <div style="float: right;margin-top: 10px">
               <el-input size="small" placeholder="Search Bitmap">
@@ -287,7 +287,7 @@ export default {
 
               <el-form label-width="70px" v-if="wallet_address">
                 <el-form-item label="ID:">
-                  <el-input value="bc1q0......luwvg" disabled/>
+                  <el-input :value="wallet_address.sub+'......luwvg'" disabled/>
                 </el-form-item>
                 <el-form-item label="Profit:">
                   <el-input value="10 BTC" disabled
