@@ -58,8 +58,7 @@ const circle = getCircleCoordinates(500)
 //////////////////////////////////////////////////////
 
 
-
-const start_game = ()=>{
+const start_game = () => {
     logger.info("StartGame");
 
     axios.get("https://develop.oasis.world/service/open/bitmap/count").then(resp => {
@@ -217,6 +216,7 @@ wss.on('connection', (ws) => {
                 }
                 grid = generate2DArray(gridWidth, gridHeight);
                 players = [];
+                turn = 0;
                 break;
             case "SetNextRound":
                 // const timestamp = new Date().getTime();
