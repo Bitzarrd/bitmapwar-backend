@@ -57,14 +57,70 @@ const circle = getCircleCoordinates(500)
 
 //////////////////////////////////////////////////////
 
+
+
+const start_game = ()=>{
+    logger.info("StartGame");
+
+    axios.get("https://develop.oasis.world/service/open/bitmap/count").then(resp => {
+        let map_count = resp.data.data;
+        turn = 0;
+        gridHeight = Math.ceil(map_count / 1000)
+        grid = generate2DArray(gridWidth, gridHeight);
+
+        // 将消息发送给所有客户端
+        clients.forEach((client) => {
+            if (client.readyState === WebSocket.OPEN) {
+                client.send(JSON.stringify({
+                    method: "GameStarted",
+                    gridWidth: gridWidth,
+                    gridHeight: gridHeight,
+                    turn: turn,
+                }));
+            }
+        });
+
+    })
+
+
+    interval = setInterval(() => {
+        turn++;
+        let payload = [];
+        for (let i = 0; i < players.length; i++) {
+            let player = players[i];
+            let {x, y} = runTurn(player, grid, circle);
+            grid[x][y] = i + 1;
+            //drawCell(ctx, cellSize, x, y, player.color);
+            payload.push({
+                x: x,
+                y: y,
+                color: player.color,
+            })
+        }
+
+
+        clients.forEach((client) => {
+            if (client.readyState === WebSocket.OPEN) {
+                client.send(JSON.stringify({
+                    method: "Update",
+                    payload: payload,
+                    turn: turn
+                }));
+            }
+        });
+    }, 500)
+
+}
+
+
 setInterval(() => {
     const timestampSeconds = Math.floor(new Date().getTime() / 1000);
     // logger.info(timestampSeconds + ":" + next_round + ":" + (timestampSeconds === next_round ? "T" : "F"));
     if (timestampSeconds === next_round) {
         logger.info("Start New Round");
+        start_game()
     }
 }, 1000)
-
 // 当有新的连接建立时触发
 wss.on('connection', (ws) => {
     logger.info("connection")
@@ -152,56 +208,7 @@ wss.on('connection', (ws) => {
                 });
                 break;
             case "StartGame":
-                logger.info("StartGame");
-
-                axios.get("https://develop.oasis.world/service/open/bitmap/count").then(resp => {
-                    let map_count = resp.data.data;
-                    turn = 0;
-                    gridHeight = Math.ceil(map_count / 1000)
-                    grid = generate2DArray(gridWidth, gridHeight);
-
-                    // 将消息发送给所有客户端
-                    clients.forEach((client) => {
-                        if (client.readyState === WebSocket.OPEN) {
-                            client.send(JSON.stringify({
-                                method: "GameStarted",
-                                gridWidth: gridWidth,
-                                gridHeight: gridHeight,
-                                turn: turn,
-                            }));
-                        }
-                    });
-
-                })
-
-
-                interval = setInterval(() => {
-                    turn++;
-                    let payload = [];
-                    for (let i = 0; i < players.length; i++) {
-                        let player = players[i];
-                        let {x, y} = runTurn(player, grid, circle);
-                        grid[x][y] = i + 1;
-                        //drawCell(ctx, cellSize, x, y, player.color);
-                        payload.push({
-                            x: x,
-                            y: y,
-                            color: player.color,
-                        })
-                    }
-
-
-                    clients.forEach((client) => {
-                        if (client.readyState === WebSocket.OPEN) {
-                            client.send(JSON.stringify({
-                                method: "Update",
-                                payload: payload,
-                                turn: turn
-                            }));
-                        }
-                    });
-                }, 500)
-
+                start_game();
                 break;
             case "StopGame":
                 if (interval) {
