@@ -59,10 +59,7 @@ const circle = getCircleCoordinates(500)
 
 setInterval(() => {
     const timestampSeconds = Math.floor(new Date().getTime() / 1000);
-    logger.info(timestampSeconds + ":" + next_round + ":" + (timestampSeconds === next_round ? "T" : "F"));
-    console.log(timestampSeconds);
-    console.log(next_round);
-    // console.log(timestamp);1701750302
+    // logger.info(timestampSeconds + ":" + next_round + ":" + (timestampSeconds === next_round ? "T" : "F"));
     if (timestampSeconds === next_round) {
         logger.info("Start New Round");
     }
@@ -218,6 +215,14 @@ wss.on('connection', (ws) => {
                 // const timestamp = new Date().getTime();
                 // console.log(timestamp);
                 next_round = (Number)(decode.timestamp);
+
+                clients.forEach((client) => {
+                    client.send(JSON.stringify({
+                        method: "SetNextRoundSuccess",
+                        timestamp: next_round
+                    }));
+                });
+
                 break;
         }
 

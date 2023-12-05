@@ -164,10 +164,16 @@ export const store = createStore({
                 case "JoinedGame":
                     state.new_player = message.player;
                     break;
-                case "Update": {
+                case "Update":
                     state.turn = message.turn;
                     state.new_update = message.payload;
-                }
+                    break;
+                case "LoginSuccess":
+                    //todo
+                    break;
+                case "SetNextRoundSuccess":
+                    state.next_round = (Number)(message.timestamp);
+                    break;
 
             }
             state.socket.message = message;
