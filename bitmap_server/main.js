@@ -146,6 +146,8 @@ const start_game = () => {
                 //todo
                 const origin_player_index = grid[y][x];
                 players[origin_player_index - 1].land--;
+                players[origin_player_index - 1].loss++;
+
             }
             grid[y][x] = i + 1;
             player.land++;
@@ -168,7 +170,7 @@ const start_game = () => {
                 }));
             }
         });
-    }, 500)
+    }, 100)
 
 }
 
