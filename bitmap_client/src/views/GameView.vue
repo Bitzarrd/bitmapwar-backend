@@ -115,8 +115,7 @@ export default {
             },
           ]
     }
-  }
-  ,
+  },
   mounted() {
     // 添加鼠标滚轮事件监听器
     let resizeable = document.getElementById('gridCanvas');
@@ -145,10 +144,8 @@ export default {
   }
   ,
   methods: {
-    ...
-        mapActions(['connectWallet', 'getBitMapList']),
-    ...
-        mapMutations([]),
+    ...mapActions(['connectWallet', 'getBitMapList', 'login']),
+    ...mapMutations([]),
     onClickStartGame() {
       this.conn.sendObj({method: "StartGame"});
     }
@@ -164,6 +161,7 @@ export default {
     async onClickConnWallet() {
       await this.connectWallet();
       await this.getBitMapList()
+      await this.login(this.wallet_address);
     }
     ,
     onClickSubmit() {

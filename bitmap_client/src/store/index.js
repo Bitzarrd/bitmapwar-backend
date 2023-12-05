@@ -132,6 +132,13 @@ export const store = createStore({
             let result = await axios.get(url);
             console.log(result.data.data.list);
             context.commit('setMapList', result.data.data.list)
+        },
+        async login(context, wallet_address) {
+            console.log("login", wallet_address)
+            context.state.conn.sendObj({
+                method: "Login",
+                address: wallet_address
+            })
         }
     },
     modules: {}

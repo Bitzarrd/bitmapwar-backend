@@ -81,8 +81,40 @@ wss.on('connection', (ws) => {
         let decode = JSON.parse(message);
         switch (decode.method) {
             case "Login":
-                mysql_connection.query("SELECT * FROM `USER` WHERE `address`=`${message.address}`", function (err, result) {
-                    console.log(err, result);
+                const address = decode.address;
+                const sql = "SELECT * FROM `user` WHERE `address`='" + address + "'";
+                logger.info(sql);
+                mysql_connection.query(sql, function (err, result) {
+                    if (err) {
+                        logger.error(err);
+                    } else {
+                        if (result.length === 0) {
+                            logger.info("new user");
+                            const sql = "INSERT INTO `user` (`address`) VALUES ('" + address + "')";
+                            logger.info(sql);
+                            mysql_connection.query(sql, function (err, result) {
+                                if (err) {
+                                    logger.error(err);
+                                } else {
+                                    logger.info(result);
+                                    let user = {
+                                        address: address,
+                                    };
+                                    ws.send(JSON.stringify({
+                                        method: "LoginSuccess",
+                                        user: user,
+                                    }));
+                                }
+                            });
+                        }else{
+                            let user = result[0];
+                            logger.info(user);
+                            ws.send(JSON.stringify({
+                                method: "LoginSuccess",
+                                user: user,
+                            }));
+                        }
+                    }
                 });
 
                 break;
