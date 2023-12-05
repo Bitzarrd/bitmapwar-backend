@@ -36,10 +36,73 @@ export const store = createStore({
         wallet_address: null,
         map_list: [],
         turn: 0,
+        next_round: 0,
 
         gridWidth: 1000,
         gridHeight: 300,
         cellSize: 10,
+
+
+        landList: [
+            {
+                team: "red",
+                land: 1000,
+                virus: 100,
+                loss: 1000
+            },
+            {
+                team: "yellow",
+                land: 1000,
+                virus: 100,
+                loss: 1000
+            },
+            {
+                team: "green",
+                land: 1000,
+                virus: 100,
+                loss: 1000
+            },
+            {
+                team: "purple",
+                land: 1000,
+                virus: 100,
+                loss: 1000
+            }
+        ],
+        lastRanking: [
+            {
+                id: "bc1q0......luwvg",
+                lands: 1000
+            },
+            {
+                id: "bc1q0......luwvg",
+                lands: 1000
+            },
+            {
+                id: "bc1q0......luwvg",
+                lands: 1000
+            },
+            {
+                id: "bc1q0......luwvg",
+                lands: 1000
+            },
+            {
+                id: "bc1q0......luwvg",
+                lands: 1000
+            },
+            {
+                id: "bc1q0......luwvg",
+                lands: 1000
+            }, {
+                id: "bc1q0......luwvg",
+                lands: 1000
+            }, {
+                id: "bc1q0......luwvg",
+                lands: 1000
+            },
+
+
+        ],
     },
     mutations: {
         setWalletAddress(state, address) {
@@ -83,6 +146,7 @@ export const store = createStore({
             console.log("SOCKET_ONMESSAGE", message);
             switch (message.method) {
                 case "Reload":
+                    state.next_round = message.next_round;
                     state.turn = message.turn;
                     state.gridWidth = message.gridWidth;
                     state.gridHeight = message.gridHeight;

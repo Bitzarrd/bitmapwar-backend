@@ -26,6 +26,7 @@ mysql_connection.connect({}, (err) => {
 
 const logger = winston.createLogger({
     transports: [new winston.transports.Console()],
+    level: "debug",
 });
 
 // 创建WebSocket服务器实例
@@ -44,6 +45,7 @@ let players = [];
 let interval = null;
 let history = [];
 let turn = 0;
+let next_round = 0;
 
 function getRandomInt(min, max) {
     min = Math.ceil(min); // 向上取整，确保范围内的最小值为整数
@@ -54,6 +56,17 @@ function getRandomInt(min, max) {
 const circle = getCircleCoordinates(500)
 
 //////////////////////////////////////////////////////
+
+setInterval(() => {
+    const timestampSeconds = Math.floor(new Date().getTime() / 1000);
+    logger.info(timestampSeconds + ":" + next_round + ":" + (timestampSeconds === next_round ? "T" : "F"));
+    console.log(timestampSeconds);
+    console.log(next_round);
+    // console.log(timestamp);1701750302
+    if (timestampSeconds === next_round) {
+        logger.info("Start New Round");
+    }
+}, 1000)
 
 // 当有新的连接建立时触发
 wss.on('connection', (ws) => {
@@ -69,7 +82,8 @@ wss.on('connection', (ws) => {
             gridWidth: gridWidth,
             gridHeight: gridHeight,
             players: players,
-            turn: 0,
+            turn: turn,
+            next_round: next_round
             // started: started,
         }
     ));
@@ -106,7 +120,7 @@ wss.on('connection', (ws) => {
                                     }));
                                 }
                             });
-                        }else{
+                        } else {
                             let user = result[0];
                             logger.info(user);
                             ws.send(JSON.stringify({
@@ -199,6 +213,11 @@ wss.on('connection', (ws) => {
                 }
                 grid = generate2DArray(gridWidth, gridHeight);
                 players = [];
+                break;
+            case "SetNextRound":
+                // const timestamp = new Date().getTime();
+                // console.log(timestamp);
+                next_round = (Number)(decode.timestamp);
                 break;
         }
 

@@ -2,12 +2,13 @@
 import MapRender from "@/components/MapRender.vue";
 import {mapActions, mapMutations, mapState} from "vuex";
 import {CirclePlus, Edit, Histogram, Rank} from "@element-plus/icons-vue";
+import moment from "moment";
 
 export default {
   name: "GameView",
   components: {Edit, Histogram, Rank, CirclePlus, MapRender},
   computed: {
-    ...mapState(['socket', 'conn', 'wallet_address', 'map_list', 'turn']),
+    ...mapState(['socket', 'conn', 'wallet_address', 'map_list', 'turn', 'landList', 'lastRanking', 'next_round']),
     bitmap_list() {
       let origin = this.map_list;
       let result = [];
@@ -24,6 +25,10 @@ export default {
         )
       }
       return result;
+    },
+    next_round_datetime() {
+      const momentObj = moment.unix(this.next_round);
+      return momentObj.format('h:mm:ss'); // December 5th 2023, 12:16:10 pm
     }
   },
   data() {
@@ -33,67 +38,9 @@ export default {
       purchaseDialogVisible: false,
       bitmapListDialogVisible: false,
       profitDialogVisible: false,
+      nextRoundSettingDialogVisible: false,
       value: "red",
-      landList: [
-        {
-          team: "red",
-          land: 1000,
-          virus: 100,
-          loss: 1000
-        },
-        {
-          team: "yellow",
-          land: 1000,
-          virus: 100,
-          loss: 1000
-        },
-        {
-          team: "green",
-          land: 1000,
-          virus: 100,
-          loss: 1000
-        },
-        {
-          team: "purple",
-          land: 1000,
-          virus: 100,
-          loss: 1000
-        }
-      ],
-      lastRanking: [
-        {
-          id: "bc1q0......luwvg",
-          lands: 1000
-        },
-        {
-          id: "bc1q0......luwvg",
-          lands: 1000
-        },
-        {
-          id: "bc1q0......luwvg",
-          lands: 1000
-        },
-        {
-          id: "bc1q0......luwvg",
-          lands: 1000
-        },
-        {
-          id: "bc1q0......luwvg",
-          lands: 1000
-        },
-        {
-          id: "bc1q0......luwvg",
-          lands: 1000
-        }, {
-          id: "bc1q0......luwvg",
-          lands: 1000
-        }, {
-          id: "bc1q0......luwvg",
-          lands: 1000
-        },
-
-
-      ],
+      nextRoundSetting: 0,
       selected_map: "",
       options:
           [
@@ -141,52 +88,46 @@ export default {
       }
     });
 
-  }
-  ,
+  },
   methods: {
     ...mapActions(['connectWallet', 'getBitMapList', 'login']),
     ...mapMutations([]),
     onClickStartGame() {
       this.conn.sendObj({method: "StartGame"});
-    }
-    ,
+    },
     onClickStopGame() {
       this.conn.sendObj({method: "StopGame"});
-    }
-    ,
+    },
     onClickJoinGame() {
       this.conn.sendObj({method: "JoinGame"});
-    }
-    ,
+    },
     async onClickConnWallet() {
       await this.connectWallet();
       await this.getBitMapList()
       await this.login(this.wallet_address);
-    }
-    ,
+    },
     onClickSubmit() {
       this.dialogVisible = true
-    }
-    ,
+    },
     onClickPurchase() {
       this.purchaseDialogVisible = true;
-    }
-    ,
+    },
     onClickProfits() {
       this.profitDialogVisible = true;
-    }
-    ,
+    },
     onClickBitmapList() {
       this.bitmapListDialogVisible = true;
-    }
-    ,
+    },
     innerStyle() {
-
       let scale = this.scaleValue;
       let result = `scale: ${scale};`;
       return result;
-    }
-    ,
+    },
+    onClickSubmitNextRoundSetting() {
+      this.nextRoundSettingDialogVisible = false;
+      this.conn.sendObj({method: "SetNextRound", timestamp: this.nextRoundSetting});
+      this.nextRoundSettingDialogVisible = false
+    },
   }
 }
 </script>
@@ -198,6 +139,7 @@ export default {
       <el-button @click="onClickJoinGame">Join Game</el-button>
       <el-button @click="onClickStartGame">Start Game</el-button>
       <el-button @click="onClickStopGame">Stop Game</el-button>
+      <el-button @click="nextRoundSettingDialogVisible = true">Set Next Round</el-button>
       <div style="float: right">
         <el-button @click="onClickConnWallet">{{ wallet_address ? wallet_address : "Conn Wallet" }}</el-button>
       </div>
@@ -251,7 +193,7 @@ export default {
           <div class="round">
             <div style="float: left;padding-top: 12px;color: #E5EAF3">
               Rounds:1000
-              NextRounds:03:00
+              NextRounds:{{next_round_datetime}}
               Turn:{{ turn }}
             </div>
             <div style="float: right;margin-top: 10px">
@@ -455,6 +397,26 @@ export default {
       <span class="dialog-footer">
         <el-button @click="purchaseDialogVisible = false">Cancel</el-button>
         <el-button type="primary" @click="purchaseDialogVisible = false">
+          Confirm
+        </el-button>
+      </span>
+    </template>
+  </el-dialog>
+
+  <el-dialog
+      v-model="nextRoundSettingDialogVisible"
+      title="Set Next Round Time"
+      width="30%"
+  >
+    <div class="dialog_center">
+      <div>
+        <el-input placeholder="timestamp" v-model="nextRoundSetting"></el-input>
+      </div>
+    </div>
+    <template #footer>
+      <span class="dialog-footer">
+        <el-button @click="nextRoundSettingDialogVisible = false">Cancel</el-button>
+        <el-button type="primary" @click="onClickSubmitNextRoundSetting();">
           Confirm
         </el-button>
       </span>
