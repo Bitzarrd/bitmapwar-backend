@@ -46,27 +46,27 @@ export const store = createStore({
         landList: [
             {
                 team: "red",
-                land: 1000,
-                virus: 100,
-                loss: 1000
+                land: 0,
+                virus: 0,
+                loss: 0
             },
             {
                 team: "yellow",
-                land: 1000,
-                virus: 100,
-                loss: 1000
+                land: 0,
+                virus: 0,
+                loss: 0
             },
             {
                 team: "green",
-                land: 1000,
-                virus: 100,
-                loss: 1000
+                land: 0,
+                virus: 0,
+                loss: 0
             },
             {
                 team: "purple",
-                land: 1000,
-                virus: 100,
-                loss: 1000
+                land: 0,
+                virus: 0,
+                loss: 0
             }
         ],
         lastRanking: [
@@ -146,6 +146,7 @@ export const store = createStore({
             console.log("SOCKET_ONMESSAGE", message);
             switch (message.method) {
                 case "Reload":
+                    state.landList = message.statistics;
                     state.next_round = message.next_round;
                     state.turn = message.turn;
                     state.gridWidth = message.gridWidth;
@@ -166,6 +167,7 @@ export const store = createStore({
                     break;
                 case "Update":
                     state.turn = message.turn;
+                    state.landList = message.statistics;
                     state.new_update = message.payload;
                     break;
                 case "LoginSuccess":

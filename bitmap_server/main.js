@@ -38,7 +38,7 @@ const clients = new Set();
 //////////////////////////////////////////////////////
 const gridWidth = 1000;
 let gridHeight = 800;
-const colors = ['red', 'blue', 'yellow'];
+const colors = ['red', 'blue', 'green', 'purple'];
 
 let grid = generate2DArray(gridWidth, gridHeight);
 let players = [];
@@ -57,6 +57,60 @@ const circle = getCircleCoordinates(500)
 
 //////////////////////////////////////////////////////
 
+const statistics = () => {
+    let result = {
+        red: {
+            team: "red",
+            land: 0,
+            loss: 0,
+            virus: 0,
+        },
+        blue: {
+            team: "blue",
+            land: 0,
+            loss: 0,
+            virus: 0,
+        },
+        green: {
+            team: "green",
+            land: 0,
+            loss: 0,
+            virus: 0,
+        },
+        purple: {
+            team: "purple",
+            land: 0,
+            loss: 0,
+            virus: 0,
+        },
+    }
+
+    for (let i = 0; i < players.length; i++) {
+        let player = players[i];
+        if (player.color === "red") {
+            result.red.land += player.land;
+            result.red.loss += player.loss;
+            result.red.virus += player.virus;
+        }
+        if (player.color === "blue") {
+            result.blue.land += player.land;
+            result.blue.loss += player.loss;
+            result.blue.virus += player.virus;
+        }
+        if (player.color === "green") {
+            result.green.land += player.land;
+            result.green.loss += player.loss;
+            result.green.virus += player.virus;
+        }
+        if (player.color === "purple") {
+            result.purple.land += player.land;
+            result.purple.loss += player.loss;
+            result.purple.virus += player.virus;
+        }
+    }
+
+    return [result.red, result.blue, result.green, result.purple];
+}
 
 const start_game = () => {
     logger.info("StartGame");
@@ -88,7 +142,13 @@ const start_game = () => {
         for (let i = 0; i < players.length; i++) {
             let player = players[i];
             let {x, y} = runTurn(player, grid, circle);
-            grid[x][y] = i + 1;
+            if (grid[y][x] !== 0) {
+                //todo
+                const origin_player_index = grid[y][x];
+                players[origin_player_index - 1].land--;
+            }
+            grid[y][x] = i + 1;
+            player.land++;
             //drawCell(ctx, cellSize, x, y, player.color);
             payload.push({
                 x: x,
@@ -103,7 +163,8 @@ const start_game = () => {
                 client.send(JSON.stringify({
                     method: "Update",
                     payload: payload,
-                    turn: turn
+                    turn: turn,
+                    statistics: statistics(),
                 }));
             }
         });
@@ -135,7 +196,8 @@ wss.on('connection', (ws) => {
             gridHeight: gridHeight,
             players: players,
             turn: turn,
-            next_round: next_round
+            next_round: next_round,
+            statistics: statistics(),
             // started: started,
         }
     ));
@@ -195,6 +257,9 @@ wss.on('connection', (ws) => {
                     x: x,
                     y: y,
                     color: color,
+                    land: 0,
+                    loss: 0,
+                    virus: 0,
                 };
                 players.push(player)
                 clients.forEach((client) => {
