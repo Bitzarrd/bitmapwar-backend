@@ -119,6 +119,7 @@ const start_game = () => {
         let map_count = resp.data.data;
         turn = 0;
         gridHeight = Math.ceil(map_count / 1000)
+        logger.info(`generate2DArray width=${gridWidth} height=${gridHeight}`);
         grid = generate2DArray(gridWidth, gridHeight);
 
         // 将消息发送给所有客户端
@@ -146,7 +147,14 @@ const start_game = () => {
             }
             let {y, x} = runTurn(player, grid, circle);
             let origin_player_virus = 0;
-            if (grid[y][x] !== 0) {
+
+            if (y >= 0 && y < grid.length && x >= 0 && x < grid[y].length) {
+
+            }else{
+                logger.error("");
+            }
+
+                if (grid[y][x] !== 0) {
                 //todo
                 const origin_player_index = grid[y][x];
                 players[origin_player_index - 1].land--;
@@ -174,7 +182,7 @@ const start_game = () => {
                 }));
             }
         });
-    }, 100)
+    }, 1000)
 
 }
 

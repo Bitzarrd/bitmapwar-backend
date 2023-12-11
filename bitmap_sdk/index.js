@@ -57,12 +57,20 @@ export function base64ToUint8Array(base64) {
     return uint8Array;
 }
 
-export function isCoordinateInArray(array, x, y) {
-    if (x < 0 || y < 0 || x >= array.length || y >= array[0].length) {
+export function isCoordinateInArray(grid, x, y) {
+    // if (x < 0 || y < 0 || x >= array.length || y >= array[0].length) {
+    //     return false;
+    // }
+    //
+    // return true;
+
+
+    if (y >= 0 && y < grid.length && x >= 0 && x < grid[y].length) {
+        return true;
+
+    }else{
         return false;
     }
-
-    return true;
 }
 
 export function getCircleCoordinates(radius) {

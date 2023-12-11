@@ -150,6 +150,7 @@ export default {
     },
     handleSearchEnter() {
       console.log("handleSearchEnter", this.searched_map);
+      this.scaleValue = 1;
       const render = this.$refs.render;
 
       const middle = this.$refs.middle;
