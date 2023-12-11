@@ -40,12 +40,22 @@ const gridWidth = 1000;
 let gridHeight = 800;
 const colors = ['red', 'blue', 'green', 'purple'];
 
-let grid = generate2DArray(gridWidth, gridHeight);
+
+// let grid = generate2DArray(gridWidth, gridHeight);
 let players = [];
 let interval = null;
 let history = [];
 let turn = 0;
 let next_round = 0;
+let grid = null;
+
+axios.get("https://develop.oasis.world/service/open/bitmap/count").then(resp => {
+    let map_count = resp.data.data;
+    gridHeight = Math.ceil(map_count / 1000)
+    logger.info(`generate2DArray width=${gridWidth} height=${gridHeight}`);
+    grid = generate2DArray(gridWidth, gridHeight);
+});
+
 
 function getRandomInt(min, max) {
     min = Math.ceil(min); // 向上取整，确保范围内的最小值为整数
@@ -153,9 +163,9 @@ const start_game = () => {
                 const origin_player_index = grid[y][x];
                 const origin_player = players[origin_player_index - 1];
                 if (origin_player.color !== player.color) {
-                    if(origin_player.virus<=0){
+                    if (origin_player.virus <= 0) {
 
-                    }else {
+                    } else {
                         logger.info(`attack!! origin_color=${origin_player.color} now_color=${player.color}`)
                         const damage = Math.min(player.virus, origin_player.virus);
                         origin_player.loss += damage;

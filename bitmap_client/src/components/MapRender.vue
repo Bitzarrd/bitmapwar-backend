@@ -69,7 +69,9 @@ export default {
     this.canvas = document.getElementById('gridCanvas');
     this.ctx = this.canvas.getContext('2d');
 
-    // this.init();
+    // drawGrid(this.canvas, this.ctx, this.gridWidth, this.gridHeight, this.cellSize);
+
+    this.init();
   },
   created() {
 
