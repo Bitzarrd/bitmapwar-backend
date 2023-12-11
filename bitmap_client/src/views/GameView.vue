@@ -3,12 +3,15 @@ import MapRender from "@/components/MapRender.vue";
 import {mapActions, mapMutations, mapState} from "vuex";
 import {CirclePlus, Edit, Histogram, Rank} from "@element-plus/icons-vue";
 import moment from "moment";
+import {shortend} from "@/utils";
 
 export default {
   name: "GameView",
   components: {Edit, Histogram, Rank, CirclePlus, MapRender},
   computed: {
-    ...mapState(['socket', 'conn', 'wallet_address', 'map_list', 'turn', 'landList', 'lastRanking', 'next_round']),
+    ...mapState([
+      'socket', 'conn', 'wallet_address', 'map_list', 'turn',
+      'landList', 'lastRanking', 'next_round']),
     bitmap_list() {
       let origin = this.map_list;
       let result = [];
@@ -41,6 +44,7 @@ export default {
       nextRoundSettingDialogVisible: false,
       value: "red",
       nextRoundSetting: 0,
+      virus: 0,
       selected_map: "",
       options:
           [
@@ -90,6 +94,7 @@ export default {
 
   },
   methods: {
+    shortend,
     ...mapActions(['connectWallet', 'getBitMapList', 'login']),
     ...mapMutations([]),
     onClickStartGame() {
@@ -128,6 +133,13 @@ export default {
       this.conn.sendObj({method: "SetNextRound", timestamp: this.nextRoundSetting});
       this.nextRoundSettingDialogVisible = false
     },
+    onClickConfirm() {
+      this.conn.sendObj({
+        method: "JoinGame2",
+        color: this.value,
+        map_id: this.selected_map
+      });
+    }
   }
 }
 </script>
@@ -193,7 +205,7 @@ export default {
           <div class="round">
             <div style="float: left;padding-top: 12px;color: #E5EAF3">
               Rounds:1000
-              NextRounds:{{next_round_datetime}}
+              NextRounds:{{ next_round_datetime }}
               Turn:{{ turn }}
             </div>
             <div style="float: right;margin-top: 10px">
@@ -227,7 +239,7 @@ export default {
 
               <el-form label-width="70px" v-if="wallet_address">
                 <el-form-item label="ID:">
-                  <el-input :value="wallet_address.sub+'......luwvg'" disabled/>
+                  <el-input :value="shortend(wallet_address)" disabled/>
                 </el-form-item>
                 <el-form-item label="Profit:">
                   <el-input value="10 BTC" disabled
@@ -286,13 +298,13 @@ export default {
                   </el-select>
                 </el-form-item>
                 <el-form-item label="Bitmap:">
-                  <el-input value="#12314212" disabled/>
+                  <el-input :value="selected_map" disabled/>
                 </el-form-item>
                 <el-form-item label="Owner:">
-                  <el-input value="fhswf....asdad" disabled/>
+                  <el-input :value="shortend(wallet_address)" disabled/>
                 </el-form-item>
                 <el-form-item label="Virus:">
-                  <el-input value="0"/>
+                  <el-input v-model="virus"/>
                 </el-form-item>
               </el-form>
               <template #footer>
@@ -319,7 +331,7 @@ export default {
     <template #footer>
       <span class="dialog-footer">
         <el-button @click="dialogVisible = false">Cancel</el-button>
-        <el-button type="primary" @click="dialogVisible = false">
+        <el-button type="primary" @click="onClickConfirm">
           Confirm
         </el-button>
       </span>

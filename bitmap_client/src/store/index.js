@@ -104,6 +104,11 @@ export const store = createStore({
 
         ],
     },
+    getters: {
+        shortedWalletAddress: state => {
+            return state.wallet_address.substr(0, 5) + '......' + state.wallet_address.substr;
+        }
+    },
     mutations: {
         setWalletAddress(state, address) {
             state.wallet_address = address;
