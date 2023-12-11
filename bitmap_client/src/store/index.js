@@ -106,7 +106,7 @@ export const store = createStore({
 
         user: {
             address: null,
-            profit: null,
+            profit: "0",
             virus: 0,
         }
     },
@@ -182,8 +182,8 @@ export const store = createStore({
                     state.new_update = message.payload;
                     break;
                 case "LoginSuccess":
-                    //todo
                     console.log("LoginSuccess", message);
+                    state.user = message.user;
                     break;
                 case "SetNextRoundSuccess":
                     state.next_round = (Number)(message.timestamp);

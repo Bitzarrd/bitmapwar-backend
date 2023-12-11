@@ -4,6 +4,7 @@ import {mapActions, mapMutations, mapState} from "vuex";
 import {CirclePlus, Edit, Histogram, Rank} from "@element-plus/icons-vue";
 import moment from "moment";
 import {shortend} from "@/utils";
+import {ethers, formatEther} from "ethers";
 
 export default {
   name: "GameView",
@@ -94,6 +95,7 @@ export default {
 
   },
   methods: {
+    formatEther,
     shortend,
     ...mapActions(['connectWallet', 'getBitMapList', 'login']),
     ...mapMutations([]),
@@ -241,8 +243,8 @@ export default {
                 <el-form-item label="ID:">
                   <el-input :value="shortend(wallet_address)" disabled/>
                 </el-form-item>
-                <el-form-item label="Profit:">
-                  <el-input value="10 BTC" disabled
+                <el-form-item label="Profit(BTC):">
+                  <el-input :value="formatEther(user.profit)" disabled
                             style="float: left;display: inline;width: 100px;margin-right: 10px"/>
                   <el-button @click="onClickProfits" style="float: right;display: inline">
                     <el-icon color="white" class="no-inherit">
@@ -260,7 +262,8 @@ export default {
                   </el-button>
                 </el-form-item>
                 <el-form-item label="Virus:">
-                  <el-input value="100" disabled style="float: left;display: inline;width: 100px;margin-right: 10px"/>
+                  <el-input :value="user.virus" disabled
+                            style="float: left;display: inline;width: 100px;margin-right: 10px"/>
                   <el-button @click="onClickPurchase" style="float: right;display: inline">
                     <el-icon color="white" class="no-inherit">
                       <CirclePlus/>
@@ -304,7 +307,7 @@ export default {
                   <el-input :value="shortend(wallet_address)" disabled/>
                 </el-form-item>
                 <el-form-item label="Virus:">
-                  <el-input-number :controls="false" :min="1"  v-model="virus" />
+                  <el-input-number :controls="false" :min="1" v-model="virus"/>
                 </el-form-item>
               </el-form>
               <template #footer>
@@ -346,7 +349,7 @@ export default {
     <div class="">
       <el-form label-width="100px">
         <el-form-item label="Profit">
-          <el-input value="10 BTC" disabled/>
+          <el-input value="10.123456 BTC" disabled/>
         </el-form-item>
         <el-form-item label="EnterAmount">
           <el-input value="0" placeholder="please enter"/>
