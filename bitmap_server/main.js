@@ -37,14 +37,14 @@ const clients = new Set();
 
 //////////////////////////////////////////////////////
 const gridWidth = 1000;
-let gridHeight = 800;
 const colors = ['red', 'blue', 'green', 'purple'];
+const durationOfTheMatch = 300;
+const intervalBetweenMatches = 60;
 
+let gridHeight = 800;
 
-// let grid = generate2DArray(gridWidth, gridHeight);
 let players = [];
 let interval = null;
-let history = [];
 let turn = 0;
 let next_round = 0;
 let grid = null;

@@ -13,7 +13,7 @@ export default {
     ...mapState([
       'socket', 'conn', 'wallet_address', 'map_list', 'turn',
       'landList', 'lastRanking', 'next_round', 'user', 'gridWidth',
-      'cellSize',
+      'cellSize', 'loading'
     ]),
     bitmap_list() {
       let origin = this.map_list;
@@ -166,7 +166,7 @@ export default {
 </script>
 
 <template>
-  <div class="container">
+  <div class="container" v-loading="loading">
     <div class="top-div">
       <span style="margin-right: 10px;">Socket Connect: {{ socket.isConnected ? "YES" : socket.reconnectError }}</span>
       <el-button @click="onClickJoinGame">Join Game</el-button>
@@ -225,7 +225,7 @@ export default {
         <div class="middle" ref="middle">
           <div class="round">
             <div style="float: left;padding-top: 12px;color: #E5EAF3">
-              Rounds:1000
+              Duration:00:00
               NextRounds:{{ next_round_datetime }}
               Turn:{{ turn }}
             </div>
@@ -348,7 +348,6 @@ export default {
       v-model="dialogVisible"
       title="Tips"
       width="30%"
-      :before-close="handleClose"
   >
     <span>After selecting a faction, this match cannot be modified. Are you sure?</span>
     <template #footer>
@@ -523,7 +522,7 @@ export default {
 .round {
   height: 50px;
   margin-bottom: 10px;
-  z-index: 9999;
+  z-index: 1;
   background-color: black;
 }
 
