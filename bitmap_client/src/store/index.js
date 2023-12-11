@@ -164,7 +164,7 @@ export const store = createStore({
                     state.gridHeight = message.gridHeight;
                     state.grid = decompress3(message.grid, message.gridWidth, message.gridHeight);
                     state.players = message.players;
-                    console.log(state.grid.length);
+                    console.log("state.grid.length", state.grid.length);
                     state.loading = false;
                     break;
                 case "GameStarted":
@@ -183,6 +183,7 @@ export const store = createStore({
                     break;
                 case "LoginSuccess":
                     //todo
+                    console.log("LoginSuccess", message);
                     break;
                 case "SetNextRoundSuccess":
                     state.next_round = (Number)(message.timestamp);
@@ -205,7 +206,7 @@ export const store = createStore({
             if (typeof window.unisat !== 'undefined') {
                 // alert('UniSat Wallet is installed!');
                 let account = await window.unisat.requestAccounts();
-                console.log(account);
+                console.log("account", account);
                 context.commit('setWalletAddress', account[0])
 
             }
@@ -213,7 +214,7 @@ export const store = createStore({
         async getBitMapList(context) {
             let url = "https://develop.oasis.world/service/open/bitmap/list?address=bc1qnjfw8qkzfysg7cvdqkll8mp89pjfxk9flqxh0z";
             let result = await axios.get(url);
-            console.log(result.data.data.list);
+            console.log("getBitMapList result.data.data.list", result.data.data.list);
             context.commit('setMapList', result.data.data.list)
         },
         async login(context, wallet_address) {

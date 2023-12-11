@@ -304,7 +304,7 @@ export default {
                   <el-input :value="shortend(wallet_address)" disabled/>
                 </el-form-item>
                 <el-form-item label="Virus:">
-                  <el-input v-model="virus"/>
+                  <el-input-number :controls="false" :min="1"  v-model="virus" />
                 </el-form-item>
               </el-form>
               <template #footer>
