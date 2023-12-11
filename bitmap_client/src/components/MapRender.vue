@@ -4,6 +4,8 @@ import {mapState} from "vuex";
 import {ElMessage} from "element-plus";
 import Vue3DraggableResizable from "vue3-draggable-resizable";
 import 'vue3-draggable-resizable/dist/Vue3DraggableResizable.css'
+import {calculateCanvasPosition} from "@/utils";
+
 
 export default {
   name: "MapRender",
@@ -56,6 +58,10 @@ export default {
       ctx: null,
       left: 0,
       top: 0,
+      x: 0,
+      y: 0,
+      h: 0,
+      w: 0,
     }
   },
 
@@ -74,10 +80,14 @@ export default {
       this.canvas.height = this.cellSize * this.gridHeight;
       drawGrid(this.canvas, this.ctx, this.gridWidth, this.gridHeight, this.cellSize);
     },
-    search(searched_map) {
+    search(middle_width, middle_height, searched_map) {
       let y = Math.floor(searched_map / this.gridWidth);
       let x = searched_map % this.gridWidth;
-
+      let top = -(y * 10);
+      let left = -(x * 10);
+      console.log(x, y, left, top);
+      this.y = top + (middle_height / 2);
+      this.x = left + (middle_width / 2);
       drawCell(this.ctx, this.cellSize, x, y, "black");
     }
   }
@@ -86,13 +96,25 @@ export default {
 
 <template>
 
-  <Vue3DraggableResizable v-loading="loading"
-                          :initW="gridWidth*cellSize"
-                          :initH="gridHeight*cellSize"
-                          :resizable="false"
+
+  <Vue3DraggableResizable
+      v-loading="loading"
+      :initW="gridWidth*cellSize"
+      :initH="gridHeight*cellSize"
+      :resizable="false"
+      v-model:x="x"
+      v-model:y="y"
+      v-model:w="w"
+      v-model:h="h"
   >
     <canvas id="gridCanvas"></canvas>
+
   </Vue3DraggableResizable>
+
+  <div style="float: right">
+    <el-input-number v-model="x"/>
+    <el-input-number v-model="y"/>
+  </div>
 </template>
 
 <style scoped>

@@ -39,7 +39,7 @@ export default {
   },
   data() {
     return {
-      scaleValue: 0.5,
+      scaleValue: 1,
       dialogVisible: false,
       purchaseDialogVisible: false,
       bitmapListDialogVisible: false,
@@ -151,7 +151,14 @@ export default {
     handleSearchEnter() {
       console.log("handleSearchEnter", this.searched_map);
       const render = this.$refs.render;
-      render.search(this.searched_map);
+
+      const middle = this.$refs.middle;
+      const middle_width = middle.offsetWidth;
+      const middle_height = middle.offsetHeight;
+      console.log("middle", middle_width, middle_height);
+
+      render.search(middle_width, middle_height - 50, this.searched_map);
+
     }
   }
 }
@@ -214,7 +221,7 @@ export default {
           </div>
 
         </div>
-        <div class="middle">
+        <div class="middle" ref="middle">
           <div class="round">
             <div style="float: left;padding-top: 12px;color: #E5EAF3">
               Rounds:1000

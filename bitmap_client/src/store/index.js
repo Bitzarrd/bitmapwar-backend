@@ -39,7 +39,7 @@ export const store = createStore({
         next_round: 0,
 
         gridWidth: 1000,
-        gridHeight: 300,
+        gridHeight: 1000,
         cellSize: 10,
 
 

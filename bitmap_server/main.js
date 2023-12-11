@@ -144,7 +144,7 @@ const start_game = () => {
             if (player.virus <= 0) {
                 continue;
             }
-            let {x, y} = runTurn(player, grid, circle);
+            let {y, x} = runTurn(player, grid, circle);
             let origin_player_virus = 0;
             if (grid[y][x] !== 0) {
                 //todo
