@@ -4,10 +4,11 @@ import winston from "winston";
 import dotenv from "dotenv";
 import axios from "axios";
 import mysql from "mysql";
+import {getRandomInt} from "./utils.js";
+import {gridWidth, colors, durationOfTheMatch, intervalBetweenMatches, circle} from "./defines.js";
 
 
 dotenv.config();
-
 
 let mysql_connection = mysql.createConnection({
     host: process.env.MYSQL_HOST,
@@ -36,18 +37,16 @@ const wss = new WebSocketServer({port: process.env.PORT});
 const clients = new Set();
 
 //////////////////////////////////////////////////////
-const gridWidth = 1000;
-const colors = ['red', 'blue', 'green', 'purple'];
-const durationOfTheMatch = 300;
-const intervalBetweenMatches = 60;
 
 let gridHeight = 800;
-
 let players = [];
 let interval = null;
 let turn = 0;
 let next_round = 0;
 let grid = null;
+
+//////////////////////////////////////////////////////
+
 
 axios.get("https://develop.oasis.world/service/open/bitmap/count").then(resp => {
     let map_count = resp.data.data;
@@ -56,14 +55,6 @@ axios.get("https://develop.oasis.world/service/open/bitmap/count").then(resp => 
     grid = generate2DArray(gridWidth, gridHeight);
 });
 
-
-function getRandomInt(min, max) {
-    min = Math.ceil(min); // 向上取整，确保范围内的最小值为整数
-    max = Math.floor(max); // 向下取整，确保范围内的最大值为整数
-    return Math.floor(Math.random() * (max - min + 1)) + min;
-}
-
-const circle = getCircleCoordinates(500)
 
 //////////////////////////////////////////////////////
 
