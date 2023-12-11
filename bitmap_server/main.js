@@ -148,17 +148,28 @@ const start_game = () => {
             let {y, x} = runTurn(player, grid, circle);
             let origin_player_virus = 0;
 
-            if (y >= 0 && y < grid.length && x >= 0 && x < grid[y].length) {
 
-            }else{
-                logger.error("");
-            }
-
-                if (grid[y][x] !== 0) {
-                //todo
+            if (grid[y][x] !== 0) {
                 const origin_player_index = grid[y][x];
-                players[origin_player_index - 1].land--;
-                players[origin_player_index - 1].loss++;
+                const origin_player = players[origin_player_index - 1];
+                if (origin_player.color !== player.color) {
+                    if(origin_player.virus<=0){
+
+                    }else {
+                        logger.info(`attack!! origin_color=${origin_player.color} now_color=${player.color}`)
+                        const damage = Math.min(player.virus, origin_player.virus);
+                        origin_player.loss += damage;
+                        player.loss += damage;
+                        origin_player.virus -= damage;
+                        player.virus = damage;
+                        if (player.virus <= 0) {
+                            continue;
+                        }
+                    }
+                    origin_player.land--;
+                }
+                // players[origin_player_index - 1].land--;
+                // players[origin_player_index - 1].loss++;
 
             }
             grid[y][x] = i + 1;
@@ -182,7 +193,7 @@ const start_game = () => {
                 }));
             }
         });
-    }, 1000)
+    }, 333)
 
 }
 

@@ -164,7 +164,7 @@ export const store = createStore({
                     state.gridHeight = message.gridHeight;
                     state.grid = decompress3(message.grid, message.gridWidth, message.gridHeight);
                     state.players = message.players;
-                    console.log("state.grid", state.grid,state.grid[817][719]);
+                    console.log("state.grid", state.grid);
                     state.loading = false;
                     break;
                 case "GameStarted":
