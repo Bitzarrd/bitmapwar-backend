@@ -191,6 +191,10 @@ export const store = createStore({
                 case "SetNextRoundSuccess":
                     state.next_round = (Number)(message.timestamp);
                     break;
+                case "Settlement":
+
+                    //todo
+                    break;
 
             }
             state.socket.message = message;
