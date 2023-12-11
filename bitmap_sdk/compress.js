@@ -7,14 +7,15 @@ import {merge2DArray, generate2DArray, compress2, compress3, decompress3, genera
 let width = 1000;
 let height = 1000;
 let grid = generate2DArrayFull(width, height);
-
-let zip2 = compress2(grid);
+grid[817][719] = 1;
+// let zip2 = compress2(grid);
 
 let zip3 = compress3(grid);
 // console.log(zip2);
 console.log(zip3.length);
 
 let grid3 = decompress3(zip3, width, height);
+console.log(grid3[817][719]);
 //console.log(grid3);
 // // console.log(grid);
 //

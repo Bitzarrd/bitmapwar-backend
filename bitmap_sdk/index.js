@@ -58,17 +58,10 @@ export function base64ToUint8Array(base64) {
 }
 
 export function isCoordinateInArray(grid, x, y) {
-    // if (x < 0 || y < 0 || x >= array.length || y >= array[0].length) {
-    //     return false;
-    // }
-    //
-    // return true;
-
-
     if (y >= 0 && y < grid.length && x >= 0 && x < grid[y].length) {
         return true;
 
-    }else{
+    } else {
         return false;
     }
 }
@@ -144,7 +137,7 @@ export function renderGrid(ctx, gridWidth, gridHeight, cellSize, grid, players) 
                     player_index = grid[i][j];
                     if (players[player_index - 1]) {
                         let color = players[player_index - 1].color;
-                        drawCell(ctx, cellSize, i, j, color);
+                        drawCell(ctx, cellSize, j, i, color);
                     } else {
                         console.warn("player at " + player_index - 1 + " not exist")
                     }
