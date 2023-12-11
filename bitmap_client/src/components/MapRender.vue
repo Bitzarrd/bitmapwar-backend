@@ -73,6 +73,12 @@ export default {
       this.canvas.width = this.cellSize * this.gridWidth;
       this.canvas.height = this.cellSize * this.gridHeight;
       drawGrid(this.canvas, this.ctx, this.gridWidth, this.gridHeight, this.cellSize);
+    },
+    search(searched_map) {
+      let y = Math.floor(searched_map / this.gridWidth);
+      let x = searched_map % this.gridWidth;
+
+      drawCell(this.ctx, this.cellSize, x, y, "black");
     }
   }
 }

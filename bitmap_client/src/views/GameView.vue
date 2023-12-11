@@ -12,7 +12,9 @@ export default {
   computed: {
     ...mapState([
       'socket', 'conn', 'wallet_address', 'map_list', 'turn',
-      'landList', 'lastRanking', 'next_round', 'user']),
+      'landList', 'lastRanking', 'next_round', 'user', 'gridWidth',
+      'cellSize',
+    ]),
     bitmap_list() {
       let origin = this.map_list;
       let result = [];
@@ -47,6 +49,7 @@ export default {
       nextRoundSetting: 0,
       virus: 0,
       selected_map: "",
+      searched_map: null,
       options:
           [
             {
@@ -144,6 +147,11 @@ export default {
         owner: this.wallet_address,
       });
       this.dialogVisible = false;
+    },
+    handleSearchEnter() {
+      console.log("handleSearchEnter", this.searched_map);
+      const render = this.$refs.render;
+      render.search(this.searched_map);
     }
   }
 }
@@ -214,7 +222,8 @@ export default {
               Turn:{{ turn }}
             </div>
             <div style="float: right;margin-top: 10px">
-              <el-input size="small" placeholder="Search Bitmap">
+              <el-input size="small" placeholder="Search Bitmap" v-model="searched_map"
+                        @keyup.enter="handleSearchEnter">
                 <template #prepend>
                   <el-button>
                     <el-icon color="white" class="no-inherit">
@@ -226,7 +235,7 @@ export default {
             </div>
           </div>
           <div id="resizeable" :style="innerStyle()">
-            <MapRender></MapRender>
+            <MapRender ref="render"></MapRender>
           </div>
         </div>
         <div class="right">

@@ -141,7 +141,11 @@ const start_game = () => {
         let payload = [];
         for (let i = 0; i < players.length; i++) {
             let player = players[i];
+            if (player.virus <= 0) {
+                continue;
+            }
             let {x, y} = runTurn(player, grid, circle);
+            let origin_player_virus = 0;
             if (grid[y][x] !== 0) {
                 //todo
                 const origin_player_index = grid[y][x];
@@ -274,8 +278,8 @@ wss.on('connection', (ws) => {
                 });
                 break;
             case "JoinGame2":
-                let join_x = Math.floor(decode.map_id / gridWidth);
-                let join_y = decode.map_id % gridWidth;
+                let join_y = Math.floor(decode.map_id / gridWidth);
+                let join_x = decode.map_id % gridWidth;
                 logger.info(`JoinGame2 map_id=${decode.map_id} x=${join_x} y=${join_y}`);
 
                 let join_player = {
