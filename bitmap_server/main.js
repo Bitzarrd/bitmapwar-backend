@@ -273,6 +273,33 @@ wss.on('connection', (ws) => {
                     }
                 });
                 break;
+            case "JoinGame2":
+                let join_x = Math.floor(decode.map_id / gridWidth);
+                let join_y = decode.map_id % gridWidth;
+                logger.info(`JoinGame2 map_id=${decode.map_id} x=${join_x} y=${join_y}`);
+
+                let join_player = {
+                    i: 0,
+                    x: join_x,
+                    y: join_y,
+                    color: decode.color,
+                    land: 0,
+                    loss: 0,
+                    virus: decode.virus,
+                    owner: decode.owner,
+                };
+
+                players.push(join_player)
+
+                clients.forEach((client) => {
+                    if (client.readyState === WebSocket.OPEN) {
+                        client.send(JSON.stringify({
+                            method: "JoinedGame",
+                            player: join_player,
+                        }));
+                    }
+                });
+                break;
             case "StartGame":
                 start_game();
                 break;

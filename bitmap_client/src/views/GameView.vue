@@ -19,11 +19,11 @@ export default {
       for (let i = 0; i < origin.length; i++) {
         // console.log(origin)
         if (i === 0) {
-          this.selected_map = "#" + origin[i].info.bit_number;
+          this.selected_map = origin[i].info.bit_number;
         }
         result.push(
             {
-              value: "#" + origin[i].info.bit_number,
+              value: origin[i].info.bit_number,
               label: "#" + origin[i].info.bit_number,
             }
         )
@@ -139,8 +139,11 @@ export default {
       this.conn.sendObj({
         method: "JoinGame2",
         color: this.value,
-        map_id: this.selected_map
+        map_id: this.selected_map,
+        virus: this.virus,
+        owner: this.wallet_address,
       });
+      this.dialogVisible = false;
     }
   }
 }
