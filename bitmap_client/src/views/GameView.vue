@@ -11,7 +11,7 @@ export default {
   computed: {
     ...mapState([
       'socket', 'conn', 'wallet_address', 'map_list', 'turn',
-      'landList', 'lastRanking', 'next_round']),
+      'landList', 'lastRanking', 'next_round', 'user']),
     bitmap_list() {
       let origin = this.map_list;
       let result = [];

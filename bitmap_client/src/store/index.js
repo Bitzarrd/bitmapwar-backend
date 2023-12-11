@@ -103,6 +103,12 @@ export const store = createStore({
 
 
         ],
+
+        user: {
+            address: null,
+            profit: null,
+            virus: 0,
+        }
     },
     getters: {
         shortedWalletAddress: state => {
