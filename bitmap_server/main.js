@@ -4,7 +4,7 @@ import winston from "winston";
 import dotenv from "dotenv";
 import axios from "axios";
 import mysql from "mysql";
-import {getRandomInt} from "./utils.js";
+import {getRandomInt, now} from "./utils.js";
 import {gridWidth, colors, durationOfTheMatch, intervalBetweenMatches, circle} from "./defines.js";
 
 
@@ -44,6 +44,7 @@ let interval = null;
 let turn = 0;
 let next_round = 0;
 let grid = null;
+let stop_time = 0;
 
 //////////////////////////////////////////////////////
 
@@ -122,6 +123,7 @@ const start_game = () => {
         gridHeight = Math.ceil(map_count / 1000)
         logger.info(`generate2DArray width=${gridWidth} height=${gridHeight}`);
         grid = generate2DArray(gridWidth, gridHeight);
+        stop_time = now() + durationOfTheMatch;
 
         // 将消息发送给所有客户端
         clients.forEach((client) => {
@@ -131,6 +133,7 @@ const start_game = () => {
                     gridWidth: gridWidth,
                     gridHeight: gridHeight,
                     turn: turn,
+                    stop_time: stop_time
                 }));
             }
         });
@@ -139,6 +142,22 @@ const start_game = () => {
 
 
     interval = setInterval(() => {
+        if (now() === stop_time) {
+            logger.info("stopped on timer")
+            clearInterval(interval);
+            next_round = now() + intervalBetweenMatches;
+
+            clients.forEach((client) => {
+                if (client.readyState === WebSocket.OPEN) {
+                    client.send(JSON.stringify({
+                        method: "Settlement",
+                    }));
+                }
+            });
+
+            return;
+        }
+
         turn++;
         let payload = [];
         for (let i = 0; i < players.length; i++) {
@@ -200,9 +219,8 @@ const start_game = () => {
 
 
 setInterval(() => {
-    const timestampSeconds = Math.floor(new Date().getTime() / 1000);
     // logger.info(timestampSeconds + ":" + next_round + ":" + (timestampSeconds === next_round ? "T" : "F"));
-    if (timestampSeconds === next_round) {
+    if (now() === next_round) {
         logger.info("Start New Round");
         start_game()
     }
@@ -224,6 +242,7 @@ wss.on('connection', (ws) => {
             turn: turn,
             next_round: next_round,
             statistics: statistics(),
+            stop_time: stop_time
             // started: started,
         }
     ));
@@ -335,6 +354,7 @@ wss.on('connection', (ws) => {
                 grid = generate2DArray(gridWidth, gridHeight);
                 players = [];
                 turn = 0;
+                stop_time = 0;
                 break;
             case "SetNextRound":
                 // const timestamp = new Date().getTime();

@@ -41,6 +41,7 @@ export const store = createStore({
         gridWidth: 1000,
         gridHeight: 1000,
         cellSize: 10,
+        stop_time: 0,
 
 
         landList: [
@@ -157,6 +158,7 @@ export const store = createStore({
             console.log("SOCKET_ONMESSAGE", message);
             switch (message.method) {
                 case "Reload":
+                    state.stop_time = message.stop_time;
                     state.landList = message.statistics;
                     state.next_round = message.next_round;
                     state.turn = message.turn;
@@ -168,6 +170,7 @@ export const store = createStore({
                     state.loading = false;
                     break;
                 case "GameStarted":
+                    state.stop_time = message.stop_time;
                     state.game_started = true;
                     break;
                 case "GameStopped":
