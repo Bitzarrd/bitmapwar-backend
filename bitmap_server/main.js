@@ -151,6 +151,7 @@ const start_game = () => {
                 if (client.readyState === WebSocket.OPEN) {
                     client.send(JSON.stringify({
                         method: "Settlement",
+                        next_round: next_round
                     }));
                 }
             });
