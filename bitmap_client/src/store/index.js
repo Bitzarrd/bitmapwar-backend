@@ -192,7 +192,7 @@ export const store = createStore({
                     state.next_round = (Number)(message.timestamp);
                     break;
                 case "Settlement":
-
+                    state.next_round = (Number)(message.next_round);
                     //todo
                     break;
 

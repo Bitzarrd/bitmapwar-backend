@@ -6,10 +6,11 @@ import moment from "moment";
 import {shortend} from "@/utils";
 import {formatEther} from "ethers";
 import CountDown from "@/components/CountDown.vue";
+import NextRound from "@/components/NextRound.vue";
 
 export default {
   name: "GameView",
-  components: {Edit, Histogram, Rank, CirclePlus, MapRender, CountDown},
+  components: {Edit, Histogram, Rank, CirclePlus, MapRender, CountDown, NextRound},
   computed: {
     ...mapState([
       'socket', 'conn', 'wallet_address', 'map_list', 'turn',
@@ -227,7 +228,7 @@ export default {
           <div class="round">
             <div style="float: left;padding-top: 12px;color: #E5EAF3">
               <CountDown/>
-              NextRounds:{{ next_round_datetime }}
+              <NextRound/>
               Turn:{{ turn }}
             </div>
             <div style="float: right;margin-top: 10px">
