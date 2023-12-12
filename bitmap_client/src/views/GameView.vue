@@ -48,7 +48,7 @@ export default {
       profitDialogVisible: false,
       nextRoundSettingDialogVisible: false,
       settlementDialogVisible: false,
-      walletsDialogVisible: true,
+      walletsDialogVisible: false,
       value: "red",
       nextRoundSetting: 0,
       virus: 0,
@@ -111,7 +111,7 @@ export default {
   methods: {
     formatEther,
     shortend,
-    ...mapActions(['connectWallet', 'getBitMapList', 'login']),
+    ...mapActions(['connectUnisat', 'connectMetaMask', 'getBitMapList', 'login']),
     ...mapMutations([]),
     onClickStartGame() {
       this.conn.sendObj({method: "StartGame"});
@@ -122,10 +122,17 @@ export default {
     onClickJoinGame() {
       this.conn.sendObj({method: "JoinGame"});
     },
-    async onClickConnWallet() {
-      await this.connectWallet();
+    async onClickConnUnisat() {
+      await this.connectUnisat();
       await this.getBitMapList()
       await this.login(this.wallet_address);
+      this.walletsDialogVisible = false;
+    },
+    async onClickConnMetamask() {
+      await this.connectMetaMask();
+      await this.getBitMapList()
+      await this.login(this.wallet_address);
+      this.walletsDialogVisible = false;
     },
     onClickSubmit() {
       this.dialogVisible = true
@@ -190,7 +197,7 @@ export default {
       <el-button @click="onClickStopGame">Stop Game</el-button>
       <el-button @click="nextRoundSettingDialogVisible = true">Set Next Round</el-button>
       <div style="float: right">
-        <el-button @click="onClickConnWallet">{{ wallet_address ? wallet_address : "Conn Wallet" }}</el-button>
+        <el-button @click="walletsDialogVisible=true">{{ wallet_address ? wallet_address : "Conn Wallet" }}</el-button>
       </div>
     </div>
     <div class="bottom-div" id="bottom-div">
@@ -505,8 +512,8 @@ export default {
       title="Select Your Wallet"
       width="30%"
   >
-    <el-button @click="onClickConnWallet">UniSet</el-button>
-    <el-button @click="">MetaMask</el-button>
+    <el-button @click="onClickConnUnisat">UniSet</el-button>
+    <el-button @click="onClickConnMetamask">MetaMask</el-button>
   </el-dialog>
 </template>
 

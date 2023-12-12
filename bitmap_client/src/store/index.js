@@ -214,13 +214,32 @@ export const store = createStore({
         }
     },
     actions: {
-        async connectWallet(context) {
+        async connectUnisat(context) {
             if (typeof window.unisat !== 'undefined') {
                 // alert('UniSat Wallet is installed!');
                 let account = await window.unisat.requestAccounts();
                 console.log("account", account);
                 context.commit('setWalletAddress', account[0])
+            }
+        },
 
+        async connectMetaMask(context) {
+            try {
+                await window.ethereum.enable();
+                const account = await window.ethereum.request({method: 'eth_requestAccounts'});
+                context.commit('setWalletAddress', account[0])
+
+
+                const provider = new ethers.BrowserProvider(window.ethereum)
+
+                const contractAddress = '0x1234567890abcdef1234567890abcdef12345678';
+                const abi = [
+                    // ... contract ABI ...
+                ];
+                const contract = new ethers.Contract(contractAddress, abi, provider);
+
+            } catch (error) {
+                // Handle error
             }
         },
 
