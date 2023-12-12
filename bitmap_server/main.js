@@ -430,10 +430,31 @@ wss.on('connection', (ws) => {
                 break;
             case "Purchase":
                 const txid = decode.txid;
-                const events = get_events(txid, (logs) => {
+                get_events(txid, (logs) => {
                     console.log("logs", logs);
+                    for (let i = 0; i < logs.length; i++) {
+                        let log = logs[i];
+                        let event_name = log.signature;
+                        switch (event_name) {
+                            case "Transfer(address,address,uint256)":
+                                let from = log.args[0];
+                                let to = log.args[1];
+                                let amount = (Number)(log.args[2]);
+                                if (from === "0x0000000000000000000000000000000000000000") {
+                                    const sql = "UPGRATE `user` set `virus`=`virus`+"+amount+" WHERE `address`='" + to + "'";
+                                    logger.info(sql);
+                                    mysql_connection.query(sql, function (err, result) {
+                                        if (err) {
+                                            logger.error(err);
+                                        } else {
+                                            logger.info(result);
+                                        }
+                                    });
+                                }
+                                break;
+                        }
+                    }
                 });
-                console.log(events);
                 break;
         }
 
