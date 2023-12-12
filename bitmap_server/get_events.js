@@ -447,24 +447,16 @@ const abi = [
     }
 ];
 
-// const rpc_url = "https://data-seed-prebsc-1-s1.binance.org:8545";
 const rpc_url = "https://magical-wiser-uranium.bsc-testnet.quiknode.pro/129a6185443fadec6a5f672b3727e6864400dfd8/";
 const provider = new ethers.JsonRpcProvider(rpc_url);
 const iface = new Interface(abi)
 
 
-
-const receipt = await provider.getTransactionReceipt(txid);
-const tx = await provider.getTransaction(txid);
-const result = await tx.wait()
-const logs = result.logs;
-
-// const contract = new ethers.Contract(receipt.contractAddress, abi, provider);
-// const events =
-
-// const events =
-
-console.log("receipt", receipt);
-console.log("response", logs);
-
-console.log(iface.parseLog(logs[0]));
+export function get_events(txid, callback) {
+    provider.getTransaction(txid).then((tx) => {
+        tx.wait().then((result)=>{
+            const logs = result.logs;
+            callback(logs);
+        })
+    });
+}

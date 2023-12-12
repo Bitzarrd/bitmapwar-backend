@@ -6,6 +6,7 @@ import axios from "axios";
 import mysql from "mysql";
 import {getRandomInt, now} from "./utils.js";
 import {gridWidth, colors, durationOfTheMatch, intervalBetweenMatches, circle} from "./defines.js";
+import {get_events} from "./get_events.js";
 
 
 dotenv.config();
@@ -426,6 +427,13 @@ wss.on('connection', (ws) => {
                     }));
                 });
 
+                break;
+            case "Purchase":
+                const txid = decode.txid;
+                const events = get_events(txid, (logs) => {
+                    console.log("logs", logs);
+                });
+                console.log(events);
                 break;
         }
 
