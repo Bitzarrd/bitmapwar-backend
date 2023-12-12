@@ -155,6 +155,14 @@ const start_game = () => {
                 return a.land > b.land;
             });
 
+            let rand_to_save = [];
+            for (let i = 0; i < rank.length; i++) {
+                rand_to_save.push({
+                    owner: rank[i].owner,
+                    land: rank[i].land
+                })
+            }
+
             let users = [];
 
 
@@ -184,6 +192,13 @@ const start_game = () => {
                     }));
                 }
             }
+
+
+            const sql = "INSERT INTO `round` (`end_time`,`rank`) VALUES (" + now() + ",'" + JSON.stringify(rank) + "')";
+            logger.info(sql);
+            mysql_connection.query(sql, function (err, result) {
+                console.log(err, result);
+            });
 
 
             // clients.forEach((client) => {
