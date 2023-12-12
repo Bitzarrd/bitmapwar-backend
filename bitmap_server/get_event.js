@@ -15,4 +15,4 @@ const result = await tx.wait()
 // const events =
 
 console.log("receipt", receipt);
-console.log("response",result)
+console.log("response",result.logs)
