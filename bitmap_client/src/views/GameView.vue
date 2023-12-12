@@ -196,27 +196,36 @@ export default {
       }
       try {
         this.purchaseLoading = true;
-        const tx = await this.contract.BuyToken( {value: 1000});
+        const tx = await this.contract.BuyToken({value: 1000});
         console.log(tx);
-
-        // const result = await tx.wait()
-        // console.log('transaction events', result.logs);
-
-        this.purchaseDialogVisible = false
-
         const txid = tx.hash;
         const message = {
           method: "Purchase",
           txid: txid,
         };
         this.conn.sendObj(message);
+        this.purchaseDialogVisible = false
       } catch (e) {
         console.error(e);
         ElMessage.error('Oops, this is a error message.' + e)
       } finally {
         this.purchaseLoading = false
       }
+    },
+    async onClickExtractProfit() {
+      try {
+        const amount = 100;
+        const signature = "0x39b39dc76c9cf864009b6032ba58a6e8e00602a2285829c73dfe8efbb441e829116aad82331092be64f89bbe0799cc17c3f1213d03048f57d7ccaeb51b4c94521c";
+        const nonce = 1;
+        const tx = await this.contract.withdrawETHWithSignature(amount, signature, nonce);
+        console.log(tx);
+        const txid = tx.hash;
+      } catch (e) {
+        console.error(e);
+        ElMessage.error('Oops, this is a error message.' + e)
+      }
     }
+
   }
 }
 </script>
@@ -437,7 +446,7 @@ export default {
     <template #footer>
       <span class="dialog-footer">
         <el-button @click="profitDialogVisible = false">Cancel</el-button>
-        <el-button type="primary" @click="profitDialogVisible = false">
+        <el-button type="primary" @click="onClickExtractProfit()">
           Confirm
         </el-button>
       </span>

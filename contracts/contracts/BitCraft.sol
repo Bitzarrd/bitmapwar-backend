@@ -7,7 +7,7 @@ import "@openzeppelin/contracts/access/Ownable.sol";
 
 contract BitCraft is ERC20, ERC20Burnable, Ownable {
     constructor()
-    ERC20("BitCraft", "MTK")
+    ERC20("BitCraft", "BC")
     Ownable()
     {}
 
@@ -77,5 +77,9 @@ contract BitCraft is ERC20, ERC20Burnable, Ownable {
         }
 
         return (r, s, v);
+    }
+
+    function calculateMessage(uint256 amount, uint256 nonce) public pure returns (bytes32) {
+        return keccak256(abi.encodePacked(amount, nonce));
     }
 }
