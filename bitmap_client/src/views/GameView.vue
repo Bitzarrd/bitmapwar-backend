@@ -190,6 +190,10 @@ export default {
       if (this.purchaseLoading) {
         return;
       }
+      if (!this.socket.isConnected) {
+        ElMessage.error("Please connect to the server first.");
+        return;
+      }
       try {
         this.purchaseLoading = true;
         const tx = await this.contract.mint(this.wallet_address, 1);

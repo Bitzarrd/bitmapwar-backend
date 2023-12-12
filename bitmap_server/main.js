@@ -441,13 +441,27 @@ wss.on('connection', (ws) => {
                                 let to = log.args[1];
                                 let amount = (Number)(log.args[2]);
                                 if (from === "0x0000000000000000000000000000000000000000") {
-                                    const sql = "REPLACE INTO `user` set `virus`=`virus`+"+amount+" WHERE `address`='" + to + "'";
+                                    const sql = "UPDATE `user` set `virus`=`virus`+"+amount+" WHERE `address`='" + to + "';";
                                     logger.info(sql);
                                     mysql_connection.query(sql, function (err, result) {
                                         if (err) {
                                             logger.error(err);
                                         } else {
                                             logger.info(result);
+                                            const select_sql = "SELECT * FROM `user` WHERE `address`='" + to + "';";
+                                            logger.info(select_sql);
+                                            mysql_connection.query(select_sql, function (err, result) {
+                                                if (err) {
+                                                    logger.error(err);
+                                                } else {
+                                                    logger.info(result);
+                                                    let user = result[0];
+                                                    ws.send(JSON.stringify({
+                                                        method: "PurchaseSuccess",
+                                                        user: user,
+                                                    }));
+                                                }
+                                            });
                                         }
                                     });
                                 }

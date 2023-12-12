@@ -652,6 +652,9 @@ export const store = createStore({
                     }
                     //todo
                     break;
+                case "PurchaseSuccess":
+                    state.user = message.user;
+                    break;
 
             }
             state.socket.message = message;
