@@ -4,7 +4,7 @@ import {mapActions, mapMutations, mapState} from "vuex";
 import {CirclePlus, Edit, Histogram, Rank} from "@element-plus/icons-vue";
 import moment from "moment";
 import {shortend} from "@/utils";
-import {formatEther} from "ethers";
+import {ethers, formatEther} from "ethers";
 import CountDown from "@/components/CountDown.vue";
 import NextRound from "@/components/NextRound.vue";
 
@@ -15,7 +15,7 @@ export default {
     ...mapState([
       'socket', 'conn', 'wallet_address', 'map_list', 'turn',
       'landList', 'lastRanking', 'next_round', 'user', 'gridWidth',
-      'cellSize', 'loading', 'settlement'
+      'cellSize', 'loading', 'settlement', 'contract'
     ]),
     bitmap_list() {
       let origin = this.map_list;
@@ -183,6 +183,22 @@ export default {
     handleSearchEnter() {
       console.log("handleSearchEnter", this.searched_map);
       this.search(this.searched_map);
+    },
+    async onClickBuyVirus() {
+      const tx = await this.contract.mint(this.wallet_address, 1);
+      console.log(tx);
+
+      const result = await tx.wait()
+      console.log('transaction events', result.logs);
+
+      this.purchaseDialogVisible = false
+
+      const txid = tx.hash;
+      const message = {
+        method: "Purchase",
+        txid: txid,
+      };
+      this.conn.sendObj(message);
     }
   }
 }
@@ -453,7 +469,7 @@ export default {
     <template #footer>
       <span class="dialog-footer">
         <el-button @click="purchaseDialogVisible = false">Cancel</el-button>
-        <el-button type="primary" @click="purchaseDialogVisible = false">
+        <el-button type="primary" @click="onClickBuyVirus">
           Confirm
         </el-button>
       </span>
