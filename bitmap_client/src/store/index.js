@@ -223,6 +223,7 @@ export const store = createStore({
 
             }
         },
+
         async getBitMapList(context) {
             let url = "https://develop.oasis.world/service/open/bitmap/list?address=bc1qnjfw8qkzfysg7cvdqkll8mp89pjfxk9flqxh0z";
             let result = await axios.get(url);

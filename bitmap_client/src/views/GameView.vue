@@ -48,6 +48,7 @@ export default {
       profitDialogVisible: false,
       nextRoundSettingDialogVisible: false,
       settlementDialogVisible: false,
+      walletsDialogVisible: true,
       value: "red",
       nextRoundSetting: 0,
       virus: 0,
@@ -499,6 +500,14 @@ export default {
     </div>
   </el-dialog>
 
+  <el-dialog
+      v-model="walletsDialogVisible"
+      title="Select Your Wallet"
+      width="30%"
+  >
+    <el-button @click="onClickConnWallet">UniSet</el-button>
+    <el-button @click="">MetaMask</el-button>
+  </el-dialog>
 </template>
 
 <style>
