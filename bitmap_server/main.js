@@ -140,6 +140,10 @@ const start_game = () => {
 
     })
 
+    if (interval !== 0) {
+        clearInterval(interval);
+    }
+
 
     interval = setInterval(() => {
         if (now() === stop_time) {
@@ -147,14 +151,50 @@ const start_game = () => {
             clearInterval(interval);
             next_round = now() + intervalBetweenMatches;
 
-            clients.forEach((client) => {
-                if (client.readyState === WebSocket.OPEN) {
-                    client.send(JSON.stringify({
+            let rank = players.sort((a, b) => {
+                return a.land > b.land;
+            });
+
+            let users = [];
+
+
+            players.forEach((player) => {
+                if (player.conn.readyState === WebSocket.OPEN) {
+                    if (users.hasOwnProperty(player.owner)) {
+                        users[player.owner].land += player.land;
+                        users[player.owner].virus += player.virus;
+                        users[player.owner].loss += player.loss;
+                    } else {
+                        users[player.owner] = {
+                            conn: player.conn,
+                            statistics: {land: player.land, virus: player.virus, loss: player.loss,}
+                        };
+                    }
+                }
+            })
+
+            for (let owner of Object.keys(users)) {
+                let user = users[owner];
+                if (user.conn.readyState === WebSocket.OPEN) {
+                    user.conn.send(JSON.stringify({
                         method: "Settlement",
-                        next_round: next_round
+                        next_round: next_round,
+                        rank: rank,
+                        statistics: user.statistics
                     }));
                 }
-            });
+            }
+
+
+            // clients.forEach((client) => {
+            //     if (client.readyState === WebSocket.OPEN) {
+            //         client.send(JSON.stringify({
+            //             method: "Settlement",
+            //             next_round: next_round,
+            //             rank: rank
+            //         }));
+            //     }
+            // });
 
             return;
         }
@@ -293,29 +333,30 @@ wss.on('connection', (ws) => {
 
                 break;
             case "JoinGame":
-                let x = getRandomInt(0, gridWidth);
-                let y = getRandomInt(0, gridHeight);
-                let color = colors[players.length % colors.length];
-                console.log(grid.length, grid[0].length, x, y, color);
-                grid[y][x] = color;
-                let player = {
-                    i: 0,
-                    x: x,
-                    y: y,
-                    color: color,
-                    land: 0,
-                    loss: 0,
-                    virus: 0,
-                };
-                players.push(player)
-                clients.forEach((client) => {
-                    if (client.readyState === WebSocket.OPEN) {
-                        client.send(JSON.stringify({
-                            method: "JoinedGame",
-                            player: player,
-                        }));
-                    }
-                });
+                // let x = getRandomInt(0, gridWidth);
+                // let y = getRandomInt(0, gridHeight);
+                // let color = colors[players.length % colors.length];
+                // console.log(grid.length, grid[0].length, x, y, color);
+                // grid[y][x] = color;
+                // let player = {
+                //     i: 0,
+                //     x: x,
+                //     y: y,
+                //     color: color,
+                //     land: 0,
+                //     loss: 0,
+                //     virus: 1,
+                //     owner: decode.owner,
+                // };
+                // players.push(player)
+                // clients.forEach((client) => {
+                //     if (client.readyState === WebSocket.OPEN) {
+                //         client.send(JSON.stringify({
+                //             method: "JoinedGame",
+                //             player: player,
+                //         }));
+                //     }
+                // });
                 break;
             case "JoinGame2":
                 let join_y = Math.floor(decode.map_id / gridWidth);
@@ -331,6 +372,7 @@ wss.on('connection', (ws) => {
                     loss: 0,
                     virus: decode.virus,
                     owner: decode.owner,
+                    conn: ws,
                 };
 
                 players.push(join_player)

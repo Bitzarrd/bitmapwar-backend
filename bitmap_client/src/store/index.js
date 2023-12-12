@@ -43,6 +43,7 @@ export const store = createStore({
         cellSize: 10,
         stop_time: 0,
 
+        settlement: null,
 
         landList: [
             {
@@ -193,6 +194,10 @@ export const store = createStore({
                     break;
                 case "Settlement":
                     state.next_round = (Number)(message.next_round);
+                    state.settlement = {
+                        rank: message.rank,
+                        statistics: message.statistics
+                    }
                     //todo
                     break;
 

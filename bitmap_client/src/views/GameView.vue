@@ -15,7 +15,7 @@ export default {
     ...mapState([
       'socket', 'conn', 'wallet_address', 'map_list', 'turn',
       'landList', 'lastRanking', 'next_round', 'user', 'gridWidth',
-      'cellSize', 'loading'
+      'cellSize', 'loading', 'settlement'
     ]),
     bitmap_list() {
       let origin = this.map_list;
@@ -47,6 +47,7 @@ export default {
       bitmapListDialogVisible: false,
       profitDialogVisible: false,
       nextRoundSettingDialogVisible: false,
+      settlementDialogVisible: false,
       value: "red",
       nextRoundSetting: 0,
       virus: 0,
@@ -99,6 +100,13 @@ export default {
     });
 
   },
+  watch: {
+    settlement(newValue, oldValue) {
+      if (newValue) {
+        this.settlementDialogVisible = true;
+      }
+    },
+  },
   methods: {
     formatEther,
     shortend,
@@ -141,17 +149,19 @@ export default {
       this.nextRoundSettingDialogVisible = false
     },
     onClickConfirm() {
-      this.conn.sendObj({
+      const message = {
         method: "JoinGame2",
         color: this.value,
         map_id: this.selected_map,
         virus: this.virus,
         owner: this.wallet_address,
-      });
+      };
+      this.conn.sendObj(message);
       this.dialogVisible = false;
+      this.search(message.map_id)
     },
-    handleSearchEnter() {
-      console.log("handleSearchEnter", this.searched_map);
+    search(map_id) {
+      console.log("search for map_id:", map_id);
       this.scaleValue = 1;
       const render = this.$refs.render;
 
@@ -160,8 +170,11 @@ export default {
       const middle_height = middle.offsetHeight;
       console.log("middle", middle_width, middle_height);
 
-      render.search(middle_width, middle_height - 50, this.searched_map);
-
+      render.search(middle_width, middle_height - 50, map_id);
+    },
+    handleSearchEnter() {
+      console.log("handleSearchEnter", this.searched_map);
+      this.search(this.searched_map);
     }
   }
 }
@@ -199,7 +212,7 @@ export default {
                   </template>
                 </el-table-column>
                 <el-table-column prop="land" label="Land"/>
-                <el-table-column prop="virus" label="Virus"/>
+                <el-table-column prop="virus" label="Bit"/>
                 <el-table-column prop="loss" label="Loss"/>
               </el-table>
             </el-card>
@@ -283,7 +296,7 @@ export default {
                     </el-icon>
                   </el-button>
                 </el-form-item>
-                <el-form-item label="Virus:">
+                <el-form-item label="Bit:">
                   <el-input :value="user.virus" disabled
                             style="float: left;display: inline;width: 100px;margin-right: 10px"/>
                   <el-button @click="onClickPurchase" style="float: right;display: inline">
@@ -328,7 +341,7 @@ export default {
                 <el-form-item label="Owner:">
                   <el-input :value="shortend(wallet_address)" disabled/>
                 </el-form-item>
-                <el-form-item label="Virus:">
+                <el-form-item label="Bit:">
                   <el-input-number :controls="false" :min="1" v-model="virus"/>
                 </el-form-item>
               </el-form>
@@ -425,7 +438,7 @@ export default {
   >
     <div class="dialog_center">
       <div>
-        <el-input-number placeholder="Virus"></el-input-number>
+        <el-input-number placeholder="Bit"></el-input-number>
       </div>
       <div style="margin:20px;font-size: 20px">1BTC = 0.004</div>
     </div>
@@ -459,6 +472,32 @@ export default {
     </template>
   </el-dialog>
 
+
+  <el-dialog
+      v-model="settlementDialogVisible"
+      title="Settlement"
+      width="30%"
+  >
+    <el-table :data="landList" style="width: 100%">
+      <el-table-column type="index" width="80" label="Ranking"/>
+      <el-table-column prop="team" label="Team">
+        <template #default="scope">
+          <div class="team" :style="{ backgroundColor: scope.row.team }"></div>
+        </template>
+      </el-table-column>
+      <el-table-column prop="land" label="Land"/>
+      <el-table-column prop="virus" label="Bit"/>
+      <el-table-column prop="loss" label="Loss"/>
+    </el-table>
+
+    <div style="margin-top: 20px" v-if="settlement">
+      <div>Your Land: {{ settlement.statistics.land }}</div>
+      <div>Your Bit: {{ settlement.statistics.virus }}</div>
+      <div>Your Loss {{ settlement.statistics.loss }}</div>
+      <div>Your Earnings(BTC): 0.0000010</div>
+
+    </div>
+  </el-dialog>
 
 </template>
 

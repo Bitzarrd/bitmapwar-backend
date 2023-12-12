@@ -3,6 +3,6 @@ import {generate2DArray, runTurn, getCircleCoordinates, compress2, compress3} fr
 
 export const gridWidth = 1000;
 export const colors = ['red', 'blue', 'green', 'purple'];
-export const durationOfTheMatch = 300;
+export const durationOfTheMatch = 60;
 export const intervalBetweenMatches = 60;
 export const circle = getCircleCoordinates(500)
