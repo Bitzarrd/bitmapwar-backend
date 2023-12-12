@@ -7,6 +7,7 @@ import {shortend} from "@/utils";
 import {ethers, formatEther} from "ethers";
 import CountDown from "@/components/CountDown.vue";
 import NextRound from "@/components/NextRound.vue";
+import {ElMessage} from "element-plus";
 
 export default {
   name: "GameView",
@@ -49,6 +50,7 @@ export default {
       nextRoundSettingDialogVisible: false,
       settlementDialogVisible: false,
       walletsDialogVisible: false,
+      purchaseLoading: false,
       value: "red",
       nextRoundSetting: 0,
       virus: 0,
@@ -185,20 +187,31 @@ export default {
       this.search(this.searched_map);
     },
     async onClickBuyVirus() {
-      const tx = await this.contract.mint(this.wallet_address, 1);
-      console.log(tx);
+      if (this.purchaseLoading) {
+        return;
+      }
+      try {
+        this.purchaseLoading = true;
+        const tx = await this.contract.mint(this.wallet_address, 1);
+        console.log(tx);
 
-      const result = await tx.wait()
-      console.log('transaction events', result.logs);
+        // const result = await tx.wait()
+        // console.log('transaction events', result.logs);
 
-      this.purchaseDialogVisible = false
+        this.purchaseDialogVisible = false
 
-      const txid = tx.hash;
-      const message = {
-        method: "Purchase",
-        txid: txid,
-      };
-      this.conn.sendObj(message);
+        const txid = tx.hash;
+        const message = {
+          method: "Purchase",
+          txid: txid,
+        };
+        this.conn.sendObj(message);
+      } catch (e) {
+        console.error(e);
+        ElMessage.error('Oops, this is a error message.' + e)
+      } finally {
+        this.purchaseLoading = false
+      }
     }
   }
 }
@@ -460,7 +473,7 @@ export default {
       title="Purchase"
       width="30%"
   >
-    <div class="dialog_center">
+    <div class="dialog_center" v-loading="purchaseLoading">
       <div>
         <el-input-number placeholder="Bit"></el-input-number>
       </div>

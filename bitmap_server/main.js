@@ -441,7 +441,7 @@ wss.on('connection', (ws) => {
                                 let to = log.args[1];
                                 let amount = (Number)(log.args[2]);
                                 if (from === "0x0000000000000000000000000000000000000000") {
-                                    const sql = "UPGRATE `user` set `virus`=`virus`+"+amount+" WHERE `address`='" + to + "'";
+                                    const sql = "REPLACE INTO `user` set `virus`=`virus`+"+amount+" WHERE `address`='" + to + "'";
                                     logger.info(sql);
                                     mysql_connection.query(sql, function (err, result) {
                                         if (err) {
