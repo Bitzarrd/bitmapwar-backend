@@ -684,8 +684,11 @@ export const store = createStore({
                 const contractAddress = '0x11aa4433b135a7ee61dec158e536cb27de71128a';
 
                 const contract = new ethers.Contract(contractAddress, abi, signer);
-                const result = await contract.mint(account[0], 1);
-                console.log(result);
+                const tx = await contract.mint(account[0], 1);
+                console.log(tx);
+
+                const result = await tx.wait()
+                console.log('transaction events', result.logs);
 
             } catch (error) {
                 console.error(error)

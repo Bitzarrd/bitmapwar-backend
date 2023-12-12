@@ -6,9 +6,13 @@ const abi = [];
 const rpc_url = "https://data-seed-prebsc-1-s1.binance.org:8545";
 const provider = new ethers.JsonRpcProvider(rpc_url);
 const receipt = await provider.getTransactionReceipt(txid);
-const response  = await provider.getTransaction( txid );
+const tx  = await provider.getTransaction( txid );
+const result = await tx.wait()
+
 // const contract = new ethers.Contract(receipt.contractAddress, abi, provider);
 // const events =
 
+// const events =
+
 console.log("receipt", receipt);
-console.log("response",response)
+console.log("response",result)
