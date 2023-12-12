@@ -196,7 +196,7 @@ export default {
       }
       try {
         this.purchaseLoading = true;
-        const tx = await this.contract.mint(this.wallet_address, 1);
+        const tx = await this.contract.BuyToken( {value: 1000});
         console.log(tx);
 
         // const result = await tx.wait()
