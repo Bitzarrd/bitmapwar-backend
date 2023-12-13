@@ -475,6 +475,22 @@ wss.on('connection', (ws) => {
                 break;
             case "ExtractProfit":
 
+                let user = (await mysql_query(mysql_connection, "SELECT * FROM `user` WHERE `address` = '" + decode.address + "';"))[0];
+                let profit = BigInt(user.profit);
+                let amount_n = BigInt(decode.amount);
+                if (profit < amount_n) {
+                    return
+                }
+
+
+                let profit_n = profit - amount_n;
+
+
+                console.log(profit_n.toString());
+                user.profit = profit_n.toString();
+
+                mysql_connection.query("UPDATE user SET profit='" + profit_n.toString() + "' WHERE address='" + decode.address + "';");
+
                 mysql_connection.query('INSERT INTO extract SET ?', {
                     amount: decode.amount,
                     address: decode.address,
@@ -491,7 +507,8 @@ wss.on('connection', (ws) => {
                         signature: signature,
                         amount: decode.amount,
                         nonce: results.insertId,
-                        create_time: now()
+                        create_time: now(),
+                        user: user,
                     }));
 
                     await mysql_connection.query("UPDATE extract SET signature='" + signature + "' WHERE id=" + results.insertId + ";")

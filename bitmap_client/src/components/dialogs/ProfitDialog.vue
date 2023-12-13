@@ -3,12 +3,13 @@ import {mapMutations, mapState} from "vuex";
 import {ElMessage} from "element-plus";
 import moment from "moment";
 import {shortend} from "../../utils";
+import {formatEther} from "ethers";
 
 export default {
   name: "ProfitDialog",
   computed: {
     ...mapState([
-      'profitDialogVisible', 'contract', 'conn', 'wallet_address', 'extracts', 'pending_extract'
+      'profitDialogVisible', 'contract', 'conn', 'wallet_address', 'extracts', 'pending_extract', 'user'
     ])
   },
   data() {
@@ -28,6 +29,9 @@ export default {
   methods: {
     shortend,
     ...mapMutations(['setProfitDialogVisible']),
+    formatWei2Ether(wei){
+      return formatEther(wei);
+    },
     format_time(time) {
       return moment(time * 1000).format();
     },
@@ -91,7 +95,7 @@ export default {
     <div class="" v-loading="loading">
       <el-form label-width="100px">
         <el-form-item label="Profit">
-          <el-input value="10.123456 BTC" disabled/>
+          <el-input :value="formatWei2Ether(user.profit)+' BTC'" disabled/>
         </el-form-item>
         <el-form-item label="EnterAmount">
           <el-input value="0" placeholder="please enter" v-model="amount"/>
@@ -104,7 +108,7 @@ export default {
         <el-table-column prop="id" label="ID" width="100"/>
         <el-table-column prop="txid" label="TXID" width="180">
           <template #default="scope">
-            {{ shortend(scope.row.txid)}}
+            {{ shortend(scope.row.txid) }}
           </template>
         </el-table-column>
         <el-table-column prop="amount" label="amount" width="180"/>

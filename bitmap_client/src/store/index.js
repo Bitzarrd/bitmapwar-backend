@@ -713,6 +713,8 @@ export const store = createStore({
                         status: 0,
                         signature: message.signature
                     })
+
+                    state.user = message.user;
                     break;
                 case "UpdateExtractSuccess":
                     for (let i = 0; i < state.extracts.length; i++) {
