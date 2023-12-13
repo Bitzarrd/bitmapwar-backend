@@ -6,25 +6,34 @@ export default {
   name: "ProfitDialog",
   computed: {
     ...mapState([
-      'profitDialogVisible', 'contract'
+      'profitDialogVisible', 'contract', 'conn', 'wallet_address'
     ])
   },
   data() {
-    return {}
+    return {
+      amount: 0
+    }
   },
   methods: {
     async onClickExtractProfit() {
-      try {
-        const amount = 100;
-        const signature = "0xa9631881a814aec5b1faaf2a9b70be0212195704a76b99e20dc00796722e3ef77007b09c49e45f0d5afd5056e5e11d34069d8b7251b967e744ee9327af6d04f21c";
-        const nonce = 1;
-        const tx = await this.contract.withdrawETHWithSignature(amount, signature, nonce);
-        console.log(tx);
-        const txid = tx.hash;
-      } catch (e) {
-        console.error(e);
-        ElMessage.error('Oops, this is a error message.' + e)
-      }
+      // try {
+      //   const amount = 100;
+      //   const signature = "0xa9631881a814aec5b1faaf2a9b70be0212195704a76b99e20dc00796722e3ef77007b09c49e45f0d5afd5056e5e11d34069d8b7251b967e744ee9327af6d04f21c";
+      //   const nonce = 1;
+      //   const tx = await this.contract.withdrawETHWithSignature(amount, signature, nonce);
+      //   console.log(tx);
+      //   const txid = tx.hash;
+      // } catch (e) {
+      //   console.error(e);
+      //   ElMessage.error('Oops, this is a error message.' + e)
+      // }
+      this.conn.sendObj({
+        method: "ExtractProfit",
+        amount: this.amount,
+        address: this.wallet_address
+
+      })
+
     }
   }
 }

@@ -7,6 +7,7 @@ import mysql from "mysql";
 import {getRandomInt, now} from "./utils.js";
 import {gridWidth, colors, durationOfTheMatch, intervalBetweenMatches, circle} from "./defines.js";
 import {get_events} from "./get_events.js";
+import {make_signature} from "./signature.js";
 
 
 dotenv.config();
@@ -305,7 +306,7 @@ wss.on('connection', (ws) => {
     ));
 
     // 接收消息
-    ws.on('message', (message) => {
+    ws.on('message', async (message) => {
         logger.info(`Received message: ${message}`);
 
         let decode = JSON.parse(message);
@@ -314,38 +315,36 @@ wss.on('connection', (ws) => {
                 const address = decode.address;
                 const sql = "SELECT * FROM `user` WHERE `address`='" + address + "'";
                 logger.info(sql);
-                mysql_connection.query(sql, function (err, result) {
-                    if (err) {
-                        logger.error(err);
-                    } else {
-                        if (result.length === 0) {
-                            logger.info("new user");
-                            const sql = "INSERT INTO `user` (`address`) VALUES ('" + address + "')";
-                            logger.info(sql);
-                            mysql_connection.query(sql, function (err, result) {
-                                if (err) {
-                                    logger.error(err);
-                                } else {
-                                    logger.info(result);
-                                    let user = {
-                                        address: address,
-                                    };
-                                    ws.send(JSON.stringify({
-                                        method: "LoginSuccess",
-                                        user: user,
-                                    }));
-                                }
-                            });
-                        } else {
-                            let user = result[0];
-                            logger.info(user);
+                try {
+                    const result = await mysql_connection.query(sql);
+                    if (result.length === 0) {
+                        logger.info("new user");
+                        const insertSql = "INSERT INTO `user` (`address`) VALUES ('" + address + "')";
+                        logger.info(insertSql);
+                        try {
+                            const insertResult = await mysql_connection.query(insertSql);
+                            logger.info(insertResult);
+                            let user = {
+                                address: address,
+                            };
                             ws.send(JSON.stringify({
                                 method: "LoginSuccess",
                                 user: user,
                             }));
+                        } catch (insertErr) {
+                            logger.error(insertErr);
                         }
+                    } else {
+                        let user = result[0];
+                        logger.info(user);
+                        ws.send(JSON.stringify({
+                            method: "LoginSuccess",
+                            user: user,
+                        }));
                     }
-                });
+                } catch (err) {
+                    logger.error(err);
+                }
 
                 break;
             case "JoinGame":
@@ -430,7 +429,7 @@ wss.on('connection', (ws) => {
                 break;
             case "Purchase":
                 const txid = decode.txid;
-                get_events(txid, (logs) => {
+                get_events(txid, async (logs) => {
                     console.log("logs", logs);
                     for (let i = 0; i < logs.length; i++) {
                         let log = logs[i];
@@ -439,36 +438,59 @@ wss.on('connection', (ws) => {
                             case "Transfer(address,address,uint256)":
                                 let from = log.args[0];
                                 let to = log.args[1];
-                                let amount = (Number)(log.args[2]);
+                                let amount = Number(log.args[2]);
                                 if (from === "0x0000000000000000000000000000000000000000") {
-                                    const sql = "UPDATE `user` set `virus`=`virus`+"+amount+" WHERE `address`='" + to + "';";
+                                    const sql = "UPDATE `user` SET `virus` = `virus` + " + amount + " WHERE `address` = '" + to + "';";
                                     logger.info(sql);
-                                    mysql_connection.query(sql, function (err, result) {
-                                        if (err) {
-                                            logger.error(err);
-                                        } else {
-                                            logger.info(result);
-                                            const select_sql = "SELECT * FROM `user` WHERE `address`='" + to + "';";
-                                            logger.info(select_sql);
-                                            mysql_connection.query(select_sql, function (err, result) {
-                                                if (err) {
-                                                    logger.error(err);
-                                                } else {
-                                                    logger.info(result);
-                                                    let user = result[0];
-                                                    ws.send(JSON.stringify({
-                                                        method: "PurchaseSuccess",
-                                                        user: user,
-                                                    }));
-                                                }
-                                            });
+                                    try {
+                                        const result = await mysql_connection.query(sql);
+                                        logger.info(result);
+                                        const select_sql = "SELECT * FROM `user` WHERE `address` = '" + to + "';";
+                                        logger.info(select_sql);
+                                        try {
+                                            const selectResult = await mysql_connection.query(select_sql);
+                                            logger.info(selectResult);
+                                            let user = selectResult[0];
+                                            ws.send(JSON.stringify({
+                                                method: "PurchaseSuccess",
+                                                user: user,
+                                            }));
+                                        } catch (selectErr) {
+                                            logger.error(selectErr);
                                         }
-                                    });
+                                    } catch (err) {
+                                        logger.error(err);
+                                    }
                                 }
                                 break;
                         }
                     }
                 });
+                break;
+            case "ExtractProfit":
+
+                mysql_connection.query('INSERT INTO extract SET ?', {
+                    amount: decode.amount,
+                    address: decode.address
+                }, async (error, results, fields) => {
+                    if (error) throw error;
+                    console.log(results.insertId);
+
+                    let signature = await make_signature(process.env.PRIVATE_KEY, results.insertId, decode.amount)
+                    logger.info("signature:" + signature);
+
+                    ws.send(JSON.stringify({
+                        method: "ExtractProfitSuccess",
+                        signature: signature,
+                    }));
+
+                });
+
+                // let extract_insert_sql = "INSERT INTO `extract` (`amount`,`address`) VALUES (" + amount + ",'" + decode.address + "');";
+                // logger.info(extract_insert_sql);
+                // let extract_insert_result = await mysql_connection.query(extract_insert_sql);
+                // let extract_insert_id = extract_insert_result.insertId;
+                // logger.info("extract_insert_id:" + extract_insert_id);
                 break;
         }
 
