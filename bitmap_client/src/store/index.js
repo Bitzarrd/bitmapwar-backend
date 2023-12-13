@@ -727,7 +727,7 @@ export const store = createStore({
                 const signer = await provider.getSigner();
 
                 console.log("abi", abi);
-                const contractAddress = '0x11aa4433b135a7ee61dec158e536cb27de71128a';
+                const contractAddress = '0xEB55A7Ba8A6368Af941a61b81beeE106ad3464Ea';
 
                 const contract = new ethers.Contract(contractAddress, abi, signer);
 

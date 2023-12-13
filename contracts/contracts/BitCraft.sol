@@ -38,8 +38,7 @@ contract BitCraft is ERC20, ERC20Burnable, Ownable {
     mapping(address => mapping(uint256 => bool)) public usedNonces;
 
     function withdrawETHWithSignature(uint256 amount, bytes memory signature, uint256 nonce) public {
-        bytes32 message = keccak256(abi.encodePacked(amount, nonce));
-        address signer = _verifyWithdrawSignature(message, signature);
+        address signer = verifySignature(amount, nonce, signature);
         require(signer == owner(), "Invalid signature or not the owner");
         require(amount <= address(this).balance, "Insufficient contract balance");
         require(!usedNonces[signer][nonce], "Nonce has already been used");
@@ -48,23 +47,39 @@ contract BitCraft is ERC20, ERC20Burnable, Ownable {
         payable(owner()).transfer(amount);
     }
 
-    function _verifyWithdrawSignature(bytes32 message, bytes memory signature) private pure returns (address) {
-        bytes32 ethSignedMessageHash = _getEthSignedMessageHash(message);
-        address signer = _recoverSigner(ethSignedMessageHash, signature);
+
+    function verifySignature(
+        uint256 amount,
+        uint256 nonce,
+        bytes memory signature
+    ) public pure returns (address) {
+        bytes32 messageHash = getMessageHash(amount, nonce);
+        bytes32 ethSignedMessageHash = getEthSignedMessageHash(messageHash);
+        address signer = recoverSigner(ethSignedMessageHash, signature);
         return signer;
     }
 
-    function _getEthSignedMessageHash(bytes32 message) private pure returns (bytes32) {
-        bytes32 prefix = "\x19Ethereum Signed Message:\n32";
-        return keccak256(abi.encodePacked(prefix, message));
+    function getMessageHash(uint256 amount, uint256 nonce) private pure returns (bytes32) {
+        return keccak256(abi.encodePacked(amount, nonce));
     }
 
-    function _recoverSigner(bytes32 ethSignedMessageHash, bytes memory signature) private pure returns (address) {
-        (bytes32 r, bytes32 s, uint8 v) = _splitSignature(signature);
+    function getEthSignedMessageHash(bytes32 messageHash) private pure returns (bytes32) {
+        return keccak256(abi.encodePacked("\x19Ethereum Signed Message:\n32", messageHash));
+    }
+
+    function recoverSigner(
+        bytes32 ethSignedMessageHash,
+        bytes memory signature
+    ) private pure returns (address) {
+        (bytes32 r, bytes32 s, uint8 v) = splitSignature(signature);
         return ecrecover(ethSignedMessageHash, v, r, s);
     }
 
-    function _splitSignature(bytes memory signature) private pure returns (bytes32 r, bytes32 s, uint8 v) {
+    function splitSignature(bytes memory signature)
+    private
+    pure
+    returns (bytes32 r, bytes32 s, uint8 v)
+    {
         require(signature.length == 65, "Invalid signature length");
 
         assembly {
@@ -77,9 +92,5 @@ contract BitCraft is ERC20, ERC20Burnable, Ownable {
         }
 
         return (r, s, v);
-    }
-
-    function calculateMessage(uint256 amount, uint256 nonce) public pure returns (bytes32) {
-        return keccak256(abi.encodePacked(amount, nonce));
     }
 }

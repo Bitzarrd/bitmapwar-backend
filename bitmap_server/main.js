@@ -188,14 +188,14 @@ const start_game = () => {
                     user.conn.send(JSON.stringify({
                         method: "Settlement",
                         next_round: next_round,
-                        rank: rank,
+                        rank: rand_to_save,
                         statistics: user.statistics
                     }));
                 }
             }
 
 
-            const sql = "INSERT INTO `round` (`end_time`,`rank`) VALUES (" + now() + ",'" + JSON.stringify(rank) + "')";
+            const sql = "INSERT INTO `round` (`end_time`,`rank`) VALUES (" + now() + ",'" + JSON.stringify(rand_to_save) + "')";
             logger.info(sql);
             mysql_connection.query(sql, function (err, result) {
                 console.log(err, result);
