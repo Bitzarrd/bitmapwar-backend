@@ -68,11 +68,12 @@ export default {
         </el-form-item>
       </el-form>
       <el-table :data="extracts" :scrollbar-always-on="true" :max-height="300" style="width: 100%">
+        <el-table-column prop="id" label="ID" width="100"/>
         <el-table-column prop="txid" label="TXID" width="180"/>
         <el-table-column prop="amount" label="amount" width="180"/>
 
         <el-table-column
-            prop="tag"
+            prop="status"
             label="Status"
             width="100"
         >
@@ -87,10 +88,18 @@ export default {
         </el-table-column>
 
 
+        <el-table-column
+            prop="create_time"
+            label="Create Time"
+            width="140"
+        >
+        </el-table-column>
+
         <el-table-column label="Operations">
           <template #default="scope">
             <el-button size="small" @click="handleEdit(scope.$index, scope.row)"
-            >Edit
+            >
+              Resubmit
             </el-button
             >
           </template>

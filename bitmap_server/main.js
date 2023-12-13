@@ -477,7 +477,8 @@ wss.on('connection', (ws) => {
 
                 mysql_connection.query('INSERT INTO extract SET ?', {
                     amount: decode.amount,
-                    address: decode.address
+                    address: decode.address,
+                    create_time: now(),
                 }, async (error, results, fields) => {
                     if (error) throw error;
                     console.log(results.insertId);
