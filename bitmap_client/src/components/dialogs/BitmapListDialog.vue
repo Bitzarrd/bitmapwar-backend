@@ -1,11 +1,11 @@
 <script>
-import {mapState} from "vuex";
+import {mapMutations, mapState} from "vuex";
 
 export default {
   name: "BitmapListDialog",
-  computed:{
+  computed: {
     ...mapState([
-      'walletsDialogVisible'
+      'bitmapListDialogVisible', 'map_list'
     ]),
     bitmap_list() {
       let origin = this.map_list;
@@ -26,11 +26,10 @@ export default {
     },
   },
   data() {
-    return {
-    }
+    return {}
   },
-  methods:{
-
+  methods: {
+    ...mapMutations(['setBitmapListDialogVisible']),
   }
 }
 </script>
@@ -56,8 +55,8 @@ export default {
 
     <template #footer>
       <span class="dialog-footer">
-        <el-button @click="bitmapListDialogVisible = false">Cancel</el-button>
-        <el-button type="primary" @click="bitmapListDialogVisible = false">
+        <el-button @click="setBitmapListDialogVisible(false)">Cancel</el-button>
+        <el-button type="primary" @click="setBitmapListDialogVisible(false)">
           Confirm
         </el-button>
       </span>

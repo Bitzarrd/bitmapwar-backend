@@ -19,18 +19,18 @@ export default {
       'getBitMapList',
       'login'
     ]),
-    ...mapMutations(['']),
+    ...mapMutations(['setWalletsDialogVisible']),
     async onClickConnUnisat() {
       await this.connectUnisat();
       await this.getBitMapList()
       await this.login(this.wallet_address);
-      this.walletsDialogVisible = false;
+      this.setWalletsDialogVisible(false)
     },
     async onClickConnMetamask() {
       await this.connectMetaMask();
       await this.getBitMapList()
       await this.login(this.wallet_address);
-      this.walletsDialogVisible = false;
+      this.setWalletsDialogVisible(false)
     },
   }
 }

@@ -1,24 +1,27 @@
 <script>
-import {mapState} from "vuex";
+import {mapMutations, mapState} from "vuex";
 import {shortend} from "@/utils";
 import {formatEther} from "ethers";
+import {CirclePlus, Coin, View} from "@element-plus/icons-vue";
 
 export default {
   name: "UserInfo",
-  computed:{
+  components: {Coin, View, CirclePlus},
+  computed: {
     ...mapState(['wallet_address', 'user'])
   },
-  methods:{
+  methods: {
     formatEther,
     shortend,
+    ...mapMutations(['setPurchaseDialogVisible', 'setProfitDialogVisible', 'setBitmapListDialogVisible']),
     onClickPurchase() {
-      this.purchaseDialogVisible = true;
+      this.setPurchaseDialogVisible(true);
     },
     onClickProfits() {
-      this.profitDialogVisible = true;
+      this.setProfitDialogVisible(true);
     },
     onClickBitmapList() {
-      this.bitmapListDialogVisible = true;
+      this.setBitmapListDialogVisible(true);
     },
   }
 }

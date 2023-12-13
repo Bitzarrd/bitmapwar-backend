@@ -41,11 +41,10 @@ export default {
     return {
       scaleValue: 1,
       purchaseLoading: false,
-      value: "red",
       nextRoundSetting: 0,
+      searched_map: null,
       virus: 0,
       selected_map: "",
-      searched_map: null,
     }
   },
   mounted() {
@@ -97,8 +96,7 @@ export default {
     },
     innerStyle() {
       let scale = this.scaleValue;
-      let result = `scale: ${scale};`;
-      return result;
+      return `scale: ${scale};`;
     },
     search(map_id) {
       console.log("search for map_id:", map_id);
