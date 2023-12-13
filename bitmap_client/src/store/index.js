@@ -701,6 +701,13 @@ export const store = createStore({
                     break;
                 case "ExtractProfitSuccess":
                     state.extract = message;
+                    state.extracts.unshift({
+                        id: message.nonce,
+                        amount: message.amount,
+                        create_time: message.create_time,
+                        status: 0,
+                        signature: message.signature
+                    })
                     break;
 
             }

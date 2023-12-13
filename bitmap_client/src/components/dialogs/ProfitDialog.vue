@@ -1,5 +1,5 @@
 <script>
-import {mapState} from "vuex";
+import {mapMutations, mapState} from "vuex";
 import {ElMessage} from "element-plus";
 import moment from "moment";
 
@@ -22,10 +22,14 @@ export default {
     }
   },
   methods: {
+    ...mapMutations(['setProfitDialogVisible']),
     format_time(time) {
       return moment(time * 1000).format();
     },
     onClickExtractProfit() {
+      if (this.loading === true) {
+        return;
+      }
       this.loading = true;
       this.conn.sendObj({
         method: "ExtractProfit",
@@ -115,7 +119,7 @@ export default {
     </div>
     <template #footer>
       <span class="dialog-footer">
-        <el-button @click="profitDialogVisible = false">Cancel</el-button>
+        <el-button @click="setProfitDialogVisible(false)">Cancel</el-button>
         <el-button type="primary" @click="onClickExtractProfit()">
           Confirm
         </el-button>
