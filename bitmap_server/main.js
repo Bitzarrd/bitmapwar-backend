@@ -338,7 +338,7 @@ wss.on('connection', (ws) => {
                         let user = result[0];
                         logger.info(user);
 
-                        let extracts_sql = "SELECT * FROM `extract` WHERE address='" + address + "';";
+                        let extracts_sql = "SELECT * FROM `extract` WHERE address='" + address + "' ORDER BY id DESC;";
                         logger.info(extracts_sql);
                         let extracts = await mysql_query(mysql_connection, extracts_sql);
 

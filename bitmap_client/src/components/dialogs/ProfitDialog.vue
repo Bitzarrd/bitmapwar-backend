@@ -70,6 +70,23 @@ export default {
       <el-table :data="extracts" :scrollbar-always-on="true" :max-height="300" style="width: 100%">
         <el-table-column prop="txid" label="TXID" width="180"/>
         <el-table-column prop="amount" label="amount" width="180"/>
+
+        <el-table-column
+            prop="tag"
+            label="Status"
+            width="100"
+        >
+          <template #default="scope">
+            <el-tag
+                :type="scope.row.tag === '1' ? '' : 'success'"
+                disable-transitions
+            >
+              Pending
+            </el-tag>
+          </template>
+        </el-table-column>
+
+
         <el-table-column label="Operations">
           <template #default="scope">
             <el-button size="small" @click="handleEdit(scope.$index, scope.row)"
