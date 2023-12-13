@@ -490,7 +490,8 @@ wss.on('connection', (ws) => {
                         method: "ExtractProfitSuccess",
                         signature: signature,
                         amount: decode.amount,
-                        nonce: results.insertId
+                        nonce: results.insertId,
+                        create_time: now()
                     }));
 
                 });

@@ -1,6 +1,7 @@
 <script>
 import {mapState} from "vuex";
 import {ElMessage} from "element-plus";
+import moment from "moment";
 
 export default {
   name: "ProfitDialog",
@@ -21,6 +22,9 @@ export default {
     }
   },
   methods: {
+    format_time(time) {
+      return moment(time * 1000).format();
+    },
     onClickExtractProfit() {
       this.loading = true;
       this.conn.sendObj({
@@ -91,8 +95,11 @@ export default {
         <el-table-column
             prop="create_time"
             label="Create Time"
-            width="140"
+            width="240"
         >
+          <template #default="scope">
+            {{ format_time(scope.row.create_time) }}
+          </template>
         </el-table-column>
 
         <el-table-column label="Operations">
