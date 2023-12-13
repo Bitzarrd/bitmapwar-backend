@@ -2,79 +2,50 @@
 import MapRender from "@/components/MapRender.vue";
 import {mapActions, mapMutations, mapState} from "vuex";
 import {CirclePlus, Edit, Histogram, Rank} from "@element-plus/icons-vue";
-import moment from "moment";
 import {shortend} from "@/utils";
 import {ethers, formatEther} from "ethers";
 import CountDown from "@/components/CountDown.vue";
 import NextRound from "@/components/NextRound.vue";
 import {ElMessage} from "element-plus";
+import LastRanking from "@/components/LastRanking.vue";
+import LandList from "@/components/LandList.vue";
+import UserInfo from "@/components/UserInfo.vue";
+import Action from "@/components/Action.vue";
+import ActionDialog from "@/components/dialogs/ActionDialog.vue";
+import ProfitDialog from "@/components/dialogs/ProfitDialog.vue";
+import BitmapListDialog from "@/components/dialogs/BitmapListDialog.vue";
+import NextRoundSettingDialog from "@/components/dialogs/NextRoundSettingDialog.vue";
+import SettlementDialog from "@/components/dialogs/SettlementDialog.vue";
+import WalletsDialog from "@/components/dialogs/WalletsDialog.vue";
 
 export default {
   name: "GameView",
-  components: {Edit, Histogram, Rank, CirclePlus, MapRender, CountDown, NextRound},
+  components: {
+    WalletsDialog,
+    SettlementDialog,
+    NextRoundSettingDialog,
+    BitmapListDialog,
+    ProfitDialog,
+    ActionDialog,
+    Action,
+    UserInfo, LandList, LastRanking, Edit, Histogram, Rank, CirclePlus, MapRender, CountDown, NextRound
+  },
   computed: {
     ...mapState([
       'socket', 'conn', 'wallet_address', 'map_list', 'turn',
-      'landList', 'lastRanking', 'next_round', 'user', 'gridWidth',
+      'landList', 'next_round', 'user', 'gridWidth',
       'cellSize', 'loading', 'settlement', 'contract'
     ]),
-    bitmap_list() {
-      let origin = this.map_list;
-      let result = [];
-      for (let i = 0; i < origin.length; i++) {
-        // console.log(origin)
-        if (i === 0) {
-          this.selected_map = origin[i].info.bit_number;
-        }
-        result.push(
-            {
-              value: origin[i].info.bit_number,
-              label: "#" + origin[i].info.bit_number,
-            }
-        )
-      }
-      return result;
-    },
-    next_round_datetime() {
-      const momentObj = moment.unix(this.next_round);
-      return momentObj.format('h:mm:ss'); // December 5th 2023, 12:16:10 pm
-    }
   },
   data() {
     return {
       scaleValue: 1,
-      dialogVisible: false,
-      purchaseDialogVisible: false,
-      bitmapListDialogVisible: false,
-      profitDialogVisible: false,
-      nextRoundSettingDialogVisible: false,
-      settlementDialogVisible: false,
-      walletsDialogVisible: false,
       purchaseLoading: false,
       value: "red",
       nextRoundSetting: 0,
       virus: 0,
       selected_map: "",
       searched_map: null,
-      options:
-          [
-            {
-              value: 'red',
-              label: 'Red',
-            },
-            {
-              value: 'blue',
-              label: 'Blue',
-            },
-            {
-              value: 'green',
-              label: 'Green',
-            },
-            {
-              value: 'purple',
-              label: 'Purple',
-            },
-          ]
     }
   },
   mounted() {
@@ -112,8 +83,8 @@ export default {
   },
   methods: {
     formatEther,
-    shortend,
-    ...mapActions(['connectUnisat', 'connectMetaMask', 'getBitMapList', 'login']),
+    ...mapActions(['getBitMapList', 'login']),
+    ...mapMutations(['setWalletsDialogVisible',]),
     ...mapMutations([]),
     onClickStartGame() {
       this.conn.sendObj({method: "StartGame"});
@@ -124,108 +95,25 @@ export default {
     onClickJoinGame() {
       this.conn.sendObj({method: "JoinGame"});
     },
-    async onClickConnUnisat() {
-      await this.connectUnisat();
-      await this.getBitMapList()
-      await this.login(this.wallet_address);
-      this.walletsDialogVisible = false;
-    },
-    async onClickConnMetamask() {
-      await this.connectMetaMask();
-      await this.getBitMapList()
-      await this.login(this.wallet_address);
-      this.walletsDialogVisible = false;
-    },
-    onClickSubmit() {
-      this.dialogVisible = true
-    },
-    onClickPurchase() {
-      this.purchaseDialogVisible = true;
-    },
-    onClickProfits() {
-      this.profitDialogVisible = true;
-    },
-    onClickBitmapList() {
-      this.bitmapListDialogVisible = true;
-    },
     innerStyle() {
       let scale = this.scaleValue;
       let result = `scale: ${scale};`;
       return result;
     },
-    onClickSubmitNextRoundSetting() {
-      this.nextRoundSettingDialogVisible = false;
-      this.conn.sendObj({method: "SetNextRound", timestamp: this.nextRoundSetting});
-      this.nextRoundSettingDialogVisible = false
-    },
-    onClickConfirm() {
-      const message = {
-        method: "JoinGame2",
-        color: this.value,
-        map_id: this.selected_map,
-        virus: this.virus,
-        owner: this.wallet_address,
-      };
-      this.conn.sendObj(message);
-      this.dialogVisible = false;
-      this.search(message.map_id)
-    },
     search(map_id) {
       console.log("search for map_id:", map_id);
       this.scaleValue = 1;
       const render = this.$refs.render;
-
       const middle = this.$refs.middle;
       const middle_width = middle.offsetWidth;
       const middle_height = middle.offsetHeight;
       console.log("middle", middle_width, middle_height);
-
       render.search(middle_width, middle_height - 50, map_id);
     },
     handleSearchEnter() {
       console.log("handleSearchEnter", this.searched_map);
       this.search(this.searched_map);
     },
-    async onClickBuyVirus() {
-      if (this.purchaseLoading) {
-        return;
-      }
-      if (!this.socket.isConnected) {
-        ElMessage.error("Please connect to the server first.");
-        return;
-      }
-      try {
-        this.purchaseLoading = true;
-        const tx = await this.contract.BuyToken({value: 1000});
-        console.log(tx);
-        const txid = tx.hash;
-        const message = {
-          method: "Purchase",
-          txid: txid,
-        };
-        this.conn.sendObj(message);
-        this.purchaseDialogVisible = false
-      } catch (e) {
-        console.error(e);
-        ElMessage.error('Oops, this is a error message.' + e)
-      } finally {
-        this.purchaseLoading = false
-      }
-    },
-    async onClickExtractProfit() {
-      try {
-        const amount = 100;
-        const signature = "0xa9631881a814aec5b1faaf2a9b70be0212195704a76b99e20dc00796722e3ef77007b09c49e45f0d5afd5056e5e11d34069d8b7251b967e744ee9327af6d04f21c";
-        const nonce = 1;
-        const tx = await this.contract.withdrawETHWithSignature(amount, signature, nonce);
-        console.log(tx);
-        const txid = tx.hash;
-      } catch (e) {
-        console.error(e);
-        ElMessage.error('Oops, this is a error message.' + e)
-      }
-    }
-
   }
 }
 </script>
@@ -239,53 +127,17 @@ export default {
       <el-button @click="onClickStopGame">Stop Game</el-button>
       <el-button @click="nextRoundSettingDialogVisible = true">Set Next Round</el-button>
       <div style="float: right">
-        <el-button @click="walletsDialogVisible=true">{{ wallet_address ? wallet_address : "Conn Wallet" }}</el-button>
+        <el-button @click="setWalletsDialogVisible(true)">{{
+            wallet_address ? wallet_address : "Conn Wallet"
+          }}
+        </el-button>
       </div>
     </div>
     <div class="bottom-div" id="bottom-div">
       <div class="box">
         <div class="left">
-          <div class="mycard">
-            <el-card class="box-card">
-              <template #header>
-                <div class="card-header">
-                  <el-icon color="white" class="no-inherit">
-                    <Histogram/>
-                  </el-icon>
-                  <span> Land List</span>
-                </div>
-              </template>
-              <el-table :data="landList" style="width: 100%">
-                <el-table-column prop="team" label="Team">
-                  <template #default="scope">
-                    <div class="team" :style="{ backgroundColor: scope.row.team }"></div>
-                  </template>
-                </el-table-column>
-                <el-table-column prop="land" label="Land"/>
-                <el-table-column prop="virus" label="Bit"/>
-                <el-table-column prop="loss" label="Loss"/>
-              </el-table>
-            </el-card>
-          </div>
-
-          <div class="mycard">
-            <el-card class="box-card">
-              <template #header>
-                <div class="card-header">
-                  <el-icon color="white" class="no-inherit">
-                    <Rank/>
-                  </el-icon>
-                  <span> Last Ranking</span>
-                </div>
-              </template>
-              <el-table :data="lastRanking" style="width: 100%">
-                <el-table-column type="index" width="50"/>
-                <el-table-column prop="id" label="ID"/>
-                <el-table-column prop="lands" label="Lands"/>
-              </el-table>
-            </el-card>
-          </div>
-
+          <LandList/>
+          <LastRanking/>
         </div>
         <div class="middle" ref="middle">
           <div class="round">
@@ -312,251 +164,20 @@ export default {
           </div>
         </div>
         <div class="right">
-          <div class="mycard">
-            <el-card class="box-card">
-              <template #header>
-                <div class="card-header">
-                  <el-icon color="white" class="no-inherit">
-                    <User/>
-                  </el-icon>
-                  <span> User Info</span>
-                </div>
-              </template>
-
-
-              <el-form label-width="70px" v-if="wallet_address">
-                <el-form-item label="ID:">
-                  <el-input :value="shortend(wallet_address)" disabled/>
-                </el-form-item>
-                <el-form-item label="Profit(BTC):">
-                  <el-input :value="formatEther(user.profit)" disabled
-                            style="float: left;display: inline;width: 100px;margin-right: 10px"/>
-                  <el-button @click="onClickProfits" style="float: right;display: inline">
-                    <el-icon color="white" class="no-inherit">
-                      <Coin/>
-                    </el-icon>
-                  </el-button>
-                </el-form-item>
-                <el-form-item label="Bitmaps:">
-                  <el-input :value="selected_map" disabled
-                            style="float: left;display: inline;width: 100px;margin-right: 10px"/>
-                  <el-button @click="onClickBitmapList" style="float: right;display: inline">
-                    <el-icon color="white" class="no-inherit">
-                      <View/>
-                    </el-icon>
-                  </el-button>
-                </el-form-item>
-                <el-form-item label="Bit:">
-                  <el-input :value="user.virus" disabled
-                            style="float: left;display: inline;width: 100px;margin-right: 10px"/>
-                  <el-button @click="onClickPurchase" style="float: right;display: inline">
-                    <el-icon color="white" class="no-inherit">
-                      <CirclePlus/>
-                    </el-icon>
-                  </el-button>
-                </el-form-item>
-              </el-form>
-            </el-card>
-          </div>
-
-
-          <div class="mycard">
-            <el-card class="box-card">
-              <template #header>
-                <div class="card-header">
-                  <el-icon color="white" class="no-inherit">
-                    <Edit/>
-                  </el-icon>
-                  <span> Action</span>
-                </div>
-              </template>
-              <el-form label-width="80px" v-if="wallet_address">
-                <el-form-item label="Function:">
-                  <el-select v-model="value" class="m-2" placeholder="Select">
-                    <el-option
-                        v-for="item in options"
-                        :key="item.value"
-                        :label="item.label"
-                        :value="item.value"
-                    >
-                        <span :style="{ color: item.value }">
-                          {{ item.label }}
-                        </span>
-                    </el-option>
-                  </el-select>
-                </el-form-item>
-                <el-form-item label="Bitmap:">
-                  <el-input :value="selected_map" disabled/>
-                </el-form-item>
-                <el-form-item label="Owner:">
-                  <el-input :value="shortend(wallet_address)" disabled/>
-                </el-form-item>
-                <el-form-item label="Bit:">
-                  <el-input-number :controls="false" :min="1" v-model="virus"/>
-                </el-form-item>
-              </el-form>
-              <template #footer>
-                <div style="display: flex; justify-content: right;" v-if="wallet_address">
-                  <el-button @click="onClickSubmit">Submit</el-button>
-                </div>
-              </template>
-
-            </el-card>
-          </div>
-
+          <UserInfo/>
+          <Action/>
         </div>
       </div>
     </div>
   </div>
 
-  <el-dialog
-      v-model="dialogVisible"
-      title="Tips"
-      width="30%"
-  >
-    <span>After selecting a faction, this match cannot be modified. Are you sure?</span>
-    <template #footer>
-      <span class="dialog-footer">
-        <el-button @click="dialogVisible = false">Cancel</el-button>
-        <el-button type="primary" @click="onClickConfirm">
-          Confirm
-        </el-button>
-      </span>
-    </template>
-  </el-dialog>
-
-  <el-dialog
-      v-model="profitDialogVisible"
-      title="Extract Profit"
-      width="30%"
-  >
-    <div class="">
-      <el-form label-width="100px">
-        <el-form-item label="Profit">
-          <el-input value="10.123456 BTC" disabled/>
-        </el-form-item>
-        <el-form-item label="EnterAmount">
-          <el-input value="0" placeholder="please enter"/>
-        </el-form-item>
-        <el-form-item label="Fee">
-          <el-input value="0.004 BTC" disabled/>
-        </el-form-item>
-      </el-form>
-    </div>
-    <template #footer>
-      <span class="dialog-footer">
-        <el-button @click="profitDialogVisible = false">Cancel</el-button>
-        <el-button type="primary" @click="onClickExtractProfit()">
-          Confirm
-        </el-button>
-      </span>
-    </template>
-  </el-dialog>
-
-  <el-dialog
-      v-model="bitmapListDialogVisible"
-      title="Bitmap List"
-      width="30%"
-  >
-    <el-form label-width="100px">
-      <el-form-item label="Maps">
-        <el-select v-model="selected_map" filterable placeholder="Select">
-          <el-option
-              v-for="item in bitmap_list"
-              :key="item.value"
-              :label="item.label"
-              :value="item.value"
-          />
-        </el-select>
-      </el-form-item>
-    </el-form>
-
-    <template #footer>
-      <span class="dialog-footer">
-        <el-button @click="bitmapListDialogVisible = false">Cancel</el-button>
-        <el-button type="primary" @click="bitmapListDialogVisible = false">
-          Confirm
-        </el-button>
-      </span>
-    </template>
-  </el-dialog>
-
-  <el-dialog
-      v-model="purchaseDialogVisible"
-      title="Purchase"
-      width="30%"
-  >
-    <div class="dialog_center" v-loading="purchaseLoading">
-      <div>
-        <el-input-number placeholder="Bit"></el-input-number>
-      </div>
-      <div style="margin:20px;font-size: 20px">1BTC = 0.004</div>
-    </div>
-    <template #footer>
-      <span class="dialog-footer">
-        <el-button @click="purchaseDialogVisible = false">Cancel</el-button>
-        <el-button type="primary" @click="onClickBuyVirus">
-          Confirm
-        </el-button>
-      </span>
-    </template>
-  </el-dialog>
-
-  <el-dialog
-      v-model="nextRoundSettingDialogVisible"
-      title="Set Next Round Time"
-      width="30%"
-  >
-    <div class="dialog_center">
-      <div>
-        <el-input placeholder="timestamp" v-model="nextRoundSetting"></el-input>
-      </div>
-    </div>
-    <template #footer>
-      <span class="dialog-footer">
-        <el-button @click="nextRoundSettingDialogVisible = false">Cancel</el-button>
-        <el-button type="primary" @click="onClickSubmitNextRoundSetting();">
-          Confirm
-        </el-button>
-      </span>
-    </template>
-  </el-dialog>
-
-
-  <el-dialog
-      v-model="settlementDialogVisible"
-      title="Settlement"
-      width="30%"
-  >
-    <el-table :data="landList" style="width: 100%">
-      <el-table-column type="index" width="80" label="Ranking"/>
-      <el-table-column prop="team" label="Team">
-        <template #default="scope">
-          <div class="team" :style="{ backgroundColor: scope.row.team }"></div>
-        </template>
-      </el-table-column>
-      <el-table-column prop="land" label="Land"/>
-      <el-table-column prop="virus" label="Bit"/>
-      <el-table-column prop="loss" label="Loss"/>
-    </el-table>
-
-    <div style="margin-top: 20px" v-if="settlement">
-      <div>Your Land: {{ settlement.statistics.land }}</div>
-      <div>Your Bit: {{ settlement.statistics.virus }}</div>
-      <div>Your Loss {{ settlement.statistics.loss }}</div>
-      <div>Your Earnings(BTC): 0.0000010</div>
-
-    </div>
-  </el-dialog>
-
-  <el-dialog
-      v-model="walletsDialogVisible"
-      title="Select Your Wallet"
-      width="30%"
-  >
-    <el-button @click="onClickConnUnisat">UniSet</el-button>
-    <el-button @click="onClickConnMetamask">MetaMask</el-button>
-  </el-dialog>
+  <ActionDialog/>
+  <ProfitDialog/>
+  <BitmapListDialog/>
+  <ProfitDialog/>
+  <NextRoundSettingDialog/>
+  <SettlementDialog/>
+  <WalletsDialog/>
 </template>
 
 <style>
