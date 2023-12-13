@@ -8,11 +8,11 @@ import {getRandomInt, now} from "./utils.js";
 import {gridWidth, colors, durationOfTheMatch, intervalBetweenMatches, circle} from "./defines.js";
 import {get_events} from "./get_events.js";
 import {make_signature} from "./signature.js";
-
+import {mysql_query} from "./mysql.js";
 
 dotenv.config();
 
-let mysql_connection = mysql.createConnection({
+export let mysql_connection = mysql.createConnection({
     host: process.env.MYSQL_HOST,
     user: process.env.MYSQL_USER,
     password: process.env.MYSQL_PASS,
@@ -316,7 +316,7 @@ wss.on('connection', (ws) => {
                 const sql = "SELECT * FROM `user` WHERE `address`='" + address + "'";
                 logger.info(sql);
                 try {
-                    const result = await mysql_connection.query(sql);
+                    const result = await mysql_query(mysql_connection, sql);
                     if (result.length === 0) {
                         logger.info("new user");
                         const insertSql = "INSERT INTO `user` (`address`) VALUES ('" + address + "')";
@@ -337,9 +337,15 @@ wss.on('connection', (ws) => {
                     } else {
                         let user = result[0];
                         logger.info(user);
+
+                        let extracts_sql = "SELECT * FROM `extract` WHERE address='" + address + "';";
+                        logger.info(extracts_sql);
+                        let extracts = await mysql_query(mysql_connection, extracts_sql);
+
                         ws.send(JSON.stringify({
                             method: "LoginSuccess",
                             user: user,
+                            extracts: extracts
                         }));
                     }
                 } catch (err) {
@@ -476,12 +482,14 @@ wss.on('connection', (ws) => {
                     if (error) throw error;
                     console.log(results.insertId);
 
-                    let signature = await make_signature(process.env.PRIVATE_KEY, results.insertId, decode.amount)
+                    let signature = await make_signature(process.env.PRIVATE_KEY, decode.amount, results.insertId)
                     logger.info("signature:" + signature);
 
                     ws.send(JSON.stringify({
                         method: "ExtractProfitSuccess",
                         signature: signature,
+                        amount: decode.amount,
+                        nonce: results.insertId
                     }));
 
                 });

@@ -560,6 +560,8 @@ export const store = createStore({
             profit: "0",
             virus: 0,
         },
+        extract: null,
+        extracts: [],
 
         /////////////////////
         dialogVisible: false,
@@ -578,6 +580,9 @@ export const store = createStore({
         }
     },
     mutations: {
+        // setExtract(state, value): {
+        //     state.extracts = value;
+        // },
         setVirus(state, value) {
             state.virus = value
         },
@@ -678,6 +683,7 @@ export const store = createStore({
                 case "LoginSuccess":
                     console.log("LoginSuccess", message);
                     state.user = message.user;
+                    state.extracts = message.extracts;
                     break;
                 case "SetNextRoundSuccess":
                     state.next_round = (Number)(message.timestamp);
@@ -692,6 +698,9 @@ export const store = createStore({
                     break;
                 case "PurchaseSuccess":
                     state.user = message.user;
+                    break;
+                case "ExtractProfitSuccess":
+                    state.extract = message;
                     break;
 
             }

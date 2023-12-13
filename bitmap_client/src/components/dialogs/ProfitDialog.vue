@@ -6,7 +6,7 @@ export default {
   name: "ProfitDialog",
   computed: {
     ...mapState([
-      'profitDialogVisible', 'contract', 'conn', 'wallet_address'
+      'profitDialogVisible', 'contract', 'conn', 'wallet_address', 'extracts', 'extract'
     ])
   },
   data() {
@@ -14,26 +14,32 @@ export default {
       amount: 0
     }
   },
+  watch: {
+    extract(newVal, oldVal) {
+      this.submit(newVal.amount, newVal.signature, newVal.nonce);
+    }
+  },
   methods: {
-    async onClickExtractProfit() {
-      // try {
-      //   const amount = 100;
-      //   const signature = "0xa9631881a814aec5b1faaf2a9b70be0212195704a76b99e20dc00796722e3ef77007b09c49e45f0d5afd5056e5e11d34069d8b7251b967e744ee9327af6d04f21c";
-      //   const nonce = 1;
-      //   const tx = await this.contract.withdrawETHWithSignature(amount, signature, nonce);
-      //   console.log(tx);
-      //   const txid = tx.hash;
-      // } catch (e) {
-      //   console.error(e);
-      //   ElMessage.error('Oops, this is a error message.' + e)
-      // }
+    onClickExtractProfit() {
       this.conn.sendObj({
         method: "ExtractProfit",
         amount: this.amount,
         address: this.wallet_address
 
       })
-
+    },
+    async submit(amount, signature, nonce) {
+      try {
+        const tx = await this.contract.withdrawETHWithSignature((Number)(amount), signature, nonce);
+        console.log(tx);
+        const txid = tx.hash;
+      } catch (e) {
+        console.error(e);
+        ElMessage.error('Oops, this is a error message.' + e)
+      }
+    },
+    handleEdit(index, row) {
+      console.log(index, row);
     }
   }
 }
@@ -43,7 +49,7 @@ export default {
   <el-dialog
       v-model="profitDialogVisible"
       title="Extract Profit"
-      width="30%"
+      width="80%"
   >
     <div class="">
       <el-form label-width="100px">
@@ -51,12 +57,24 @@ export default {
           <el-input value="10.123456 BTC" disabled/>
         </el-form-item>
         <el-form-item label="EnterAmount">
-          <el-input value="0" placeholder="please enter"/>
+          <el-input value="0" placeholder="please enter" v-model="amount"/>
         </el-form-item>
         <el-form-item label="Fee">
           <el-input value="0.004 BTC" disabled/>
         </el-form-item>
       </el-form>
+      <el-table :data="extracts" style="width: 100%">
+        <el-table-column prop="txid" label="TXID" width="180"/>
+        <el-table-column prop="amount" label="amount" width="180"/>
+        <el-table-column label="Operations">
+          <template #default="scope">
+            <el-button size="small" @click="handleEdit(scope.$index, scope.row)"
+            >Edit
+            </el-button
+            >
+          </template>
+        </el-table-column>
+      </el-table>
     </div>
     <template #footer>
       <span class="dialog-footer">

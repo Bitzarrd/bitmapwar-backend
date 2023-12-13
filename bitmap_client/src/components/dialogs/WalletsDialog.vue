@@ -3,16 +3,15 @@ import {mapActions, mapMutations, mapState} from "vuex";
 
 export default {
   name: "WalletsDialog",
-  computed:{
+  computed: {
     ...mapState([
-      'walletsDialogVisible'
+      'walletsDialogVisible', 'wallet_address'
     ])
   },
   data() {
-    return {
-    }
+    return {}
   },
-  methods:{
+  methods: {
     ...mapActions([
       'connectUnisat',
       'connectMetaMask',
