@@ -560,7 +560,7 @@ export const store = createStore({
             profit: "0",
             virus: 0,
         },
-        extract: null,
+        pending_extract: null,
         extracts: [],
 
         /////////////////////
@@ -700,7 +700,12 @@ export const store = createStore({
                     state.user = message.user;
                     break;
                 case "ExtractProfitSuccess":
-                    state.extract = message;
+                    state.pending_extract = {
+                        amount: message.amount,
+                        nonce: message.nonce,
+                        signature: message.signature
+                    };
+
                     state.extracts.unshift({
                         id: message.nonce,
                         amount: message.amount,

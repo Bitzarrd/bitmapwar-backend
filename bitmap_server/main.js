@@ -494,6 +494,8 @@ wss.on('connection', (ws) => {
                         create_time: now()
                     }));
 
+                    await mysql_connection.query("UPDATE extract SET signature='" + signature + "' WHERE id=" + results.insertId + ";")
+
                 });
 
                 // let extract_insert_sql = "INSERT INTO `extract` (`amount`,`address`) VALUES (" + amount + ",'" + decode.address + "');";

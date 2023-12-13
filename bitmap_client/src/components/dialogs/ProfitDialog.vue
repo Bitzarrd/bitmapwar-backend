@@ -7,19 +7,22 @@ export default {
   name: "ProfitDialog",
   computed: {
     ...mapState([
-      'profitDialogVisible', 'contract', 'conn', 'wallet_address', 'extracts', 'extract'
+      'profitDialogVisible', 'contract', 'conn', 'wallet_address', 'extracts', 'pending_extract'
     ])
   },
   data() {
     return {
       amount: 0,
-      loading: false
+      loading: false,
     }
   },
   watch: {
-    extract(newVal, oldVal) {
-      this.submit(newVal.amount, newVal.signature, newVal.nonce);
-    }
+    async pending_extract(newVal, oldVal) {
+      console.log("watch extract", newVal, oldVal);
+      await this.submit(newVal.amount, newVal.signature, newVal.nonce);
+      this.loading = false;
+    },
+    immediate: false // Prevent initial execution
   },
   methods: {
     ...mapMutations(['setProfitDialogVisible']),
@@ -28,6 +31,9 @@ export default {
     },
     onClickExtractProfit() {
       if (this.loading === true) {
+        return;
+      }
+      if (this.amount <= 0) {
         return;
       }
       this.loading = true;
@@ -39,19 +45,28 @@ export default {
       })
     },
     async submit(amount, signature, nonce) {
+      console.log("submit", amount, signature, nonce);
+      if (this.loading === true) {
+        return;
+      }
+
       try {
         const tx = await this.contract.withdrawETHWithSignature((Number)(amount), signature, nonce);
         console.log(tx);
         const txid = tx.hash;
+        this.loading = false;
       } catch (e) {
+        this.loading = false;
         console.error(e);
         ElMessage.error('Oops, this is a error message.' + e)
       } finally {
         this.loading = false;
       }
+      this.loading = false;
     },
     handleEdit(index, row) {
       console.log(index, row);
+      this.submit(row.amount, row.signature, row.id);
     }
   }
 }
