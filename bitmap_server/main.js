@@ -319,11 +319,16 @@ wss.on('connection', (ws) => {
                     const result = await mysql_query(mysql_connection, sql);
                     if (result.length === 0) {
                         logger.info("new user");
-                        const insertSql = "INSERT INTO `user` (`address`) VALUES ('" + address + "')";
-                        logger.info(insertSql);
+
+
                         try {
-                            const insertResult = await mysql_connection.query(insertSql);
-                            logger.info(insertResult);
+                            mysql_connection.query('INSERT INTO user SET ?', {
+                                profit: 1,
+                                address: decode.address,
+                            });
+
+                            // const insertResult = await mysql_connection.query(insertSql);
+                            // logger.info(insertResult);
                             let user = {
                                 address: address,
                             };
