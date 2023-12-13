@@ -3,7 +3,7 @@ import {mapActions, mapMutations, mapState} from "vuex";
 import {ElMessage} from "element-plus";
 
 export default {
-  name: "PurchaseDialogV",
+  name: "PurchaseDialog",
   computed: {
     ...mapState([
       'purchaseDialogVisible', 'contract'
@@ -61,7 +61,7 @@ export default {
     </div>
     <template #footer>
       <span class="dialog-footer">
-        <el-button @click="purchaseDialogVisible = false">Cancel</el-button>
+        <el-button @click="setPurchaseDialogVisible(false)">Cancel</el-button>
         <el-button type="primary" @click="onClickBuyVirus">
           Confirm
         </el-button>

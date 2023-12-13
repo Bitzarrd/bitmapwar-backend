@@ -17,10 +17,14 @@ import BitmapListDialog from "@/components/dialogs/BitmapListDialog.vue";
 import NextRoundSettingDialog from "@/components/dialogs/NextRoundSettingDialog.vue";
 import SettlementDialog from "@/components/dialogs/SettlementDialog.vue";
 import WalletsDialog from "@/components/dialogs/WalletsDialog.vue";
+import PurchaseDialogV from "@/components/dialogs/PurchaseDialog.vue";
+import PurchaseDialog from "@/components/dialogs/PurchaseDialog.vue";
 
 export default {
   name: "GameView",
   components: {
+    PurchaseDialog,
+    PurchaseDialogV,
     WalletsDialog,
     SettlementDialog,
     NextRoundSettingDialog,
@@ -43,8 +47,6 @@ export default {
       purchaseLoading: false,
       nextRoundSetting: 0,
       searched_map: null,
-      virus: 0,
-      selected_map: "",
     }
   },
   mounted() {
@@ -176,6 +178,7 @@ export default {
   <NextRoundSettingDialog/>
   <SettlementDialog/>
   <WalletsDialog/>
+  <PurchaseDialog/>
 </template>
 
 <style>

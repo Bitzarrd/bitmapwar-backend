@@ -1,37 +1,49 @@
 <script>
 import {shortend} from "@/utils";
-import {mapState} from "vuex";
+import {mapMutations, mapState} from "vuex";
+import {Edit} from "@element-plus/icons-vue";
 
 export default {
   name: "Action",
-  computed:{
+  components: {Edit},
+  computed: {
     ...mapState(['wallet_address', 'user'])
   },
   data() {
     return {
-      options:
-          [
-            {
-              value: 'red',
-              label: 'Red',
-            },
-            {
-              value: 'blue',
-              label: 'Blue',
-            },
-            {
-              value: 'green',
-              label: 'Green',
-            },
-            {
-              value: 'purple',
-              label: 'Purple',
-            },
-          ]
+      virus: 0,
+      value: 'red',
+      options: [
+        {
+          value: 'red',
+          label: 'Red',
+        },
+        {
+          value: 'blue',
+          label: 'Blue',
+        },
+        {
+          value: 'green',
+          label: 'Green',
+        },
+        {
+          value: 'purple',
+          label: 'Purple',
+        },
+      ]
     }
   },
-  methods:{
+  watch: {
+    virus(newValue, oldValue) {
+
+    }
+  },
+  mounted() {
+
+  },
+  methods: {
     shortend,
+    ...mapMutations(['']),
     onClickSubmit() {
       this.dialogVisible = true
     },

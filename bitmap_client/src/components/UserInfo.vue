@@ -10,6 +10,16 @@ export default {
   computed: {
     ...mapState(['wallet_address', 'user'])
   },
+  data(){
+    return {
+      selected_map: "",
+    }
+  },
+  watch:{
+    selected_map(newValue,oldValue){
+
+    },
+  },
   methods: {
     formatEther,
     shortend,
