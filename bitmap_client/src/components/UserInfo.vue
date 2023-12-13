@@ -8,18 +8,12 @@ export default {
   name: "UserInfo",
   components: {Coin, View, CirclePlus},
   computed: {
-    ...mapState(['wallet_address', 'user'])
+    ...mapState(['wallet_address', 'user', 'selected_map'])
   },
-  data(){
-    return {
-      selected_map: "",
-    }
+  data() {
+    return {}
   },
-  watch:{
-    selected_map(newValue,oldValue){
-
-    },
-  },
+  watch: {},
   methods: {
     formatEther,
     shortend,

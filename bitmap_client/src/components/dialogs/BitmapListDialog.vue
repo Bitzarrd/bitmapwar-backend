@@ -26,10 +26,17 @@ export default {
     },
   },
   data() {
-    return {}
+    return {
+      selected_map: ""
+    }
+  },
+  watch: {
+    selected_map: function (newVal, oldVal) {
+      this.setSelectedMap(newVal);
+    }
   },
   methods: {
-    ...mapMutations(['setBitmapListDialogVisible']),
+    ...mapMutations(['setBitmapListDialogVisible', 'setSelectedMap']),
   }
 }
 </script>

@@ -4,7 +4,7 @@ import {mapActions, mapMutations, mapState} from "vuex";
 export default {
   name: "ActionDialog",
   computed: {
-    ...mapState(['wallet_address', 'dialogVisible', 'conn'])
+    ...mapState(['wallet_address', 'dialogVisible', 'conn', 'selected_map', 'virus'])
   },
   data() {
     return {

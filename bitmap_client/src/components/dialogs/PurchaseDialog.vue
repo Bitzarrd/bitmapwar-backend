@@ -6,7 +6,7 @@ export default {
   name: "PurchaseDialog",
   computed: {
     ...mapState([
-      'purchaseDialogVisible', 'contract'
+      'purchaseDialogVisible', 'contract', 'socket'
     ])
   },
   data() {
@@ -26,7 +26,7 @@ export default {
         return;
       }
       try {
-        this.setPurchaseDialogVisible(true);
+        this.purchaseLoading = true;
         const tx = await this.contract.BuyToken({value: 1000});
         console.log(tx);
         const txid = tx.hash;
@@ -40,7 +40,7 @@ export default {
         console.error(e);
         ElMessage.error('Oops, this is a error message.' + e)
       } finally {
-        this.setPurchaseDialogVisible(false);
+        this.purchaseLoading = false;
       }
     },
   }

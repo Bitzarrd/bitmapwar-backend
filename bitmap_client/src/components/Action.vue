@@ -7,7 +7,7 @@ export default {
   name: "Action",
   components: {Edit},
   computed: {
-    ...mapState(['wallet_address', 'user'])
+    ...mapState(['wallet_address', 'user', 'selected_map'])
   },
   data() {
     return {
@@ -35,7 +35,7 @@ export default {
   },
   watch: {
     virus(newValue, oldValue) {
-
+      this.setVirus(newValue);
     }
   },
   mounted() {
@@ -43,9 +43,9 @@ export default {
   },
   methods: {
     shortend,
-    ...mapMutations(['']),
+    ...mapMutations(['setDialogVisible', 'setVirus']),
     onClickSubmit() {
-      this.dialogVisible = true
+      this.setDialogVisible(true);
     },
   }
 }

@@ -569,6 +569,8 @@ export const store = createStore({
         nextRoundSettingDialogVisible: false,
         settlementDialogVisible: false,
         walletsDialogVisible: false,
+        selected_map: "",
+        virus: 0,
     },
     getters: {
         shortedWalletAddress: state => {
@@ -576,25 +578,31 @@ export const store = createStore({
         }
     },
     mutations: {
-        setDialogVisible(state,value){
+        setVirus(state, value) {
+            state.virus = value
+        },
+        setSelectedMap(state, value) {
+            state.selected_map = value;
+        },
+        setDialogVisible(state, value) {
             state.dialogVisible = value
         },
-        setPurchaseDialogVisible(state,value){
+        setPurchaseDialogVisible(state, value) {
             state.purchaseDialogVisible = value
         },
-        setBitmapListDialogVisible(state,value){
+        setBitmapListDialogVisible(state, value) {
             state.bitmapListDialogVisible = value
         },
-        setProfitDialogVisible(state,value){
+        setProfitDialogVisible(state, value) {
             state.profitDialogVisible = value
         },
-        setNextRoundSettingDialogVisible(state,value){
+        setNextRoundSettingDialogVisible(state, value) {
             state.nextRoundSettingDialogVisible = value
         },
-        setSettlementDialogVisible(state,value){
+        setSettlementDialogVisible(state, value) {
             state.settlementDialogVisible = value
         },
-        setWalletsDialogVisible(state,value){
+        setWalletsDialogVisible(state, value) {
             state.walletsDialogVisible = value
         },
         setWalletAddress(state, address) {
