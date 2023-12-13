@@ -27,7 +27,7 @@ contract BitCraft is ERC20, ERC20Burnable, Ownable {
         uint256 tokenAmount = msg.value * 1000; // 计算代币数量（每个代币价格为 0.001 ETH）
         require(tokenAmount > 0, "Insufficient ETH amount");
         // 调用 ERC20 合约的 mint 函数来铸造代币并将其发送给购买者
-        mint(msg.sender, tokenAmount);
+        _mint(msg.sender, tokenAmount);
     }
 
     function withdrawETH(uint256 amount) public onlyOwner {

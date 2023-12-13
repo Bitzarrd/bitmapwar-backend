@@ -6,7 +6,7 @@ export default {
   name: "PurchaseDialog",
   computed: {
     ...mapState([
-      'purchaseDialogVisible', 'contract', 'socket'
+      'purchaseDialogVisible', 'contract', 'socket', 'conn'
     ])
   },
   data() {

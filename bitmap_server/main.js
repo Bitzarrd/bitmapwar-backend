@@ -459,7 +459,7 @@ wss.on('connection', (ws) => {
                                         const select_sql = "SELECT * FROM `user` WHERE `address` = '" + to + "';";
                                         logger.info(select_sql);
                                         try {
-                                            const selectResult = await mysql_connection.query(select_sql);
+                                            const selectResult = await mysql_query(mysql_connection,select_sql);
                                             logger.info(selectResult);
                                             let user = selectResult[0];
                                             ws.send(JSON.stringify({
