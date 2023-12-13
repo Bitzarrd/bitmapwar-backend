@@ -4,7 +4,7 @@ export function getRandomInt(min, max) {
     return Math.floor(Math.random() * (max - min + 1)) + min;
 }
 
-export function now(){
+export function now() {
     const timestampSeconds = Math.floor(new Date().getTime() / 1000);
     return timestampSeconds;
 }

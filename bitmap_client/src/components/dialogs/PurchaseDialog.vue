@@ -1,6 +1,7 @@
 <script>
 import {mapActions, mapMutations, mapState} from "vuex";
 import {ElMessage} from "element-plus";
+import {sleep} from "@/utils";
 
 export default {
   name: "PurchaseDialog",
@@ -34,6 +35,7 @@ export default {
           method: "Purchase",
           txid: txid,
         };
+        await sleep(3000);
         this.conn.sendObj(message);
         this.setPurchaseDialogVisible(false);
       } catch (e) {
