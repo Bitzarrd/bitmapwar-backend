@@ -11,7 +11,8 @@ export default {
   },
   data() {
     return {
-      amount: 0
+      amount: 0,
+      loading: false
     }
   },
   watch: {
@@ -21,6 +22,7 @@ export default {
   },
   methods: {
     onClickExtractProfit() {
+      this.loading = true;
       this.conn.sendObj({
         method: "ExtractProfit",
         amount: this.amount,
@@ -36,6 +38,8 @@ export default {
       } catch (e) {
         console.error(e);
         ElMessage.error('Oops, this is a error message.' + e)
+      } finally {
+        this.loading = false;
       }
     },
     handleEdit(index, row) {
@@ -51,7 +55,7 @@ export default {
       title="Extract Profit"
       width="80%"
   >
-    <div class="">
+    <div class="" v-loading="loading">
       <el-form label-width="100px">
         <el-form-item label="Profit">
           <el-input value="10.123456 BTC" disabled/>
@@ -63,7 +67,7 @@ export default {
           <el-input value="0.004 BTC" disabled/>
         </el-form-item>
       </el-form>
-      <el-table :data="extracts" style="width: 100%">
+      <el-table :data="extracts" :scrollbar-always-on="true" :max-height="300" style="width: 100%">
         <el-table-column prop="txid" label="TXID" width="180"/>
         <el-table-column prop="amount" label="amount" width="180"/>
         <el-table-column label="Operations">
