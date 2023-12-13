@@ -2,6 +2,7 @@
 import {mapMutations, mapState} from "vuex";
 import {ElMessage} from "element-plus";
 import moment from "moment";
+import {shortend} from "../../utils";
 
 export default {
   name: "ProfitDialog",
@@ -25,6 +26,7 @@ export default {
     immediate: false // Prevent initial execution
   },
   methods: {
+    shortend,
     ...mapMutations(['setProfitDialogVisible']),
     format_time(time) {
       return moment(time * 1000).format();
@@ -55,6 +57,14 @@ export default {
         console.log(tx);
         const txid = tx.hash;
         this.loading = false;
+        this.conn.sendObj({
+          method: "UpdateExtract",
+          txid: txid,
+          status: 1,
+          id: nonce,
+          address: this.wallet_address
+        })
+
       } catch (e) {
         this.loading = false;
         console.error(e);
@@ -76,7 +86,7 @@ export default {
   <el-dialog
       v-model="profitDialogVisible"
       title="Extract Profit"
-      width="80%"
+      width="60%"
   >
     <div class="" v-loading="loading">
       <el-form label-width="100px">
@@ -92,7 +102,11 @@ export default {
       </el-form>
       <el-table :data="extracts" :scrollbar-always-on="true" :max-height="300" style="width: 100%">
         <el-table-column prop="id" label="ID" width="100"/>
-        <el-table-column prop="txid" label="TXID" width="180"/>
+        <el-table-column prop="txid" label="TXID" width="180">
+          <template #default="scope">
+            {{ shortend(scope.row.txid)}}
+          </template>
+        </el-table-column>
         <el-table-column prop="amount" label="amount" width="180"/>
 
         <el-table-column
@@ -102,10 +116,10 @@ export default {
         >
           <template #default="scope">
             <el-tag
-                :type="scope.row.tag === '1' ? '' : 'success'"
+                :type="scope.row.status === 1 ? '' : 'success'"
                 disable-transitions
             >
-              Pending
+              {{ scope.row.status === 0 ? 'Pending' : 'Success' }}
             </el-tag>
           </template>
         </el-table-column>
@@ -123,7 +137,7 @@ export default {
 
         <el-table-column label="Operations">
           <template #default="scope">
-            <el-button size="small" @click="handleEdit(scope.$index, scope.row)"
+            <el-button size="small" @click="handleEdit(scope.$index, scope.row)" v-if="scope.row.status===0"
             >
               Resubmit
             </el-button

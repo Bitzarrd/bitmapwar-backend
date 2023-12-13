@@ -714,6 +714,15 @@ export const store = createStore({
                         signature: message.signature
                     })
                     break;
+                case "UpdateExtractSuccess":
+                    for (let i = 0; i < state.extracts.length; i++) {
+                        if (state.extracts[i].id === message.id) {
+                            state.extracts[i].status = 1;
+                            state.extracts[i].txid = message.txid;
+                            break;
+                        }
+                    }
+                    break;
 
             }
             state.socket.message = message;
