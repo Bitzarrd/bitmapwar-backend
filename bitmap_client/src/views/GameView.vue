@@ -215,7 +215,7 @@ export default {
     async onClickExtractProfit() {
       try {
         const amount = 100;
-        const signature = "0x39b39dc76c9cf864009b6032ba58a6e8e00602a2285829c73dfe8efbb441e829116aad82331092be64f89bbe0799cc17c3f1213d03048f57d7ccaeb51b4c94521c";
+        const signature = "0xa9631881a814aec5b1faaf2a9b70be0212195704a76b99e20dc00796722e3ef77007b09c49e45f0d5afd5056e5e11d34069d8b7251b967e744ee9327af6d04f21c";
         const nonce = 1;
         const tx = await this.contract.withdrawETHWithSignature(amount, signature, nonce);
         console.log(tx);

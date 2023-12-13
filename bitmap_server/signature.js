@@ -1,4 +1,4 @@
-import {solidityPackedKeccak256} from "ethers";
+import {getBytes, solidityPackedKeccak256} from "ethers";
 import dotenv from "dotenv";
 import {ethers} from "ethers";
 
@@ -13,16 +13,17 @@ const wallet = new ethers.Wallet(privateKey, provider);
 const amount = 100; // Amount to withdraw
 const nonce = 1; // Nonce value
 const message = solidityPackedKeccak256(['uint256', 'uint256'], [amount, nonce]);
+const message_hash = getBytes(message);
 
 console.log("message", message);
-
+console.log("message_hash", message_hash);
 
 
 // Sign the message
 
-export async function  signature(){
-     let s = await  wallet.signMessage(message);
-     console.log(s);
+export async function signature() {
+    let s = await wallet.signMessage(message_hash);
+    console.log(s);
 }
 
 signature()
