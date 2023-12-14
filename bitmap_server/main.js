@@ -13,7 +13,7 @@ import {
     calculate_bitmap_reward,
     calculate_pool_1,
     calculate_pool_2,
-    calculate_pool_2_proportion, get_rank_for_save,
+    calculate_pool_2_proportion, get_conn_by_owner, get_rank_for_save,
     get_users,
     get_users_by_color,
     get_win_team
@@ -193,6 +193,19 @@ const start_game = () => {
                 logger.info("用户：" + user.owner + " 颜色：" + user.statistics.color + " 持有地图：[" + user.bitmaps + "] 奖励为：" + user.reward_3)
             }
 
+
+            for (let owner of Object.keys(users)) {
+                let user = users[owner];
+                let conn = get_conn_by_owner(owner);
+                if(conn){
+                    conn.send(JSON.stringify({
+                        method: "Settlement",
+                        next_round: next_round,
+                        statistics: user.statistics
+                    }));
+
+                }
+            }
 
             // for (let owner of Object.keys(users)) {
             //     let user = users[owner];

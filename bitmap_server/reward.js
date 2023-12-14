@@ -172,3 +172,14 @@ export function get_rank_for_save(players) {
     }
     return rand_to_save;
 }
+
+export function get_conn_by_owner(players, owner) {
+    for (let i = 0; i < players.length; i++) {
+        if (players[i].owner === owner) {
+            let conn = players[i].conn;
+            if (conn.readyState === WebSocket.OPEN) {
+                return conn;
+            }
+        }
+    }
+}
