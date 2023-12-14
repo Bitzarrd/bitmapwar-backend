@@ -147,6 +147,24 @@ export function calculate_pool_2_proportion(users) {
     return TOP_ALL - TOP_1 - TOP_2 - TOP_3 - TOP_4 - TOP_5;
 }
 
+export function calculate_bitmap_total_amount(users) {
+    let total = 0;
+    for (let owner of Object.keys(users)) {
+        let user = users[owner];
+        total += user.bitmaps.length;
+    }
+    return total;
+}
+
+export function calculate_bitmap_reward(users) {
+    let total = calculate_bitmap_total_amount(users);
+    let reward = BITMAP_OWNER / total;
+    for (let owner of Object.keys(users)) {
+        let user = users[owner];
+        user.reward_3 = user.bitmaps.length * reward;
+    }
+}
+
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 const players = [
@@ -217,6 +235,10 @@ const win_team_users = get_users_by_color(win_team, users);
 
 // console.log(win_team_users);
 
+logger.info("地块信息：")
+for (let player of players) {
+    logger.info("地图：" + player.bitmap + " 用户：" + player.owner + " 颜色：" + player.color + " 领地：" + player.land + " 病毒：" + player.virus + " 损失：" + player.loss);
+}
 
 const pool_2 = calculate_pool_2_proportion(win_team_users);
 logger.info("奖池2的比例为：" + pool_2);
@@ -227,9 +249,9 @@ for (let user of win_team_users) {
     logger.info("用户：" + user.owner + " 名次：" + user.rank + " 颜色：" + user.statistics.color + " 领地：" + user.statistics.land + " 病毒：" + user.statistics.virus + " 损失：" + user.statistics.loss + " 奖励：" + user.reward_1 + "," + user.reward_2 + "");
 }
 logger.info("BITMAP持有者奖励为：")
-
+calculate_bitmap_reward(users);
 for (let owner of Object.keys(users)) {
     let user = users[owner];
-    logger.info("用户：" + user.owner + " 颜色：" + user.statistics.color + " 持有地图：[" + user.bitmaps + "] 奖励为：")
+    logger.info("用户：" + user.owner + " 颜色：" + user.statistics.color + " 持有地图：[" + user.bitmaps + "] 奖励为：" + user.reward_3)
 }
 // console.log(users);

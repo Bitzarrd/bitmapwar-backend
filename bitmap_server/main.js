@@ -34,7 +34,6 @@ mysql_connection.connect({}, (err) => {
 });
 
 
-
 // 创建WebSocket服务器实例
 const wss = new WebSocketServer({port: process.env.PORT});
 
@@ -167,7 +166,6 @@ const start_game = () => {
                     land: rank[i].land
                 })
             }
-
 
 
             for (let owner of Object.keys(users)) {
@@ -380,6 +378,7 @@ wss.on('connection', (ws) => {
                     i: 0,
                     x: join_x,
                     y: join_y,
+                    bitmap: decode.map_id,
                     color: decode.color,
                     land: 0,
                     loss: 0,
@@ -446,7 +445,7 @@ wss.on('connection', (ws) => {
                                         const select_sql = "SELECT * FROM `user` WHERE `address` = '" + to + "';";
                                         logger.info(select_sql);
                                         try {
-                                            const selectResult = await mysql_query(mysql_connection,select_sql);
+                                            const selectResult = await mysql_query(mysql_connection, select_sql);
                                             logger.info(selectResult);
                                             let user = selectResult[0];
                                             ws.send(JSON.stringify({
