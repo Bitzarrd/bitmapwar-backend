@@ -520,6 +520,32 @@ export const store = createStore({
                 loss: 0
             }
         ],
+        settlementLandList:[
+            {
+                team: "red",
+                land: 0,
+                virus: 0,
+                loss: 0
+            },
+            {
+                team: "yellow",
+                land: 0,
+                virus: 0,
+                loss: 0
+            },
+            {
+                team: "green",
+                land: 0,
+                virus: 0,
+                loss: 0
+            },
+            {
+                team: "purple",
+                land: 0,
+                virus: 0,
+                loss: 0
+            }
+        ],
         lastRanking: [],
 
         user: {
@@ -666,6 +692,33 @@ export const store = createStore({
                     }
                     state.user = message.user;
                     state.lastRanking = message.rank;
+                    state.settlementLandList = state.landList;
+                    state.landList = [
+                        {
+                            team: "red",
+                            land: 0,
+                            virus: 0,
+                            loss: 0
+                        },
+                        {
+                            team: "yellow",
+                            land: 0,
+                            virus: 0,
+                            loss: 0
+                        },
+                        {
+                            team: "green",
+                            land: 0,
+                            virus: 0,
+                            loss: 0
+                        },
+                        {
+                            team: "purple",
+                            land: 0,
+                            virus: 0,
+                            loss: 0
+                        }
+                    ];
                     state.settlementDialogVisible = true;
                     break;
                 case "PurchaseSuccess":
