@@ -164,6 +164,11 @@ const start_game = () => {
             clearInterval(interval);
             next_round = now() + intervalBetweenMatches;
 
+            if (players.length === 0) {
+                logger.info("no players");
+                return;
+            }
+
             const users = get_users(players);
             const win_team = get_win_team(players);
             logger.info("当前胜利的队伍是：" + win_team);
@@ -415,6 +420,7 @@ wss.on('connection', (ws) => {
                     color: decode.color,
                     land: 0,
                     loss: 0,
+                    init_virus: decode.virus,
                     virus: decode.virus,
                     owner: decode.owner,
                     conn: ws,

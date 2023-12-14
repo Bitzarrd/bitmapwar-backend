@@ -77,7 +77,10 @@ export function get_users(players) {
                 // conn: player.conn,
                 owner: player.owner,
                 statistics: {land: player.land, virus: player.virus, loss: player.loss, color: player.color},
-                bitmaps: [player.bitmap]
+                bitmaps: [player.bitmap],
+                reward_1: 0,
+                reward_2: 0,
+                reward_3: 0,
             };
         }
     });
