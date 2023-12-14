@@ -42,8 +42,10 @@ mysql_connection.connect({}, async (err) => {
     }
     logger.info("mysql connected")
 
-    const last_round = (await mysql_query(mysql_connection, "SELECT * FROM `round` ORDER BY id DESC LIMIT 1;"))[0];
-    last_rank = JSON.parse(last_round.rank);
+    const last_rounds = await mysql_query(mysql_connection, "SELECT * FROM `round` ORDER BY id DESC LIMIT 1;");
+    if (last_rounds > 0) {
+        last_rank = JSON.parse(last_round[0].rank);
+    }
 });
 
 
