@@ -566,17 +566,17 @@ export const store = createStore({
         settlementDialogVisible: false,
         walletsDialogVisible: false,
         selected_map: "",
+        selected_color: "red",
         virus: 0,
     },
-    getters: {
-        shortedWalletAddress: state => {
-            return state.wallet_address.substr(0, 5) + '......' + state.wallet_address.substr;
-        }
-    },
+    getters: {},
     mutations: {
         // setExtract(state, value): {
         //     state.extracts = value;
         // },
+        setSelectColor(state,value){
+          state.selected_color = value;
+        },
         setVirus(state, value) {
             state.virus = value
         },
@@ -725,6 +725,7 @@ export const store = createStore({
                         }
                     ];
                     state.turn = 0;
+                    state.players = [];
                     state.settlementDialogVisible = true;
                     break;
                 case "PurchaseSuccess":

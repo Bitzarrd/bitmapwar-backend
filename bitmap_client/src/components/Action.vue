@@ -7,12 +7,31 @@ export default {
   name: "Action",
   components: {Edit},
   computed: {
-    ...mapState(['wallet_address', 'user', 'selected_map'])
+    ...mapState(['wallet_address', 'user', 'selected_map', 'players', 'selected_color']),
+    colorLocked: {
+      get() {
+        const my_player = this.players.find(player => player.owner === this.wallet_address);
+        console.log("my_player", my_player);
+        if (my_player != null) {
+          return my_player.color;
+        } else {
+          return null;
+        }
+      },
+    },
+    color: {
+      get() {
+        return this.selected_color;
+      },
+      set(val) {
+        this.setSelectColor(val);
+      }
+    }
   },
   data() {
     return {
       virus: 0,
-      value: 'red',
+      lock: false,
       options: [
         {
           value: 'red',
@@ -36,14 +55,22 @@ export default {
   watch: {
     virus(newValue, oldValue) {
       this.setVirus(newValue);
-    }
+    },
+    colorLocked(newValue, oldValue) {
+      if (newValue != null) {
+        this.lock = true;
+        this.color = newValue;
+      } else {
+        this.lock = false;
+      }
+    },
   },
   mounted() {
 
   },
   methods: {
     shortend,
-    ...mapMutations(['setActionDialogVisible', 'setVirus']),
+    ...mapMutations(['setActionDialogVisible', 'setVirus', 'setSelectColor']),
     onClickSubmit() {
       this.setActionDialogVisible(true);
     },
@@ -64,7 +91,7 @@ export default {
       </template>
       <el-form label-width="80px" v-if="wallet_address">
         <el-form-item label="Function:">
-          <el-select v-model="value" class="m-2" placeholder="Select">
+          <el-select v-model="color" class="m-2" placeholder="Select" :disabled="lock">
             <el-option
                 v-for="item in options"
                 :key="item.value"
@@ -87,7 +114,7 @@ export default {
               :content="wallet_address"
               placement="top"
           >
-          <el-input :value="shortend(wallet_address)" disabled/>
+            <el-input :value="shortend(wallet_address)" disabled/>
           </el-tooltip>
         </el-form-item>
         <el-form-item label="Bit:">

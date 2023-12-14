@@ -5,9 +5,7 @@ import {ElMessage} from "element-plus";
 export default {
   name: "ActionDialog",
   data() {
-    return {
-      value: "red",
-    }
+
   },
   methods: {
     ...mapMutations(['setActionDialogVisible']),
@@ -29,7 +27,7 @@ export default {
 
       const message = {
         method: "JoinGame2",
-        color: this.value,
+        color: this.selected_color,
         map_id: this.selected_map,
         virus: this.virus,
         owner: this.wallet_address,
@@ -40,7 +38,7 @@ export default {
     },
   },
   computed: {
-    ...mapState(['wallet_address', 'actionDialogVisible', 'conn', 'selected_map', 'virus', 'user']),
+    ...mapState(['wallet_address', 'actionDialogVisible', 'conn', 'selected_map', 'virus', 'user','selected_color']),
     dialogVisible: {
       get() {
         return this.actionDialogVisible;
