@@ -165,7 +165,7 @@ export default {
     </div>
   </div>
 
-  <ActionDialog/>
+  <ActionDialog @search="search"/>
   <ProfitDialog/>
   <BitmapListDialog/>
   <ProfitDialog/>

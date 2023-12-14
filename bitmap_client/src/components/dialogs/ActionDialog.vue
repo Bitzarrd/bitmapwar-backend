@@ -24,8 +24,7 @@ export default {
       };
       this.conn.sendObj(message);
       this.setDialogVisible(false);
-      // this.search(message.map_id)
-
+      this.$emit('search', message.map_id);
     },
   }
 }
