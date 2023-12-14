@@ -9,6 +9,15 @@ import {gridWidth, colors, durationOfTheMatch, intervalBetweenMatches, circle} f
 import {get_events} from "./get_events.js";
 import {make_signature} from "./signature.js";
 import {mysql_query} from "./mysql.js";
+import {
+    calculate_bitmap_reward,
+    calculate_pool_1,
+    calculate_pool_2,
+    calculate_pool_2_proportion,
+    get_users,
+    get_users_by_color,
+    get_win_team
+} from "./reward.js";
 
 dotenv.config();
 
@@ -155,37 +164,61 @@ const start_game = () => {
             clearInterval(interval);
             next_round = now() + intervalBetweenMatches;
 
-            let rank = players.sort((a, b) => {
-                return a.land > b.land;
-            });
-
-            let rand_to_save = [];
-            for (let i = 0; i < rank.length; i++) {
-                rand_to_save.push({
-                    owner: rank[i].owner,
-                    land: rank[i].land
-                })
+            const users = get_users(players);
+            const win_team = get_win_team(players);
+            logger.info("当前胜利的队伍是：" + win_team);
+            const win_team_users = get_users_by_color(win_team, users);
+            logger.info("地块信息：")
+            for (let player of players) {
+                logger.info("地图：" + player.bitmap + " 用户：" + player.owner + " 颜色：" + player.color + " 领地：" + player.land + " 病毒：" + player.virus + " 损失：" + player.loss);
             }
 
-
+            const pool_2 = calculate_pool_2_proportion(win_team_users);
+            logger.info("奖池2的比例为：" + pool_2);
+            logger.info("胜利方用户分别是:")
+            calculate_pool_1(win_team_users);
+            calculate_pool_2(win_team_users);
+            for (let user of win_team_users) {
+                logger.info("用户：" + user.owner + " 名次：" + user.rank + " 颜色：" + user.statistics.color + " 领地：" + user.statistics.land + " 病毒：" + user.statistics.virus + " 损失：" + user.statistics.loss + " 奖励：" + user.reward_1 + "," + user.reward_2 + "");
+            }
+            logger.info("BITMAP持有者奖励为：")
+            calculate_bitmap_reward(users);
             for (let owner of Object.keys(users)) {
                 let user = users[owner];
-                if (user.conn.readyState === WebSocket.OPEN) {
-                    user.conn.send(JSON.stringify({
-                        method: "Settlement",
-                        next_round: next_round,
-                        rank: rand_to_save,
-                        statistics: user.statistics
-                    }));
-                }
+                logger.info("用户：" + user.owner + " 颜色：" + user.statistics.color + " 持有地图：[" + user.bitmaps + "] 奖励为：" + user.reward_3)
             }
+            //
+            // let rank = players.sort((a, b) => {
+            //     return a.land > b.land;
+            // });
+            //
+            // let rand_to_save = [];
+            // for (let i = 0; i < rank.length; i++) {
+            //     rand_to_save.push({
+            //         owner: rank[i].owner,
+            //         land: rank[i].land
+            //     })
+            // }
 
 
-            const sql = "INSERT INTO `round` (`end_time`,`rank`) VALUES (" + now() + ",'" + JSON.stringify(rand_to_save) + "')";
-            logger.info(sql);
-            mysql_connection.query(sql, function (err, result) {
-                console.log(err, result);
-            });
+            // for (let owner of Object.keys(users)) {
+            //     let user = users[owner];
+            //     if (user.conn.readyState === WebSocket.OPEN) {
+            //         user.conn.send(JSON.stringify({
+            //             method: "Settlement",
+            //             next_round: next_round,
+            //             // rank: rand_to_save,
+            //             statistics: user.statistics
+            //         }));
+            //     }
+            // }
+
+
+            // const sql = "INSERT INTO `round` (`end_time`,`rank`) VALUES (" + now() + ",'" + JSON.stringify(rand_to_save) + "')";
+            // logger.info(sql);
+            // mysql_connection.query(sql, function (err, result) {
+            //     console.log(err, result);
+            // });
 
 
             // clients.forEach((client) => {
