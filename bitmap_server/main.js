@@ -200,7 +200,8 @@ const start_game = () => {
 
             const all_init_virus = get_all_init_virus(players);
             const all_reward_profit = calculate_virus_to_profit(all_init_virus);
-            const rand_to_save = get_rank_for_save(players);
+            const rank_to_save = get_rank_for_save(players);
+            last_rank = rank_to_save;
 
 
             for (let owner of Object.keys(users)) {
@@ -220,13 +221,13 @@ const start_game = () => {
                         statistics: user.statistics,
                         user: user_for_settlement,
                         earning: profit,
-                        rank:rand_to_save
+                        rank: rank_to_save
                     }));
 
                 }
             }
 
-            const sql = "INSERT INTO `round` (`end_time`,`rank`) VALUES (" + now() + ",'" + JSON.stringify(rand_to_save) + "')";
+            const sql = "INSERT INTO `round` (`end_time`,`rank`) VALUES (" + now() + ",'" + JSON.stringify(rank_to_save) + "')";
             logger.info(sql);
             mysql_connection.query(sql, function (err, result) {
                 console.log(err, result);
