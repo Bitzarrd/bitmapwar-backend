@@ -185,3 +185,16 @@ export function get_conn_by_owner(players, owner) {
         }
     }
 }
+
+export function get_all_init_virus(players) {
+    let virus = 0;
+    for (let i = 0; i < players.length; i++) {
+        virus += players[i].init_virus;
+    }
+    return virus;
+}
+
+export function calculate_virus_to_profit(virus) {
+    //todo 金额待确定
+    return virus * 100;
+}
