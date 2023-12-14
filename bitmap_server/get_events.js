@@ -453,14 +453,19 @@ const iface = new Interface(abi)
 
 
 export function get_events(txid, callback) {
-    provider.getTransaction(txid).then((tx) => {
-        tx.wait().then((result) => {
-            const logs = result.logs;
-            let events = [];
-            for (let i = 0; i < logs.length; i++) {
-                events.push(iface.parseLog(logs[i]));
-            }
-            callback(events);
-        })
-    });
+    try {
+        provider.getTransaction(txid).then((tx) => {
+            tx.wait().then((result) => {
+                const logs = result.logs;
+                let events = [];
+                for (let i = 0; i < logs.length; i++) {
+                    events.push(iface.parseLog(logs[i]));
+                }
+                callback(events);
+            })
+        });
+    } catch (e) {
+        console.error(e);
+        callback([])
+    }
 }

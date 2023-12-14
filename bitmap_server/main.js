@@ -235,7 +235,11 @@ const start_game = () => {
             const sql = "INSERT INTO `round` (`end_time`,`rank`) VALUES (" + now() + ",'" + JSON.stringify(rank_to_save) + "')";
             logger.info(sql);
             mysql_connection.query(sql, function (err, result) {
-                console.log(err, result);
+                if (err) {
+                    logger.error(err);
+                } else {
+                    logger.info("保存排名成功：" + result.insertId);
+                }
             });
 
             //clear
