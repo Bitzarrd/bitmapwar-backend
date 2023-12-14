@@ -3,7 +3,7 @@ import {mapMutations, mapState} from "vuex";
 
 export default {
   name: "SettlementDialog",
-  computed:{
+  computed: {
     ...mapState([
       'settlementDialogVisible','landList','settlement'
     ])

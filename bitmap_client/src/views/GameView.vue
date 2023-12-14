@@ -38,7 +38,7 @@ export default {
     ...mapState([
       'socket', 'conn', 'wallet_address', 'map_list', 'turn',
       'landList', 'next_round', 'user', 'gridWidth',
-      'cellSize', 'loading', 'settlement', 'contract'
+      'cellSize', 'loading', 'contract'
     ]),
   },
   data() {
@@ -75,13 +75,7 @@ export default {
     });
 
   },
-  watch: {
-    settlement(newValue, oldValue) {
-      if (newValue) {
-        this.settlementDialogVisible = true;
-      }
-    },
-  },
+  watch: {},
   methods: {
     formatEther,
     ...mapActions(['getBitMapList', 'login']),

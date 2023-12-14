@@ -696,7 +696,7 @@ export const store = createStore({
                         rank: message.rank,
                         statistics: message.statistics
                     }
-                    //todo
+                    state.settlementDialogVisible = true;
                     break;
                 case "PurchaseSuccess":
                     state.user = message.user;
