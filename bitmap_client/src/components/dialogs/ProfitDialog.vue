@@ -37,7 +37,7 @@ export default {
   methods: {
     shortend,
     ...mapMutations(['setProfitDialogVisible']),
-    formatWei2Ether(wei){
+    formatWei2Ether(wei) {
       return formatEther(wei);
     },
     format_time(time) {
@@ -112,58 +112,60 @@ export default {
           <el-input value="0.004 BTC" disabled/>
         </el-form-item>
       </el-form>
-      <el-table :data="extracts" :scrollbar-always-on="true" :max-height="300" style="width: 100%">
-        <el-table-column prop="id" label="ID" width="100"/>
-        <el-table-column prop="txid" label="TXID" width="180">
-          <template #default="scope">
-            <el-popover effect="light" trigger="hover" placement="top" width="auto">
-              <template #default>
-                <div> {{ (scope.row.txid) }}</div>
-              </template>
-              <template #reference>
-                {{ shortend(scope.row.txid) }}
-              </template>
-            </el-popover>
-          </template>
-        </el-table-column>
-        <el-table-column prop="amount" label="amount" width="180"/>
+      <div style="border: #333333 1px solid;width: 100%">
+        <el-table :data="extracts" :scrollbar-always-on="true" :max-height="300" style="width: 100%">
+          <el-table-column prop="id" label="ID" width="100"/>
+          <el-table-column prop="txid" label="TXID" width="180">
+            <template #default="scope">
+              <el-popover effect="light" trigger="hover" placement="top" width="auto">
+                <template #default>
+                  <div> {{ (scope.row.txid) }}</div>
+                </template>
+                <template #reference>
+                  {{ shortend(scope.row.txid) }}
+                </template>
+              </el-popover>
+            </template>
+          </el-table-column>
+          <el-table-column prop="amount" label="amount" width="180"/>
 
-        <el-table-column
-            prop="status"
-            label="Status"
-            width="100"
-        >
-          <template #default="scope">
-            <el-tag
-                :type="scope.row.status === 1 ? '' : 'success'"
-                disable-transitions
-            >
-              {{ scope.row.status === 0 ? 'Pending' : 'Success' }}
-            </el-tag>
-          </template>
-        </el-table-column>
+          <el-table-column
+              prop="status"
+              label="Status"
+              width="100"
+          >
+            <template #default="scope">
+              <el-tag
+                  :type="scope.row.status === 1 ? '' : 'success'"
+                  disable-transitions
+              >
+                {{ scope.row.status === 0 ? 'Pending' : 'Success' }}
+              </el-tag>
+            </template>
+          </el-table-column>
 
 
-        <el-table-column
-            prop="create_time"
-            label="Create Time"
-            width="240"
-        >
-          <template #default="scope">
-            {{ format_time(scope.row.create_time) }}
-          </template>
-        </el-table-column>
+          <el-table-column
+              prop="create_time"
+              label="Create Time"
+              width="240"
+          >
+            <template #default="scope">
+              {{ format_time(scope.row.create_time) }}
+            </template>
+          </el-table-column>
 
-        <el-table-column label="Operations">
-          <template #default="scope">
-            <el-button size="small" @click="handleEdit(scope.$index, scope.row)" v-if="scope.row.status===0"
-            >
-              Resubmit
-            </el-button
-            >
-          </template>
-        </el-table-column>
-      </el-table>
+          <el-table-column label="Operations">
+            <template #default="scope">
+              <el-button size="small" @click="handleEdit(scope.$index, scope.row)" v-if="scope.row.status===0"
+              >
+                Resubmit
+              </el-button
+              >
+            </template>
+          </el-table-column>
+        </el-table>
+      </div>
     </div>
     <template #footer>
       <span class="dialog-footer">
