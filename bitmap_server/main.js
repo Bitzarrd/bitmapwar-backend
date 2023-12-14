@@ -13,7 +13,7 @@ import {
     calculate_bitmap_reward,
     calculate_pool_1,
     calculate_pool_2,
-    calculate_pool_2_proportion, get_conn_by_owner, get_rank_for_save,
+    calculate_pool_2_proportion, calculate_virus_to_profit, get_all_init_virus, get_conn_by_owner, get_rank_for_save,
     get_users,
     get_users_by_color,
     get_win_team
@@ -158,7 +158,8 @@ const start_game = () => {
     }
 
 
-    interval = setInterval(() => {
+    interval = setInterval(async () => {
+
         if (now() === stop_time) {
             logger.info("stopped on timer")
             clearInterval(interval);
@@ -193,31 +194,29 @@ const start_game = () => {
                 logger.info("用户：" + user.owner + " 颜色：" + user.statistics.color + " 持有地图：[" + user.bitmaps + "] 奖励为：" + user.reward_3)
             }
 
+            const all_init_virus = get_all_init_virus(players);
+            const all_reward_profit = calculate_virus_to_profit(all_init_virus);
 
             for (let owner of Object.keys(users)) {
                 let user = users[owner];
-                let conn = get_conn_by_owner(owner);
+                let reward = user.reward_1 + user.reward_2 + user.reward_3;
+                let profit = Math.floor(all_reward_profit * (reward / 100));
+
+                let user_for_settlement = (await mysql_query(mysql_connection, "SELECT * FROM `user` WHERE `address`='" + owner + "';"))[0];
+                user_for_settlement.profit = BigInt(user_for_settlement.profit) + BigInt(profit);
+                user_for_settlement.profit = user_for_settlement.profit.toString();
+
+                let conn = get_conn_by_owner(players, owner);
                 if (conn) {
                     conn.send(JSON.stringify({
                         method: "Settlement",
                         next_round: next_round,
-                        statistics: user.statistics
+                        statistics: user.statistics,
+                        user: user_for_settlement,
                     }));
 
                 }
             }
-
-            // for (let owner of Object.keys(users)) {
-            //     let user = users[owner];
-            //     if (user.conn.readyState === WebSocket.OPEN) {
-            //         user.conn.send(JSON.stringify({
-            //             method: "Settlement",
-            //             next_round: next_round,
-            //             // rank: rand_to_save,
-            //             statistics: user.statistics
-            //         }));
-            //     }
-            // }
 
             const rand_to_save = get_rank_for_save(players);
             const sql = "INSERT INTO `round` (`end_time`,`rank`) VALUES (" + now() + ",'" + JSON.stringify(rand_to_save) + "')";

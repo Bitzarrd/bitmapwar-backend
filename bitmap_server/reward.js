@@ -1,3 +1,5 @@
+import WebSocket from 'ws';
+
 const TOP_1 = 15;
 const TOP_2 = 10;
 const TOP_3 = 8;
@@ -176,8 +178,8 @@ export function get_rank_for_save(players) {
 export function get_conn_by_owner(players, owner) {
     for (let i = 0; i < players.length; i++) {
         if (players[i].owner === owner) {
-            let conn = players[i].conn;
             if (players[i].hasOwnProperty('conn')) {
+                let conn = players[i].conn;
                 if (conn.readyState === WebSocket.OPEN) {
                     return conn;
                 }
@@ -197,4 +199,12 @@ export function get_all_init_virus(players) {
 export function calculate_virus_to_profit(virus) {
     //todo 金额待确定
     return virus * 100;
+}
+
+export function get_color_by_owner(owner,players){
+    for (let i = 0; i < players.length; i++) {
+        if (players[i].owner === owner) {
+            return players[i].color;
+        }
+    }
 }
