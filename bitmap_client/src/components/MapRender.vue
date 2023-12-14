@@ -34,6 +34,9 @@ export default {
         clearAll(this.ctx);
         this.init();
       }
+      for(let player of this.players){
+        drawCell(this.ctx, this.cellSize, player.x, player.y, player.color);
+      }
     },
     new_player(newValue, oldValue) {
       drawCell(this.ctx, this.cellSize, newValue.x, newValue.y, newValue.color);

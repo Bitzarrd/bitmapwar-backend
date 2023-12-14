@@ -206,12 +206,12 @@ const start_game = () => {
             const all_reward_profit = calculate_virus_to_profit(all_init_virus);
             const rank_to_save = get_rank_for_save(players);
             last_rank = rank_to_save;
-
+            logger.info("总发放奖励金额:" + all_reward_profit.toString());
 
             for (let owner of Object.keys(users)) {
                 let user = users[owner];
                 let reward = user.reward_1 + user.reward_2 + user.reward_3;
-                let profit = all_reward_profit * BigInt((reward / 100));
+                let profit = all_reward_profit * BigInt(Math.floor(reward / 100));
                 logger.info("奖励金额：" + profit.toString() + " 奖励比例：" + reward + "%" + "用户：" + owner);
 
                 let user_for_settlement = (await mysql_query(mysql_connection, "SELECT * FROM `user` WHERE `address`='" + owner + "';"))[0];
