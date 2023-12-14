@@ -13,7 +13,7 @@ import {
     calculate_bitmap_reward,
     calculate_pool_1,
     calculate_pool_2,
-    calculate_pool_2_proportion,
+    calculate_pool_2_proportion, get_rank_for_save,
     get_users,
     get_users_by_color,
     get_win_team
@@ -192,18 +192,6 @@ const start_game = () => {
                 let user = users[owner];
                 logger.info("用户：" + user.owner + " 颜色：" + user.statistics.color + " 持有地图：[" + user.bitmaps + "] 奖励为：" + user.reward_3)
             }
-            //
-            // let rank = players.sort((a, b) => {
-            //     return a.land > b.land;
-            // });
-            //
-            // let rand_to_save = [];
-            // for (let i = 0; i < rank.length; i++) {
-            //     rand_to_save.push({
-            //         owner: rank[i].owner,
-            //         land: rank[i].land
-            //     })
-            // }
 
 
             // for (let owner of Object.keys(users)) {
@@ -218,24 +206,12 @@ const start_game = () => {
             //     }
             // }
 
-
-            // const sql = "INSERT INTO `round` (`end_time`,`rank`) VALUES (" + now() + ",'" + JSON.stringify(rand_to_save) + "')";
-            // logger.info(sql);
-            // mysql_connection.query(sql, function (err, result) {
-            //     console.log(err, result);
-            // });
-
-
-            // clients.forEach((client) => {
-            //     if (client.readyState === WebSocket.OPEN) {
-            //         client.send(JSON.stringify({
-            //             method: "Settlement",
-            //             next_round: next_round,
-            //             rank: rank
-            //         }));
-            //     }
-            // });
-
+            const rand_to_save = get_rank_for_save(players);
+            const sql = "INSERT INTO `round` (`end_time`,`rank`) VALUES (" + now() + ",'" + JSON.stringify(rand_to_save) + "')";
+            logger.info(sql);
+            mysql_connection.query(sql, function (err, result) {
+                console.log(err, result);
+            });
             return;
         }
 

@@ -158,3 +158,17 @@ export function calculate_bitmap_reward(users) {
     }
 }
 
+export function get_rank_for_save(players) {
+    let rank = players.sort((a, b) => {
+        return a.land > b.land;
+    });
+
+    let rand_to_save = [];
+    for (let i = 0; i < rank.length; i++) {
+        rand_to_save.push({
+            owner: rank[i].owner,
+            land: rank[i].land
+        })
+    }
+    return rand_to_save;
+}
