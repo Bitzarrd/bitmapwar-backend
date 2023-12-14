@@ -13,6 +13,7 @@ export default {
   data() {
     return {
       purchaseLoading: false,
+      amount: 0
     }
   },
   methods: {
@@ -28,7 +29,7 @@ export default {
       }
       try {
         this.purchaseLoading = true;
-        const tx = await this.contract.BuyToken({value: 1000});
+        const tx = await this.contract.BuyToken({value: this.amount});
         console.log(tx);
         const txid = tx.hash;
         const message = {
@@ -57,7 +58,7 @@ export default {
   >
     <div class="dialog_center" v-loading="purchaseLoading">
       <div>
-        <el-input-number placeholder="Bit"></el-input-number>
+        <el-input-number placeholder="Bit" v-model="amount"></el-input-number>
       </div>
       <div style="margin:20px;font-size: 20px">1BTC = 0.004</div>
     </div>

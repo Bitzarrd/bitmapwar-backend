@@ -19,6 +19,13 @@ export let mysql_connection = mysql.createConnection({
     database: process.env.MYSQL_DB
 });
 
+
+const logger = winston.createLogger({
+    transports: [new winston.transports.Console()],
+    level: "debug",
+});
+
+
 mysql_connection.connect({}, (err) => {
     if (err) {
         logger.error("mysql connect error" + err)
@@ -27,10 +34,6 @@ mysql_connection.connect({}, (err) => {
 });
 
 
-const logger = winston.createLogger({
-    transports: [new winston.transports.Console()],
-    level: "debug",
-});
 
 // 创建WebSocket服务器实例
 const wss = new WebSocketServer({port: process.env.PORT});
@@ -165,23 +168,7 @@ const start_game = () => {
                 })
             }
 
-            let users = [];
 
-
-            players.forEach((player) => {
-                if (player.conn.readyState === WebSocket.OPEN) {
-                    if (users.hasOwnProperty(player.owner)) {
-                        users[player.owner].land += player.land;
-                        users[player.owner].virus += player.virus;
-                        users[player.owner].loss += player.loss;
-                    } else {
-                        users[player.owner] = {
-                            conn: player.conn,
-                            statistics: {land: player.land, virus: player.virus, loss: player.loss,}
-                        };
-                    }
-                }
-            })
 
             for (let owner of Object.keys(users)) {
                 let user = users[owner];
