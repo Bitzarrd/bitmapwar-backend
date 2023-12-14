@@ -661,6 +661,8 @@ export const store = createStore({
                     break;
                 case "GameStarted":
                     state.stop_time = message.stop_time;
+                    state.turn = message.turn;
+                    state.players = message.players;
                     state.game_started = true;
                     break;
                 case "GameStopped":
@@ -689,7 +691,7 @@ export const store = createStore({
                     state.settlement = {
                         rank: message.rank,
                         statistics: message.statistics,
-                        earning:message.earning
+                        earning: message.earning
                     }
                     state.user = message.user;
                     state.lastRanking = message.rank;

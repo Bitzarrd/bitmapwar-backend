@@ -152,7 +152,8 @@ const start_game = () => {
                     gridWidth: gridWidth,
                     gridHeight: gridHeight,
                     turn: turn,
-                    stop_time: stop_time
+                    stop_time: stop_time,
+                    players: players,
                 }));
             }
         });
@@ -210,7 +211,8 @@ const start_game = () => {
             for (let owner of Object.keys(users)) {
                 let user = users[owner];
                 let reward = user.reward_1 + user.reward_2 + user.reward_3;
-                let profit = Math.floor(all_reward_profit * (reward / 100));
+                let profit = all_reward_profit * BigInt((reward / 100));
+                logger.info("奖励金额：" + profit.toString() + " 奖励比例：" + reward + "%" + "用户：" + owner);
 
                 let user_for_settlement = (await mysql_query(mysql_connection, "SELECT * FROM `user` WHERE `address`='" + owner + "';"))[0];
                 user_for_settlement.profit = BigInt(user_for_settlement.profit) + BigInt(profit);
@@ -238,6 +240,7 @@ const start_game = () => {
 
             //clear
             players = [];
+            turn = 0;
             return;
         }
 

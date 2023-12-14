@@ -198,7 +198,7 @@ export function get_all_init_virus(players) {
 
 export function calculate_virus_to_profit(virus) {
     //todo 金额待确定
-    return virus * 100;
+    return BigInt(virus) * BigInt(10000000000000);
 }
 
 export function get_color_by_owner(owner,players){

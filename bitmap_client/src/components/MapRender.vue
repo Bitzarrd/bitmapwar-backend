@@ -11,6 +11,11 @@ export function clearCell(ctx, cellSize, x, y) {
   ctx.clearRect(x * cellSize, y * cellSize, cellSize, cellSize);
 }
 
+export function clearAll(ctx){
+  console.log("Clear All");
+  ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
+}
+
 export default {
   name: "MapRender",
   components: {Vue3DraggableResizable},
@@ -26,6 +31,7 @@ export default {
       // Perform actions based on the changes in myProperty
       console.log('MapRender watch game_started:', newValue);
       if (newValue === true) {
+        clearAll(this.ctx);
         this.init();
       }
     },
@@ -106,6 +112,9 @@ export default {
       }
 
 
+    },
+    clear(){
+      clearAll(this.ctx)
     }
   }
 }
@@ -123,6 +132,8 @@ export default {
       v-model:w="w"
       v-model:h="h"
   >
+    <el-button @click="clear" >Clear</el-button>
+
     <canvas id="gridCanvas"
     ></canvas>
 
