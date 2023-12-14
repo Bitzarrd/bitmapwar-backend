@@ -498,6 +498,7 @@ wss.on('connection', (ws) => {
                     console.log(tx)
                     let order = await mysql_query(mysql_connection, "SELECT * FROM `purchase` WHERE `txid`='" + txid + "';");
                     if (order.length > 0) {
+                        logger.warn("txid exists");
                         return;
                     }
 
