@@ -672,8 +672,10 @@ export const store = createStore({
                 case "GameStopped":
                     state.game_started = false;
                     break;
-                case "JoinedGame":
+                case "JoinedGameSuccess":
                     state.new_player = message.player;
+                    state.players.push(message.player);
+                    state.user = message.user;
                     break;
                 case "Update":
                     state.turn = message.turn;

@@ -197,7 +197,7 @@ const start_game = () => {
             for (let owner of Object.keys(users)) {
                 let user = users[owner];
                 let conn = get_conn_by_owner(owner);
-                if(conn){
+                if (conn) {
                     conn.send(JSON.stringify({
                         method: "Settlement",
                         next_round: next_round,
@@ -401,6 +401,14 @@ wss.on('connection', (ws) => {
                 let join_x = decode.map_id % gridWidth;
                 logger.info(`JoinGame2 map_id=${decode.map_id} x=${join_x} y=${join_y}`);
 
+                const user_for_join = (await mysql_query(mysql_connection, "SELECT * FROM `user` WHERE `address`='" + decode.owner + "';"))[0];
+                if (user_for_join.virus < decode.virus) {
+                    return;
+                }
+                user_for_join.virus -= decode.virus;
+
+                await mysql_connection.query("UPDATE user SET virus=virus-" + decode.virus + " WHERE address='" + decode.owner + "';");
+
                 let join_player = {
                     i: 0,
                     x: join_x,
@@ -420,8 +428,9 @@ wss.on('connection', (ws) => {
                 clients.forEach((client) => {
                     if (client.readyState === WebSocket.OPEN) {
                         client.send(JSON.stringify({
-                            method: "JoinedGame",
+                            method: "JoinedGameSuccess",
                             player: join_player,
+                            user: user_for_join
                         }));
                     }
                 });
