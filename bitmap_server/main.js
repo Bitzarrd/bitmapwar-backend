@@ -373,6 +373,8 @@ wss.on('connection', (ws) => {
                             ws.send(JSON.stringify({
                                 method: "LoginSuccess",
                                 user: user,
+                                extracts: [],
+                                purchase: [],
                             }));
                         } catch (insertErr) {
                             logger.error(insertErr);
@@ -384,11 +386,13 @@ wss.on('connection', (ws) => {
                         let extracts_sql = "SELECT * FROM `extract` WHERE address='" + address + "' ORDER BY id DESC;";
                         logger.info(extracts_sql);
                         let extracts = await mysql_query(mysql_connection, extracts_sql);
+                        let purchase = await mysql_query(mysql_connection, "SELECT * FROM `purchase` WHERE owner='" + address + "' ORDER BY id DESC;");
 
                         ws.send(JSON.stringify({
                             method: "LoginSuccess",
                             user: user,
                             extracts: extracts,
+                            purchase: purchase
                         }));
                     }
                 } catch (err) {
@@ -489,43 +493,56 @@ wss.on('connection', (ws) => {
                 break;
             case "Purchase":
                 const txid = decode.txid;
-                get_events(txid, async (logs) => {
-                    console.log("logs", logs);
-                    for (let i = 0; i < logs.length; i++) {
-                        let log = logs[i];
-                        let event_name = log.signature;
-                        switch (event_name) {
-                            case "Transfer(address,address,uint256)":
-                                let from = log.args[0];
-                                let to = log.args[1];
-                                let amount = Number(log.args[2]);
-                                if (from === "0x0000000000000000000000000000000000000000") {
-                                    const sql = "UPDATE `user` SET `virus` = `virus` + " + amount + " WHERE `address` = '" + to + "';";
-                                    logger.info(sql);
+                const tx = await get_events(txid);
+                console.log(tx)
+                if (!tx) {
+                    logger.error("tx not found")
+                    return;
+                }
+                logger.debug("logs" + tx.events.length)
+                for (let i = 0; i < tx.events.length; i++) {
+                    let event = tx.events[i];
+                    let event_name = event.signature;
+                    switch (event_name) {
+                        case "Transfer(address,address,uint256)":
+                            let from = event.args[0];
+                            let to = event.args[1];
+                            let amount = Number(event.args[2]);
+                            if (from === "0x0000000000000000000000000000000000000000") {
+                                const sql = "UPDATE `user` SET `virus` = `virus` + " + amount + " WHERE `address` = '" + to + "';";
+                                logger.info(sql);
+                                try {
+                                    const result = await mysql_connection.query(sql);
+                                    logger.info(result);
+                                    const select_sql = "SELECT * FROM `user` WHERE `address` = '" + to + "';";
+                                    logger.info(select_sql);
                                     try {
-                                        const result = await mysql_connection.query(sql);
-                                        logger.info(result);
-                                        const select_sql = "SELECT * FROM `user` WHERE `address` = '" + to + "';";
-                                        logger.info(select_sql);
-                                        try {
-                                            const selectResult = await mysql_query(mysql_connection, select_sql);
-                                            logger.info(selectResult);
-                                            let user = selectResult[0];
-                                            ws.send(JSON.stringify({
-                                                method: "PurchaseSuccess",
-                                                user: user,
-                                            }));
-                                        } catch (selectErr) {
-                                            logger.error(selectErr);
-                                        }
-                                    } catch (err) {
-                                        logger.error(err);
+                                        const selectResult = await mysql_query(mysql_connection, select_sql);
+                                        logger.info(selectResult);
+                                        let user = selectResult[0];
+                                        ws.send(JSON.stringify({
+                                            method: "PurchaseSuccess",
+                                            user: user,
+                                        }));
+                                    } catch (selectErr) {
+                                        logger.error(selectErr);
                                     }
+                                } catch (err) {
+                                    logger.error(err);
                                 }
-                                break;
-                        }
+
+                                mysql_connection.query("INSERT INTO `purchase` SET ? ", {
+                                    txid: txid,
+                                    owner: to,
+                                    fee: tx.tx.value,
+                                    create_time: now(),
+                                    virus: amount
+                                });
+
+                            }
+                            break;
                     }
-                });
+                }
                 break;
             case "ExtractProfit":
 

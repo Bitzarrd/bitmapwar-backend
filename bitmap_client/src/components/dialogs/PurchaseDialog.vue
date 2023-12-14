@@ -1,13 +1,15 @@
 <script>
 import {mapActions, mapMutations, mapState} from "vuex";
 import {ElMessage} from "element-plus";
-import {sleep} from "@/utils";
+import {shortend, sleep} from "@/utils";
+import {formatEther} from "ethers";
+import moment from "moment/moment";
 
 export default {
   name: "PurchaseDialog",
   computed: {
     ...mapState([
-      'purchaseDialogVisible', 'contract', 'socket', 'conn'
+      'purchaseDialogVisible', 'contract', 'socket', 'conn', 'purchase'
     ])
   },
   data() {
@@ -17,8 +19,13 @@ export default {
     }
   },
   methods: {
+    formatEther,
+    shortend,
     ...mapActions([]),
     ...mapMutations(['setPurchaseDialogVisible',]),
+    format_time(time) {
+      return moment(time * 1000).format();
+    },
     async onClickBuyVirus() {
       if (this.purchaseLoading) {
         return;
@@ -54,13 +61,70 @@ export default {
   <el-dialog
       v-model="purchaseDialogVisible"
       title="Purchase"
-      width="30%"
+      width="60%"
   >
     <div class="dialog_center" v-loading="purchaseLoading">
       <div>
         <el-input-number placeholder="Bit" v-model="amount"></el-input-number>
       </div>
       <div style="margin:20px;font-size: 20px">1BTC = 0.004</div>
+
+      <el-table :data="purchase" :scrollbar-always-on="true" :max-height="300" style="width: 100%">
+        <el-table-column prop="id" label="ID" width="100"/>
+        <el-table-column prop="txid" label="TXID" >
+          <template #default="scope">
+            <el-popover effect="light" trigger="hover" placement="top" width="auto">
+              <template #default>
+                <div> {{ (scope.row.txid) }}</div>
+              </template>
+              <template #reference>
+                {{ shortend(scope.row.txid) }}
+              </template>
+            </el-popover>
+          </template>
+        </el-table-column>
+        <el-table-column prop="Fee" label="Fee" >
+          <template #default="scope">
+            <el-popover effect="light" trigger="hover" placement="top" width="auto">
+              <template #default>
+                <div> {{ (scope.row.fee) }}</div>
+              </template>
+              <template #reference>
+                {{ formatEther(scope.row.fee) }} BTC
+              </template>
+            </el-popover>
+          </template>
+        </el-table-column>
+
+        <el-table-column prop="virus" label="BIT" />
+
+        <el-table-column
+            prop="create_time"
+            label="Create Time"
+            width="240"
+        >
+          <template #default="scope">
+            {{ format_time(scope.row.create_time) }}
+          </template>
+        </el-table-column>
+
+        <el-table-column
+            prop="status"
+            label="Status"
+            width="100"
+        >
+          <template #default="scope">
+            <el-tag
+                type= "success"
+                disable-transitions
+            >
+              Success
+            </el-tag>
+          </template>
+        </el-table-column>
+
+      </el-table>
+
     </div>
     <template #footer>
       <span class="dialog-footer">

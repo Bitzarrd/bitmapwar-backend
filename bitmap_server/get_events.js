@@ -452,20 +452,40 @@ const provider = new ethers.JsonRpcProvider(rpc_url);
 const iface = new Interface(abi)
 
 
-export function get_events(txid, callback) {
+export async function get_events(txid, callback) {
+
+    // try {
+    //     provider.getTransaction(txid).then((tx) => {
+    //         tx.wait().then((result) => {
+    //             const logs = result.logs;
+    //             let events = [];
+    //             for (let i = 0; i < logs.length; i++) {
+    //                 events.push(iface.parseLog(logs[i]));
+    //             }
+    //             callback(events);
+    //         })
+    //     });
+    // } catch (e) {
+    //     console.error(e);
+    //     callback([])
+    // }
+
     try {
-        provider.getTransaction(txid).then((tx) => {
-            tx.wait().then((result) => {
-                const logs = result.logs;
-                let events = [];
-                for (let i = 0; i < logs.length; i++) {
-                    events.push(iface.parseLog(logs[i]));
-                }
-                callback(events);
-            })
-        });
+        const tx = await provider.getTransaction(txid);
+        const receipt = await tx.wait();
+        const logs = receipt.logs;
+        let events = [];
+        for (let i = 0; i < logs.length; i++) {
+            events.push(iface.parseLog(logs[i]));
+        }
+        return {
+            tx: tx,
+            receipt: receipt,
+            logs: logs,
+            events: events
+        }
     } catch (e) {
         console.error(e);
-        callback([])
+        return null;
     }
 }

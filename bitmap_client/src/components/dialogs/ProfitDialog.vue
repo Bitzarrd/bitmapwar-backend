@@ -108,7 +108,6 @@ export default {
         <el-table-column prop="id" label="ID" width="100"/>
         <el-table-column prop="txid" label="TXID" width="180">
           <template #default="scope">
-
             <el-popover effect="light" trigger="hover" placement="top" width="auto">
               <template #default>
                 <div> {{ (scope.row.txid) }}</div>
@@ -117,7 +116,6 @@ export default {
                 {{ shortend(scope.row.txid) }}
               </template>
             </el-popover>
-
           </template>
         </el-table-column>
         <el-table-column prop="amount" label="amount" width="180"/>

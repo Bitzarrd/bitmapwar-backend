@@ -555,6 +555,7 @@ export const store = createStore({
         },
         pending_extract: null,
         extracts: [],
+        purchase: [],
 
         /////////////////////
         dialogVisible: false,
@@ -682,6 +683,7 @@ export const store = createStore({
                     console.log("LoginSuccess", message);
                     state.user = message.user;
                     state.extracts = message.extracts;
+                    state.purchase = message.purchase;
                     break;
                 case "SetNextRoundSuccess":
                     state.next_round = (Number)(message.timestamp);
