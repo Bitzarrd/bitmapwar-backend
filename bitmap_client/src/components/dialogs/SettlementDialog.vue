@@ -5,7 +5,7 @@ export default {
   name: "SettlementDialog",
   computed: {
     ...mapState([
-      'settlementDialogVisible','landList','settlement'
+      'settlementDialogVisible','settlementLandList','settlement'
     ])
   },
   data() {
@@ -24,7 +24,7 @@ export default {
       title="Settlement"
       width="30%"
   >
-    <el-table :data="landList" style="width: 100%">
+    <el-table :data="settlementLandList" style="width: 100%">
       <el-table-column type="index" width="80" label="Ranking"/>
       <el-table-column prop="team" label="Team">
         <template #default="scope">

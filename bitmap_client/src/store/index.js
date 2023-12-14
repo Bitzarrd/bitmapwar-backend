@@ -520,7 +520,7 @@ export const store = createStore({
                 loss: 0
             }
         ],
-        settlementLandList:[
+        settlementLandList: [
             {
                 team: "red",
                 land: 0,
@@ -719,6 +719,7 @@ export const store = createStore({
                             loss: 0
                         }
                     ];
+                    state.turn = 0;
                     state.settlementDialogVisible = true;
                     break;
                 case "PurchaseSuccess":

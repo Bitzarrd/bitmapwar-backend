@@ -170,6 +170,7 @@ const start_game = () => {
             logger.info("stopped on timer")
             clearInterval(interval);
             next_round = now() + intervalBetweenMatches;
+            turn = 0;
 
             if (players.length === 0) {
                 logger.info("no players");
