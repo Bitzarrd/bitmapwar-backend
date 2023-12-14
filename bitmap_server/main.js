@@ -496,6 +496,11 @@ wss.on('connection', (ws) => {
                     const txid = decode.txid;
                     const tx = await get_events(txid);
                     console.log(tx)
+                    let order = await mysql_query(mysql_connection, "SELECT * FROM `purchase` WHERE `txid`='" + txid + "';");
+                    if (order.length > 0) {
+                        return;
+                    }
+
                     if (!tx) {
                         logger.error("tx not found")
                         return;
