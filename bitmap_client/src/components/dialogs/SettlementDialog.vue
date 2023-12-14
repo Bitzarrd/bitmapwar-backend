@@ -7,7 +7,15 @@ export default {
   computed: {
     ...mapState([
       'settlementDialogVisible','settlementLandList','settlement'
-    ])
+    ]),
+    dialogVisible: {
+      get() {
+        return this.settlementDialogVisible
+      },
+      set(val) {
+        this.settlementDialogVisible(val)
+      }
+    },
   },
   data() {
     return {
@@ -22,7 +30,7 @@ export default {
 
 <template>
   <el-dialog
-      v-model="settlementDialogVisible"
+      v-model="dialogVisible"
       title="Settlement"
       width="30%"
   >

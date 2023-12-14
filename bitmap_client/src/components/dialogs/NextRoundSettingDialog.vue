@@ -1,18 +1,27 @@
 <script>
-import {mapState} from "vuex";
+import {mapMutations, mapState} from "vuex";
 
 export default {
   name: "NextRoundSettingDialog",
   computed:{
     ...mapState([
-      'walletsDialogVisible'
-    ])
+      'nextRoundSettingDialogVisible'
+    ]),
+    dialogVisible: {
+      get() {
+        return this.nextRoundSettingDialogVisible
+      },
+      set(val) {
+        this.setNextRoundSettingDialogVisible(val)
+      }
+    },
   },
   data() {
     return {
     }
   },
   methods:{
+    ...mapMutations(['setNextRoundSettingDialogVisible']),
     onClickSubmitNextRoundSetting() {
       this.nextRoundSettingDialogVisible = false;
       this.conn.sendObj({method: "SetNextRound", timestamp: this.nextRoundSetting});
@@ -24,7 +33,7 @@ export default {
 
 <template>
   <el-dialog
-      v-model="nextRoundSettingDialogVisible"
+      v-model="dialogVisible"
       title="Set Next Round Time"
       width="30%"
   >

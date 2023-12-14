@@ -10,7 +10,15 @@ export default {
   computed: {
     ...mapState([
       'profitDialogVisible', 'contract', 'conn', 'wallet_address', 'extracts', 'pending_extract', 'user'
-    ])
+    ]),
+    dialogVisible: {
+      get() {
+        return this.profitDialogVisible
+      },
+      set(val) {
+        this.setProfitDialogVisible(val)
+      }
+    },
   },
   data() {
     return {
@@ -88,7 +96,7 @@ export default {
 
 <template>
   <el-dialog
-      v-model="profitDialogVisible"
+      v-model="dialogVisible"
       title="Extract Profit"
       width="60%"
   >

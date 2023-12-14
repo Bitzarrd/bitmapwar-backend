@@ -10,7 +10,15 @@ export default {
   computed: {
     ...mapState([
       'purchaseDialogVisible', 'contract', 'socket', 'conn', 'purchase'
-    ])
+    ]),
+    dialogVisible: {
+      get() {
+        return this.purchaseDialogVisible
+      },
+      set(val) {
+        this.setPurchaseDialogVisible(val)
+      }
+    },
   },
   data() {
     return {
@@ -59,9 +67,10 @@ export default {
 
 <template>
   <el-dialog
-      v-model="purchaseDialogVisible"
+      v-model="dialogVisible"
       title="Purchase"
       width="60%"
+      :before-close="setPurchaseDialogVisible(false)"
   >
     <div class="dialog_center" v-loading="purchaseLoading">
       <div>
@@ -69,6 +78,7 @@ export default {
       </div>
       <div style="margin:20px;font-size: 20px">1BTC = 0.004</div>
 
+      <div style="border: #333333 1px solid;width: 100%">
       <el-table :data="purchase" :scrollbar-always-on="true" :max-height="300" style="width: 100%">
         <el-table-column prop="id" label="ID" width="100"/>
         <el-table-column prop="txid" label="TXID">
@@ -124,7 +134,7 @@ export default {
         </el-table-column>
 
       </el-table>
-
+      </div>
     </div>
     <template #footer>
       <span class="dialog-footer">

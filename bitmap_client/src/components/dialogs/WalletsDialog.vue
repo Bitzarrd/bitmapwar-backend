@@ -6,7 +6,15 @@ export default {
   computed: {
     ...mapState([
       'walletsDialogVisible', 'wallet_address'
-    ])
+    ]),
+    dialogVisible: {
+      get() {
+        return this.walletsDialogVisible
+      },
+      set(val) {
+        this.setWalletsDialogVisible(val)
+      }
+    }
   },
   data() {
     return {}
@@ -37,7 +45,7 @@ export default {
 
 <template>
   <el-dialog
-      v-model="walletsDialogVisible"
+      v-model="dialogVisible"
       title="Select Your Wallet"
       width="30%"
   >

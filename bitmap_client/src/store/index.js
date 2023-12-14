@@ -558,7 +558,7 @@ export const store = createStore({
         purchase: [],
 
         /////////////////////
-        dialogVisible: false,
+        actionDialogVisible: false,
         purchaseDialogVisible: false,
         bitmapListDialogVisible: false,
         profitDialogVisible: false,
@@ -583,8 +583,8 @@ export const store = createStore({
         setSelectedMap(state, value) {
             state.selected_map = value;
         },
-        setDialogVisible(state, value) {
-            state.dialogVisible = value
+        setActionDialogVisible(state, value) {
+            state.actionDialogVisible = value
         },
         setPurchaseDialogVisible(state, value) {
             state.purchaseDialogVisible = value

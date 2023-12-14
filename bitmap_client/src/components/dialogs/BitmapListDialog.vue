@@ -7,6 +7,14 @@ export default {
     ...mapState([
       'bitmapListDialogVisible', 'map_list'
     ]),
+    dialogVisible: {
+      get() {
+        return this.bitmapListDialogVisible
+      },
+      set(val) {
+        this.setBitmapListDialogVisible(val)
+      }
+    },
     bitmap_list() {
       let origin = this.map_list;
       let result = [];
@@ -43,7 +51,7 @@ export default {
 
 <template>
   <el-dialog
-      v-model="bitmapListDialogVisible"
+      v-model="dialogVisible"
       title="Bitmap List"
       width="30%"
   >
