@@ -35,11 +35,15 @@ const logger = winston.createLogger({
 });
 
 
-mysql_connection.connect({}, (err) => {
+let last_rank = [];
+mysql_connection.connect({}, async (err) => {
     if (err) {
         logger.error("mysql connect error" + err)
     }
     logger.info("mysql connected")
+
+    const last_round = (await mysql_query(mysql_connection, "SELECT * FROM `round` ORDER BY id DESC LIMIT 1;"))[0];
+    last_rank = JSON.parse(last_round.rank);
 });
 
 
@@ -196,6 +200,8 @@ const start_game = () => {
 
             const all_init_virus = get_all_init_virus(players);
             const all_reward_profit = calculate_virus_to_profit(all_init_virus);
+            const rand_to_save = get_rank_for_save(players);
+
 
             for (let owner of Object.keys(users)) {
                 let user = users[owner];
@@ -213,17 +219,21 @@ const start_game = () => {
                         next_round: next_round,
                         statistics: user.statistics,
                         user: user_for_settlement,
+                        earning: profit,
+                        rank:rand_to_save
                     }));
 
                 }
             }
 
-            const rand_to_save = get_rank_for_save(players);
             const sql = "INSERT INTO `round` (`end_time`,`rank`) VALUES (" + now() + ",'" + JSON.stringify(rand_to_save) + "')";
             logger.info(sql);
             mysql_connection.query(sql, function (err, result) {
                 console.log(err, result);
             });
+
+            //clear
+            players = [];
             return;
         }
 
@@ -301,6 +311,7 @@ wss.on('connection', (ws) => {
     // 将新连接的客户端添加到集合中
     clients.add(ws);
 
+
     ws.send(JSON.stringify(
         {
             method: "Reload",
@@ -311,8 +322,9 @@ wss.on('connection', (ws) => {
             turn: turn,
             next_round: next_round,
             statistics: statistics(),
-            stop_time: stop_time
+            stop_time: stop_time,
             // started: started,
+            last_rank: last_rank
         }
     ));
 
@@ -361,7 +373,7 @@ wss.on('connection', (ws) => {
                         ws.send(JSON.stringify({
                             method: "LoginSuccess",
                             user: user,
-                            extracts: extracts
+                            extracts: extracts,
                         }));
                     }
                 } catch (err) {

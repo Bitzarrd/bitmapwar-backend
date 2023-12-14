@@ -520,40 +520,7 @@ export const store = createStore({
                 loss: 0
             }
         ],
-        lastRanking: [
-            {
-                id: "bc1q0......luwvg",
-                lands: 1000
-            },
-            {
-                id: "bc1q0......luwvg",
-                lands: 1000
-            },
-            {
-                id: "bc1q0......luwvg",
-                lands: 1000
-            },
-            {
-                id: "bc1q0......luwvg",
-                lands: 1000
-            },
-            {
-                id: "bc1q0......luwvg",
-                lands: 1000
-            },
-            {
-                id: "bc1q0......luwvg",
-                lands: 1000
-            }, {
-                id: "bc1q0......luwvg",
-                lands: 1000
-            }, {
-                id: "bc1q0......luwvg",
-                lands: 1000
-            },
-
-
-        ],
+        lastRanking: [],
 
         user: {
             address: null,
@@ -663,6 +630,7 @@ export const store = createStore({
                     state.grid = decompress3(message.grid, message.gridWidth, message.gridHeight);
                     state.players = message.players;
                     console.log("state.grid", state.grid);
+                    state.lastRanking = message.last_rank;
                     state.loading = false;
                     break;
                 case "GameStarted":
@@ -696,6 +664,8 @@ export const store = createStore({
                         rank: message.rank,
                         statistics: message.statistics
                     }
+                    state.user = message.user;
+                    state.lastRanking = message.rank;
                     state.settlementDialogVisible = true;
                     break;
                 case "PurchaseSuccess":

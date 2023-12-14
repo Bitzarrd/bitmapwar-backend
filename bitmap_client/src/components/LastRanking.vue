@@ -1,8 +1,10 @@
 <script>
 import {mapState} from "vuex";
+import {shortend} from "../utils";
 
 export default {
   name: "LastRanking",
+  methods: {shortend},
   computed: {
     ...mapState(['lastRanking'])
   }
@@ -22,8 +24,12 @@ export default {
       </template>
       <el-table :data="lastRanking" style="width: 100%">
         <el-table-column type="index" width="50"/>
-        <el-table-column prop="id" label="ID"/>
-        <el-table-column prop="lands" label="Lands"/>
+        <el-table-column prop="owner" label="ID">
+          <template #default="scope">
+            {{ shortend(scope.row.owner) }}
+          </template>
+        </el-table-column>
+        <el-table-column prop="land" label="Lands"/>
       </el-table>
     </el-card>
   </div>
