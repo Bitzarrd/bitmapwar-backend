@@ -26,7 +26,16 @@ export default {
         <el-table-column type="index" width="50"/>
         <el-table-column prop="owner" label="ID">
           <template #default="scope">
-            {{ shortend(scope.row.owner) }}
+
+            <el-popover effect="light" trigger="hover" placement="top" width="auto">
+              <template #default>
+                <div> {{ (scope.row.owner) }}</div>
+              </template>
+              <template #reference>
+                {{ shortend(scope.row.owner) }}
+              </template>
+            </el-popover>
+
           </template>
         </el-table-column>
         <el-table-column prop="land" label="Lands"/>
