@@ -71,7 +71,7 @@ export default {
 
       <el-table :data="purchase" :scrollbar-always-on="true" :max-height="300" style="width: 100%">
         <el-table-column prop="id" label="ID" width="100"/>
-        <el-table-column prop="txid" label="TXID" >
+        <el-table-column prop="txid" label="TXID">
           <template #default="scope">
             <el-popover effect="light" trigger="hover" placement="top" width="auto">
               <template #default>
@@ -83,7 +83,7 @@ export default {
             </el-popover>
           </template>
         </el-table-column>
-        <el-table-column prop="Fee" label="Fee" >
+        <el-table-column prop="Fee" label="Fee">
           <template #default="scope">
             <el-popover effect="light" trigger="hover" placement="top" width="auto">
               <template #default>
@@ -96,7 +96,7 @@ export default {
           </template>
         </el-table-column>
 
-        <el-table-column prop="virus" label="BIT" />
+        <el-table-column prop="virus" label="BIT" width="140"/>
 
         <el-table-column
             prop="create_time"
@@ -115,7 +115,7 @@ export default {
         >
           <template #default="scope">
             <el-tag
-                type= "success"
+                type="success"
                 disable-transitions
             >
               Success
