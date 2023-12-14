@@ -49,15 +49,22 @@ export default {
           <el-tooltip
               class="box-item"
               effect="dark"
-              content="Top Center prompts info"
+              :content="wallet_address"
               placement="top"
           >
             <el-input :value="shortend(wallet_address)" disabled/>
           </el-tooltip>
         </el-form-item>
         <el-form-item label="Profit(BTC):">
+          <el-tooltip
+              class="box-item"
+              effect="dark"
+              :content="formatEther(user.profit)"
+              placement="top"
+          >
           <el-input :value="formatEther(user.profit)" disabled
                     style="float: left;display: inline;width: 100px;margin-right: 10px"/>
+          </el-tooltip>
           <el-button @click="onClickProfits" style="float: right;display: inline">
             <el-icon color="white" class="no-inherit">
               <Coin/>

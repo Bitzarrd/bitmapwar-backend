@@ -478,7 +478,7 @@ export const store = createStore({
         contract: null,
         ///////////
         loading: true,
-        game_started: false,
+        game_started: 0,
         new_player: null,
         new_update: null,
         players: [],
@@ -663,7 +663,7 @@ export const store = createStore({
                     state.stop_time = message.stop_time;
                     state.turn = message.turn;
                     state.players = message.players;
-                    state.game_started = true;
+                    state.game_started = message.start_time;
                     break;
                 case "GameStopped":
                     state.game_started = false;

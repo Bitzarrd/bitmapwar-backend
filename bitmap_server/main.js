@@ -43,6 +43,9 @@ mysql_connection.connect({}, async (err) => {
     logger.info("mysql connected")
 
     const last_rounds = await mysql_query(mysql_connection, "SELECT * FROM `round` ORDER BY id DESC LIMIT 1;");
+
+    logger.info("last_rounds:" + last_rounds.length);
+
     if (last_rounds > 0) {
         last_rank = JSON.parse(last_rounds[0].rank);
     }
@@ -154,6 +157,7 @@ const start_game = () => {
                     turn: turn,
                     stop_time: stop_time,
                     players: players,
+                    start_time: now()
                 }));
             }
         });

@@ -11,7 +11,7 @@ export function clearCell(ctx, cellSize, x, y) {
   ctx.clearRect(x * cellSize, y * cellSize, cellSize, cellSize);
 }
 
-export function clearAll(ctx){
+export function clearAll(ctx) {
   console.log("Clear All");
   ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
 }
@@ -30,12 +30,12 @@ export default {
     game_started(newValue, oldValue) {
       // Perform actions based on the changes in myProperty
       console.log('MapRender watch game_started:', newValue);
-      if (newValue === true) {
+      if (newValue > 0) {
         clearAll(this.ctx);
         this.init();
-      }
-      for(let player of this.players){
-        drawCell(this.ctx, this.cellSize, player.x, player.y, player.color);
+        for (let player of this.players) {
+          drawCell(this.ctx, this.cellSize, player.x, player.y, player.color);
+        }
       }
     },
     new_player(newValue, oldValue) {
@@ -116,7 +116,7 @@ export default {
 
 
     },
-    clear(){
+    clear() {
       clearAll(this.ctx)
     }
   }
@@ -135,7 +135,7 @@ export default {
       v-model:w="w"
       v-model:h="h"
   >
-    <el-button @click="clear" >Clear</el-button>
+    <el-button @click="clear">Clear</el-button>
 
     <canvas id="gridCanvas"
     ></canvas>

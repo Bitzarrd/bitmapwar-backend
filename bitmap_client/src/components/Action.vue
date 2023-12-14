@@ -81,7 +81,14 @@ export default {
           <el-input :value="selected_map" disabled/>
         </el-form-item>
         <el-form-item label="Owner:">
+          <el-tooltip
+              class="box-item"
+              effect="dark"
+              :content="wallet_address"
+              placement="top"
+          >
           <el-input :value="shortend(wallet_address)" disabled/>
+          </el-tooltip>
         </el-form-item>
         <el-form-item label="Bit:">
           <el-input-number :controls="false" :min="1" v-model="virus"/>
