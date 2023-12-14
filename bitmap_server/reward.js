@@ -167,12 +167,15 @@ export function get_rank_for_save(players) {
 
     let rand_to_save = [];
     for (let i = 0; i < rank.length; i++) {
-        rand_to_save.push({
-            owner: rank[i].owner,
-            land: rank[i].land
-        })
+        const owner = rank[i].owner;
+        const land = rank[i].land;
+        if (rand_to_save.hasOwnProperty(owner)) {
+            rand_to_save[owner].land += land;
+        } else {
+            rand_to_save[owner] = {owner: owner, land: land};
+        }
     }
-    return rand_to_save;
+    return Object.values(rand_to_save);
 }
 
 export function get_conn_by_owner(players, owner) {
@@ -201,7 +204,7 @@ export function calculate_virus_to_profit(virus) {
     return BigInt(virus) * BigInt(10000000000000);
 }
 
-export function get_color_by_owner(owner,players){
+export function get_color_by_owner(owner, players) {
     for (let i = 0; i < players.length; i++) {
         if (players[i].owner === owner) {
             return players[i].color;
