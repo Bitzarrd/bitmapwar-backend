@@ -135,7 +135,7 @@ export default {
       v-model:w="w"
       v-model:h="h"
   >
-    <el-button @click="clear">Clear</el-button>
+<!--    <el-button @click="clear">Clear</el-button>-->
 
     <canvas id="gridCanvas"
     ></canvas>
