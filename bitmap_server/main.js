@@ -4,7 +4,7 @@ import winston from "winston";
 import dotenv from "dotenv";
 import axios from "axios";
 import mysql from "mysql";
-import {getRandomInt, now} from "./utils.js";
+import {getRandomInt, now, simple_player, simple_players} from "./utils.js";
 import {gridWidth, colors, durationOfTheMatch, intervalBetweenMatches, circle} from "./defines.js";
 import {get_events} from "./get_events.js";
 import {make_signature} from "./signature.js";
@@ -44,9 +44,10 @@ mysql_connection.connect({}, async (err) => {
 
     const last_rounds = await mysql_query(mysql_connection, "SELECT * FROM `round` ORDER BY id DESC LIMIT 1;");
 
-    logger.info("last_rounds:" + last_rounds.length);
+    logger.info("last_rounds lenght:" + last_rounds.length);
 
-    if (last_rounds > 0) {
+    if (last_rounds.length > 0) {
+        logger.info("last_rounds:" + last_rounds[0].rank);
         last_rank = JSON.parse(last_rounds[0].rank);
     }
 });
@@ -156,7 +157,7 @@ const start_game = () => {
                     gridHeight: gridHeight,
                     turn: turn,
                     stop_time: stop_time,
-                    players: players,
+                    players: simple_players(players),
                     start_time: now()
                 }));
             }
@@ -459,7 +460,7 @@ wss.on('connection', (ws) => {
                     if (client.readyState === WebSocket.OPEN) {
                         client.send(JSON.stringify({
                             method: "JoinedGameSuccess",
-                            player: join_player,
+                            player: simple_player(join_player),
                             user: user_for_join
                         }));
                     }

@@ -8,3 +8,27 @@ export function now() {
     const timestampSeconds = Math.floor(new Date().getTime() / 1000);
     return timestampSeconds;
 }
+
+export function simple_player(player) {
+    return {
+        i: player.i,
+        x: player.x,
+        y: player.y,
+        bitmap: player.bitmap,
+        color: player.color,
+        land: player.land,
+        loss: player.loss,
+        init_virus: player.virus,
+        virus: player.virus,
+        owner: player.owner,
+    }
+}
+
+export function simple_players(players) {
+    let result = [];
+    for (let player of players) {
+        result.push(simple_player(player))
+    }
+
+    return result;
+}
