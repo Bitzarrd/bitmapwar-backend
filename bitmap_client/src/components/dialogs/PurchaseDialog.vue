@@ -70,7 +70,6 @@ export default {
       v-model="dialogVisible"
       title="Purchase"
       width="60%"
-      :before-close="setPurchaseDialogVisible(false)"
   >
     <div class="dialog_center" v-loading="purchaseLoading">
       <div>

@@ -178,9 +178,9 @@ export default {
 <style>
 
 .container {
-  height: 100vh; /* 设置容器高度为整个视口的高度 */
+  height: 100vh;
   display: flex;
-  flex-direction: column; /* 设置子元素垂直排列 */
+  flex-direction: column;
 }
 
 .top-div {
@@ -190,9 +190,9 @@ export default {
 }
 
 .bottom-div {
-  flex-grow: 1; /* 设置底部 div 自动撑满剩余空间 */
+  flex-grow: 1;
   background-color: black;
-  overflow: hidden; /* 设置溢出内容隐藏 */
+  overflow: hidden;
 }
 
 .box {
@@ -203,20 +203,18 @@ export default {
 .left {
   float: left;
   width: 400px;
-//background-color: #1d3043;
 }
 
 .middle {
   display: flex;
   flex-direction: column;
   flex-grow: 1;
-//background-color: green; overflow: hidden; /* 设置溢出内容隐藏 */
+  overflow: hidden;
 }
 
 .right {
   float: right;
   width: 300px;
-//background-color: #2a598a;
 }
 
 .mycard {
@@ -225,7 +223,7 @@ export default {
 
 .mytable {
   border-collapse: separate;
-  border-spacing: 10px; /* 设置行间距的像素值 */
+  border-spacing: 10px;
 }
 
 .team {

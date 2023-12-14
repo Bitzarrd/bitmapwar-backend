@@ -584,7 +584,7 @@ export const store = createStore({
             state.selected_map = value;
         },
         setActionDialogVisible(state, value) {
-            state.actionDialogVisible = value
+            state.actionDialogVisible = value;
         },
         setPurchaseDialogVisible(state, value) {
             state.purchaseDialogVisible = value

@@ -43,9 +43,9 @@ export default {
   },
   methods: {
     shortend,
-    ...mapMutations(['setDialogVisible', 'setVirus']),
+    ...mapMutations(['setActionDialogVisible', 'setVirus']),
     onClickSubmit() {
-      this.setDialogVisible(true);
+      this.setActionDialogVisible(true);
     },
   }
 }
