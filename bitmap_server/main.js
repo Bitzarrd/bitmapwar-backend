@@ -172,142 +172,150 @@ const start_game = () => {
 
     interval = setInterval(async () => {
 
-        if (now() === stop_time) {
-            logger.info("stopped on timer")
-            clearInterval(interval);
-            next_round = now() + intervalBetweenMatches;
-            turn = 0;
+        try {
+            if (now() === stop_time) {
+                logger.info("stopped on timer")
+                clearInterval(interval);
+                next_round = now() + intervalBetweenMatches;
+                turn = 0;
 
-            if (players.length === 0) {
-                logger.info("no players");
+                if (players.length === 0) {
+                    logger.info("no players");
+                    return;
+                }
+
+                const users = get_users(players);
+                const win_team = get_win_team(players);
+                logger.info("当前胜利的队伍是：" + win_team);
+                const win_team_users = get_users_by_color(win_team, users);
+                logger.info("地块信息：")
+                for (let player of players) {
+                    logger.info("地图：" + player.bitmap + " 用户：" + player.owner + " 颜色：" + player.color + " 领地：" + player.land + " 病毒：" + player.virus + " 损失：" + player.loss);
+                }
+
+                const pool_2 = calculate_pool_2_proportion(win_team_users);
+                logger.info("奖池2的比例为：" + pool_2);
+                logger.info("胜利方用户分别是:")
+                calculate_pool_1(win_team_users);
+                calculate_pool_2(win_team_users);
+                for (let user of win_team_users) {
+                    logger.info("用户：" + user.owner + " 名次：" + user.rank + " 颜色：" + user.statistics.color + " 领地：" + user.statistics.land + " 病毒：" + user.statistics.virus + " 损失：" + user.statistics.loss + " 奖励：" + user.reward_1 + "," + user.reward_2 + "");
+                }
+                logger.info("BITMAP持有者奖励为：")
+                calculate_bitmap_reward(users);
+                for (let owner of Object.keys(users)) {
+                    let user = users[owner];
+                    logger.info("用户：" + user.owner + " 颜色：" + user.statistics.color + " 持有地图：[" + user.bitmaps + "] 奖励为：" + user.reward_3)
+                }
+
+                const all_init_virus = get_all_init_virus(players);
+                const all_reward_profit = calculate_virus_to_profit(all_init_virus);
+                const rank_to_save = get_rank_for_save(players);
+                last_rank = rank_to_save;
+                logger.info("总发放奖励金额:" + all_reward_profit.toString());
+
+                for (let owner of Object.keys(users)) {
+                    let user = users[owner];
+                    let reward = user.reward_1 + user.reward_2 + user.reward_3;
+                    let profit = all_reward_profit * BigInt(Math.floor(reward)) / BigInt(100);
+                    logger.info("用户：" + owner + " 奖励金额：" + profit.toString() + " 奖励比例：" + reward + "%");
+
+                    let user_for_settlement = (await mysql_query(mysql_connection, "SELECT * FROM `user` WHERE `address`='" + owner + "';"))[0];
+                    user_for_settlement.profit = BigInt(user_for_settlement.profit) + BigInt(profit);
+                    user_for_settlement.profit = user_for_settlement.profit.toString();
+
+                    let conn = get_conn_by_owner(players, owner);
+                    if (conn) {
+                        conn.send(JSON.stringify({
+                            method: "Settlement",
+                            next_round: next_round,
+                            statistics: user.statistics,
+                            user: user_for_settlement,
+                            earning: profit.toString(),
+                            rank: rank_to_save
+                        }));
+
+                    }
+                }
+
+                const sql = "INSERT INTO `round` (`end_time`,`rank`) VALUES (" + now() + ",'" + JSON.stringify(rank_to_save) + "')";
+                logger.info(sql);
+                mysql_connection.query(sql, function (err, result) {
+                    if (err) {
+                        logger.error(err);
+                    } else {
+                        logger.info("保存排名成功：" + result.insertId);
+                    }
+                });
+
+                //clear
+                players = [];
+                turn = 0;
                 return;
             }
+        }catch (e){
+            console.log(e)
+        }
 
-            const users = get_users(players);
-            const win_team = get_win_team(players);
-            logger.info("当前胜利的队伍是：" + win_team);
-            const win_team_users = get_users_by_color(win_team, users);
-            logger.info("地块信息：")
-            for (let player of players) {
-                logger.info("地图：" + player.bitmap + " 用户：" + player.owner + " 颜色：" + player.color + " 领地：" + player.land + " 病毒：" + player.virus + " 损失：" + player.loss);
-            }
+        try {
+            turn++;
+            let payload = [];
+            for (let i = 0; i < players.length; i++) {
+                let player = players[i];
+                if (player.virus <= 0) {
+                    continue;
+                }
+                let {y, x} = runTurn(player, grid, circle);
+                let origin_player_virus = 0;
 
-            const pool_2 = calculate_pool_2_proportion(win_team_users);
-            logger.info("奖池2的比例为：" + pool_2);
-            logger.info("胜利方用户分别是:")
-            calculate_pool_1(win_team_users);
-            calculate_pool_2(win_team_users);
-            for (let user of win_team_users) {
-                logger.info("用户：" + user.owner + " 名次：" + user.rank + " 颜色：" + user.statistics.color + " 领地：" + user.statistics.land + " 病毒：" + user.statistics.virus + " 损失：" + user.statistics.loss + " 奖励：" + user.reward_1 + "," + user.reward_2 + "");
-            }
-            logger.info("BITMAP持有者奖励为：")
-            calculate_bitmap_reward(users);
-            for (let owner of Object.keys(users)) {
-                let user = users[owner];
-                logger.info("用户：" + user.owner + " 颜色：" + user.statistics.color + " 持有地图：[" + user.bitmaps + "] 奖励为：" + user.reward_3)
-            }
 
-            const all_init_virus = get_all_init_virus(players);
-            const all_reward_profit = calculate_virus_to_profit(all_init_virus);
-            const rank_to_save = get_rank_for_save(players);
-            last_rank = rank_to_save;
-            logger.info("总发放奖励金额:" + all_reward_profit.toString());
+                if (grid[y][x] !== 0) {
+                    const origin_player_index = grid[y][x];
+                    const origin_player = players[origin_player_index - 1];
+                    if (origin_player.color !== player.color) {
+                        if (origin_player.virus <= 0) {
 
-            for (let owner of Object.keys(users)) {
-                let user = users[owner];
-                let reward = user.reward_1 + user.reward_2 + user.reward_3;
-                let profit = all_reward_profit * BigInt(Math.floor(reward)) / BigInt(100);
-                logger.info("用户：" + owner + " 奖励金额：" + profit.toString() + " 奖励比例：" + reward + "%");
-
-                let user_for_settlement = (await mysql_query(mysql_connection, "SELECT * FROM `user` WHERE `address`='" + owner + "';"))[0];
-                user_for_settlement.profit = BigInt(user_for_settlement.profit) + BigInt(profit);
-                user_for_settlement.profit = user_for_settlement.profit.toString();
-
-                let conn = get_conn_by_owner(players, owner);
-                if (conn) {
-                    conn.send(JSON.stringify({
-                        method: "Settlement",
-                        next_round: next_round,
-                        statistics: user.statistics,
-                        user: user_for_settlement,
-                        earning: profit.toString(),
-                        rank: rank_to_save
-                    }));
+                        } else {
+                            logger.info(`attack!! origin_color=${origin_player.color} now_color=${player.color}`)
+                            const damage = Math.min(player.virus, origin_player.virus);
+                            origin_player.loss += damage;
+                            player.loss += damage;
+                            origin_player.virus -= damage;
+                            player.virus = damage;
+                            if (player.virus <= 0) {
+                                continue;
+                            }
+                        }
+                        origin_player.land--;
+                    }
+                    // players[origin_player_index - 1].land--;
+                    // players[origin_player_index - 1].loss++;
 
                 }
+                grid[y][x] = i + 1;
+                player.land++;
+                //drawCell(ctx, cellSize, x, y, player.color);
+                payload.push({
+                    x: x,
+                    y: y,
+                    color: player.color,
+                })
             }
 
-            const sql = "INSERT INTO `round` (`end_time`,`rank`) VALUES (" + now() + ",'" + JSON.stringify(rank_to_save) + "')";
-            logger.info(sql);
-            mysql_connection.query(sql, function (err, result) {
-                if (err) {
-                    logger.error(err);
-                } else {
-                    logger.info("保存排名成功：" + result.insertId);
+
+            clients.forEach((client) => {
+                if (client.readyState === WebSocket.OPEN) {
+                    client.send(JSON.stringify({
+                        method: "Update",
+                        payload: payload,
+                        turn: turn,
+                        statistics: statistics(),
+                    }));
                 }
             });
-
-            //clear
-            players = [];
-            turn = 0;
-            return;
+        }catch (e) {
+            console.error(e);
         }
-
-        turn++;
-        let payload = [];
-        for (let i = 0; i < players.length; i++) {
-            let player = players[i];
-            if (player.virus <= 0) {
-                continue;
-            }
-            let {y, x} = runTurn(player, grid, circle);
-            let origin_player_virus = 0;
-
-
-            if (grid[y][x] !== 0) {
-                const origin_player_index = grid[y][x];
-                const origin_player = players[origin_player_index - 1];
-                if (origin_player.color !== player.color) {
-                    if (origin_player.virus <= 0) {
-
-                    } else {
-                        logger.info(`attack!! origin_color=${origin_player.color} now_color=${player.color}`)
-                        const damage = Math.min(player.virus, origin_player.virus);
-                        origin_player.loss += damage;
-                        player.loss += damage;
-                        origin_player.virus -= damage;
-                        player.virus = damage;
-                        if (player.virus <= 0) {
-                            continue;
-                        }
-                    }
-                    origin_player.land--;
-                }
-                // players[origin_player_index - 1].land--;
-                // players[origin_player_index - 1].loss++;
-
-            }
-            grid[y][x] = i + 1;
-            player.land++;
-            //drawCell(ctx, cellSize, x, y, player.color);
-            payload.push({
-                x: x,
-                y: y,
-                color: player.color,
-            })
-        }
-
-
-        clients.forEach((client) => {
-            if (client.readyState === WebSocket.OPEN) {
-                client.send(JSON.stringify({
-                    method: "Update",
-                    payload: payload,
-                    turn: turn,
-                    statistics: statistics(),
-                }));
-            }
-        });
     }, 333)
 
 }
