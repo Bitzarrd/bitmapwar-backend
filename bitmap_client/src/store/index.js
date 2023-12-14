@@ -688,7 +688,8 @@ export const store = createStore({
                     state.next_round = (Number)(message.next_round);
                     state.settlement = {
                         rank: message.rank,
-                        statistics: message.statistics
+                        statistics: message.statistics,
+                        earning:message.earning
                     }
                     state.user = message.user;
                     state.lastRanking = message.rank;

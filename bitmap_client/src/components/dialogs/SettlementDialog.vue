@@ -1,5 +1,6 @@
 <script>
 import {mapMutations, mapState} from "vuex";
+import {formatEther} from "ethers";
 
 export default {
   name: "SettlementDialog",
@@ -13,6 +14,7 @@ export default {
     }
   },
   methods:{
+    formatEther,
     ...mapMutations([''])
   }
 }
@@ -40,7 +42,7 @@ export default {
       <div>Your Land: {{ settlement.statistics.land }}</div>
       <div>Your Bit: {{ settlement.statistics.virus }}</div>
       <div>Your Loss {{ settlement.statistics.loss }}</div>
-      <div>Your Earnings(BTC): 0.0000010</div>
+      <div>Your Earnings(BTC): {{ formatEther(settlement.earning)}}</div>
 
     </div>
   </el-dialog>
