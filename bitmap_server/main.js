@@ -211,8 +211,8 @@ const start_game = () => {
             for (let owner of Object.keys(users)) {
                 let user = users[owner];
                 let reward = user.reward_1 + user.reward_2 + user.reward_3;
-                let profit = all_reward_profit * BigInt(Math.floor(reward / 100));
-                logger.info("奖励金额：" + profit.toString() + " 奖励比例：" + reward + "%" + "用户：" + owner);
+                let profit = all_reward_profit * BigInt(Math.floor(reward)) / BigInt(100);
+                logger.info("用户：" + owner + " 奖励金额：" + profit.toString() + " 奖励比例：" + reward + "%");
 
                 let user_for_settlement = (await mysql_query(mysql_connection, "SELECT * FROM `user` WHERE `address`='" + owner + "';"))[0];
                 user_for_settlement.profit = BigInt(user_for_settlement.profit) + BigInt(profit);
@@ -225,7 +225,7 @@ const start_game = () => {
                         next_round: next_round,
                         statistics: user.statistics,
                         user: user_for_settlement,
-                        earning: profit,
+                        earning: profit.toString(),
                         rank: rank_to_save
                     }));
 

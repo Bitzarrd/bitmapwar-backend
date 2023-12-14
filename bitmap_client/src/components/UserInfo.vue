@@ -46,7 +46,14 @@ export default {
 
       <el-form label-width="70px" v-if="wallet_address">
         <el-form-item label="ID:">
-          <el-input :value="shortend(wallet_address)" disabled/>
+          <el-tooltip
+              class="box-item"
+              effect="dark"
+              content="Top Center prompts info"
+              placement="top"
+          >
+            <el-input :value="shortend(wallet_address)" disabled/>
+          </el-tooltip>
         </el-form-item>
         <el-form-item label="Profit(BTC):">
           <el-input :value="formatEther(user.profit)" disabled
