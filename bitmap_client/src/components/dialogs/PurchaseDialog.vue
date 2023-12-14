@@ -72,6 +72,10 @@ export default {
       width="60%"
   >
     <div class="dialog_center" v-loading="purchaseLoading">
+
+      <div style="margin-bottom: 10px">
+        <el-alert title="Please do not close the browser or refresh the page during the recharge process. If you encounter any issues, please click the 'Search' button in the order and manually enter the TX hash to retry the operation." type="warning" />
+      </div>
       <div>
         <el-input-number placeholder="Bit" v-model="amount"></el-input-number>
       </div>
@@ -79,6 +83,9 @@ export default {
 
       <div style="border: #333333 1px solid;width: 100%">
       <el-table :data="purchase" :scrollbar-always-on="true" :max-height="300" style="width: 100%">
+
+
+
         <el-table-column prop="id" label="ID" width="100"/>
         <el-table-column prop="txid" label="TXID">
           <template #default="scope">
@@ -132,6 +139,16 @@ export default {
           </template>
         </el-table-column>
 
+        <el-table-column align="right">
+          <template #header>
+
+                <el-button>
+                  <el-icon color="white" class="no-inherit">
+                    <Search/>
+                  </el-icon>
+                </el-button>
+          </template>
+        </el-table-column>
       </el-table>
       </div>
     </div>

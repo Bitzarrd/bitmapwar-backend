@@ -101,6 +101,9 @@ export default {
       width="60%"
   >
     <div class="" v-loading="loading">
+     <div style="margin-bottom: 10px">
+       <el-alert title="Please do not close the browser or refresh the page during the withdrawal process. If you encounter any issues, please click the 'Resubmit' button in the order to retry the operation." type="warning" />
+     </div>
       <el-form label-width="100px">
         <el-form-item label="Profit">
           <el-input :value="formatWei2Ether(user.profit)+' BTC'" disabled/>
@@ -112,6 +115,7 @@ export default {
           <el-input value="0.004 BTC" disabled/>
         </el-form-item>
       </el-form>
+
       <div style="border: #333333 1px solid;width: 100%">
         <el-table :data="extracts" :scrollbar-always-on="true" :max-height="300" style="width: 100%">
           <el-table-column prop="id" label="ID" width="100"/>

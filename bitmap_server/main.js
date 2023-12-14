@@ -346,267 +346,268 @@ wss.on('connection', (ws) => {
 
     // 接收消息
     ws.on('message', async (message) => {
-        logger.info(`Received message: ${message}`);
+        try {
+            logger.info(`Received message: ${message}`);
+            let decode = JSON.parse(message);
+            switch (decode.method) {
+                case "Login":
+                    const address = decode.address;
+                    const sql = "SELECT * FROM `user` WHERE `address`='" + address + "'";
+                    logger.info(sql);
+                    try {
+                        const result = await mysql_query(mysql_connection, sql);
+                        if (result.length === 0) {
+                            logger.info("new user");
 
-        let decode = JSON.parse(message);
-        switch (decode.method) {
-            case "Login":
-                const address = decode.address;
-                const sql = "SELECT * FROM `user` WHERE `address`='" + address + "'";
-                logger.info(sql);
-                try {
-                    const result = await mysql_query(mysql_connection, sql);
-                    if (result.length === 0) {
-                        logger.info("new user");
 
+                            try {
+                                mysql_connection.query('INSERT INTO user SET ?', {
+                                    profit: 1,
+                                    address: decode.address,
+                                });
 
-                        try {
-                            mysql_connection.query('INSERT INTO user SET ?', {
-                                profit: 1,
-                                address: decode.address,
-                            });
+                                // const insertResult = await mysql_connection.query(insertSql);
+                                // logger.info(insertResult);
+                                let user = {
+                                    address: address,
+                                };
+                                ws.send(JSON.stringify({
+                                    method: "LoginSuccess",
+                                    user: user,
+                                    extracts: [],
+                                    purchase: [],
+                                }));
+                            } catch (insertErr) {
+                                logger.error(insertErr);
+                            }
+                        } else {
+                            let user = result[0];
+                            logger.info(user);
 
-                            // const insertResult = await mysql_connection.query(insertSql);
-                            // logger.info(insertResult);
-                            let user = {
-                                address: address,
-                            };
+                            let extracts_sql = "SELECT * FROM `extract` WHERE address='" + address + "' ORDER BY id DESC;";
+                            logger.info(extracts_sql);
+                            let extracts = await mysql_query(mysql_connection, extracts_sql);
+                            let purchase = await mysql_query(mysql_connection, "SELECT * FROM `purchase` WHERE owner='" + address + "' ORDER BY id DESC;");
+
                             ws.send(JSON.stringify({
                                 method: "LoginSuccess",
                                 user: user,
-                                extracts: [],
-                                purchase: [],
+                                extracts: extracts,
+                                purchase: purchase
                             }));
-                        } catch (insertErr) {
-                            logger.error(insertErr);
                         }
-                    } else {
-                        let user = result[0];
-                        logger.info(user);
+                    } catch (err) {
+                        logger.error(err);
+                    }
 
-                        let extracts_sql = "SELECT * FROM `extract` WHERE address='" + address + "' ORDER BY id DESC;";
-                        logger.info(extracts_sql);
-                        let extracts = await mysql_query(mysql_connection, extracts_sql);
-                        let purchase = await mysql_query(mysql_connection, "SELECT * FROM `purchase` WHERE owner='" + address + "' ORDER BY id DESC;");
+                    break;
+                case "JoinGame":
+                    // let x = getRandomInt(0, gridWidth);
+                    // let y = getRandomInt(0, gridHeight);
+                    // let color = colors[players.length % colors.length];
+                    // console.log(grid.length, grid[0].length, x, y, color);
+                    // grid[y][x] = color;
+                    // let player = {
+                    //     i: 0,
+                    //     x: x,
+                    //     y: y,
+                    //     color: color,
+                    //     land: 0,
+                    //     loss: 0,
+                    //     virus: 1,
+                    //     owner: decode.owner,
+                    // };
+                    // players.push(player)
+                    // clients.forEach((client) => {
+                    //     if (client.readyState === WebSocket.OPEN) {
+                    //         client.send(JSON.stringify({
+                    //             method: "JoinedGame",
+                    //             player: player,
+                    //         }));
+                    //     }
+                    // });
+                    break;
+                case "JoinGame2":
+                    let join_y = Math.floor(decode.map_id / gridWidth);
+                    let join_x = decode.map_id % gridWidth;
+                    logger.info(`JoinGame2 map_id=${decode.map_id} x=${join_x} y=${join_y}`);
+
+                    const user_for_join = (await mysql_query(mysql_connection, "SELECT * FROM `user` WHERE `address`='" + decode.owner + "';"))[0];
+                    if (user_for_join.virus < decode.virus) {
+                        return;
+                    }
+                    user_for_join.virus -= decode.virus;
+
+                    await mysql_connection.query("UPDATE user SET virus=virus-" + decode.virus + " WHERE address='" + decode.owner + "';");
+
+                    let join_player = {
+                        i: 0,
+                        x: join_x,
+                        y: join_y,
+                        bitmap: decode.map_id,
+                        color: decode.color,
+                        land: 0,
+                        loss: 0,
+                        init_virus: decode.virus,
+                        virus: decode.virus,
+                        owner: decode.owner,
+                        conn: ws,
+                    };
+
+                    players.push(join_player)
+
+                    clients.forEach((client) => {
+                        if (client.readyState === WebSocket.OPEN) {
+                            client.send(JSON.stringify({
+                                method: "JoinedGameSuccess",
+                                player: simple_player(join_player),
+                                user: user_for_join
+                            }));
+                        }
+                    });
+                    break;
+                case "StartGame":
+                    start_game();
+                    break;
+                case "StopGame":
+                    if (interval) {
+                        clearInterval(interval);
+                        interval = null;
+                    }
+                    grid = generate2DArray(gridWidth, gridHeight);
+                    players = [];
+                    turn = 0;
+                    stop_time = 0;
+                    break;
+                case "SetNextRound":
+                    // const timestamp = new Date().getTime();
+                    // console.log(timestamp);
+                    next_round = (Number)(decode.timestamp);
+
+                    clients.forEach((client) => {
+                        client.send(JSON.stringify({
+                            method: "SetNextRoundSuccess",
+                            timestamp: next_round
+                        }));
+                    });
+
+                    break;
+                case "Purchase":
+                    const txid = decode.txid;
+                    const tx = await get_events(txid);
+                    console.log(tx)
+                    if (!tx) {
+                        logger.error("tx not found")
+                        return;
+                    }
+                    logger.debug("logs" + tx.events.length)
+                    for (let i = 0; i < tx.events.length; i++) {
+                        let event = tx.events[i];
+                        let event_name = event.signature;
+                        switch (event_name) {
+                            case "Transfer(address,address,uint256)":
+                                let from = event.args[0];
+                                let to = event.args[1];
+                                let amount = Number(event.args[2]);
+                                if (from === "0x0000000000000000000000000000000000000000") {
+                                    const sql = "UPDATE `user` SET `virus` = `virus` + " + amount + " WHERE `address` = '" + to + "';";
+                                    logger.info(sql);
+                                    try {
+                                        const result = await mysql_connection.query(sql);
+                                        logger.info(result);
+                                        const select_sql = "SELECT * FROM `user` WHERE `address` = '" + to + "';";
+                                        logger.info(select_sql);
+                                        try {
+                                            const selectResult = await mysql_query(mysql_connection, select_sql);
+                                            logger.info(selectResult);
+                                            let user = selectResult[0];
+                                            ws.send(JSON.stringify({
+                                                method: "PurchaseSuccess",
+                                                user: user,
+                                            }));
+                                        } catch (selectErr) {
+                                            logger.error(selectErr);
+                                        }
+                                    } catch (err) {
+                                        logger.error(err);
+                                    }
+
+                                    mysql_connection.query("INSERT INTO `purchase` SET ? ", {
+                                        txid: txid,
+                                        owner: to,
+                                        fee: tx.tx.value,
+                                        create_time: now(),
+                                        virus: amount
+                                    });
+
+                                }
+                                break;
+                        }
+                    }
+                    break;
+                case "ExtractProfit":
+
+                    let user = (await mysql_query(mysql_connection, "SELECT * FROM `user` WHERE `address` = '" + decode.address + "';"))[0];
+                    let profit = BigInt(user.profit);
+                    let amount_n = BigInt(decode.amount);
+                    if (profit < amount_n) {
+                        return
+                    }
+
+
+                    let profit_n = profit - amount_n;
+
+
+                    console.log(profit_n.toString());
+                    user.profit = profit_n.toString();
+
+                    mysql_connection.query("UPDATE user SET profit='" + profit_n.toString() + "' WHERE address='" + decode.address + "';");
+
+                    mysql_connection.query('INSERT INTO extract SET ?', {
+                        amount: decode.amount,
+                        address: decode.address,
+                        create_time: now(),
+                    }, async (error, results, fields) => {
+                        if (error) throw error;
+                        console.log(results.insertId);
+
+                        let signature = await make_signature(process.env.PRIVATE_KEY, decode.amount, results.insertId)
+                        logger.info("signature:" + signature);
 
                         ws.send(JSON.stringify({
-                            method: "LoginSuccess",
+                            method: "ExtractProfitSuccess",
+                            signature: signature,
+                            amount: decode.amount,
+                            nonce: results.insertId,
+                            create_time: now(),
                             user: user,
-                            extracts: extracts,
-                            purchase: purchase
                         }));
-                    }
-                } catch (err) {
-                    logger.error(err);
-                }
 
-                break;
-            case "JoinGame":
-                // let x = getRandomInt(0, gridWidth);
-                // let y = getRandomInt(0, gridHeight);
-                // let color = colors[players.length % colors.length];
-                // console.log(grid.length, grid[0].length, x, y, color);
-                // grid[y][x] = color;
-                // let player = {
-                //     i: 0,
-                //     x: x,
-                //     y: y,
-                //     color: color,
-                //     land: 0,
-                //     loss: 0,
-                //     virus: 1,
-                //     owner: decode.owner,
-                // };
-                // players.push(player)
-                // clients.forEach((client) => {
-                //     if (client.readyState === WebSocket.OPEN) {
-                //         client.send(JSON.stringify({
-                //             method: "JoinedGame",
-                //             player: player,
-                //         }));
-                //     }
-                // });
-                break;
-            case "JoinGame2":
-                let join_y = Math.floor(decode.map_id / gridWidth);
-                let join_x = decode.map_id % gridWidth;
-                logger.info(`JoinGame2 map_id=${decode.map_id} x=${join_x} y=${join_y}`);
+                        await mysql_connection.query("UPDATE extract SET signature='" + signature + "' WHERE id=" + results.insertId + ";")
 
-                const user_for_join = (await mysql_query(mysql_connection, "SELECT * FROM `user` WHERE `address`='" + decode.owner + "';"))[0];
-                if (user_for_join.virus < decode.virus) {
-                    return;
-                }
-                user_for_join.virus -= decode.virus;
+                    });
 
-                await mysql_connection.query("UPDATE user SET virus=virus-" + decode.virus + " WHERE address='" + decode.owner + "';");
-
-                let join_player = {
-                    i: 0,
-                    x: join_x,
-                    y: join_y,
-                    bitmap: decode.map_id,
-                    color: decode.color,
-                    land: 0,
-                    loss: 0,
-                    init_virus: decode.virus,
-                    virus: decode.virus,
-                    owner: decode.owner,
-                    conn: ws,
-                };
-
-                players.push(join_player)
-
-                clients.forEach((client) => {
-                    if (client.readyState === WebSocket.OPEN) {
-                        client.send(JSON.stringify({
-                            method: "JoinedGameSuccess",
-                            player: simple_player(join_player),
-                            user: user_for_join
-                        }));
-                    }
-                });
-                break;
-            case "StartGame":
-                start_game();
-                break;
-            case "StopGame":
-                if (interval) {
-                    clearInterval(interval);
-                    interval = null;
-                }
-                grid = generate2DArray(gridWidth, gridHeight);
-                players = [];
-                turn = 0;
-                stop_time = 0;
-                break;
-            case "SetNextRound":
-                // const timestamp = new Date().getTime();
-                // console.log(timestamp);
-                next_round = (Number)(decode.timestamp);
-
-                clients.forEach((client) => {
-                    client.send(JSON.stringify({
-                        method: "SetNextRoundSuccess",
-                        timestamp: next_round
-                    }));
-                });
-
-                break;
-            case "Purchase":
-                const txid = decode.txid;
-                const tx = await get_events(txid);
-                console.log(tx)
-                if (!tx) {
-                    logger.error("tx not found")
-                    return;
-                }
-                logger.debug("logs" + tx.events.length)
-                for (let i = 0; i < tx.events.length; i++) {
-                    let event = tx.events[i];
-                    let event_name = event.signature;
-                    switch (event_name) {
-                        case "Transfer(address,address,uint256)":
-                            let from = event.args[0];
-                            let to = event.args[1];
-                            let amount = Number(event.args[2]);
-                            if (from === "0x0000000000000000000000000000000000000000") {
-                                const sql = "UPDATE `user` SET `virus` = `virus` + " + amount + " WHERE `address` = '" + to + "';";
-                                logger.info(sql);
-                                try {
-                                    const result = await mysql_connection.query(sql);
-                                    logger.info(result);
-                                    const select_sql = "SELECT * FROM `user` WHERE `address` = '" + to + "';";
-                                    logger.info(select_sql);
-                                    try {
-                                        const selectResult = await mysql_query(mysql_connection, select_sql);
-                                        logger.info(selectResult);
-                                        let user = selectResult[0];
-                                        ws.send(JSON.stringify({
-                                            method: "PurchaseSuccess",
-                                            user: user,
-                                        }));
-                                    } catch (selectErr) {
-                                        logger.error(selectErr);
-                                    }
-                                } catch (err) {
-                                    logger.error(err);
-                                }
-
-                                mysql_connection.query("INSERT INTO `purchase` SET ? ", {
-                                    txid: txid,
-                                    owner: to,
-                                    fee: tx.tx.value,
-                                    create_time: now(),
-                                    virus: amount
-                                });
-
-                            }
-                            break;
-                    }
-                }
-                break;
-            case "ExtractProfit":
-
-                let user = (await mysql_query(mysql_connection, "SELECT * FROM `user` WHERE `address` = '" + decode.address + "';"))[0];
-                let profit = BigInt(user.profit);
-                let amount_n = BigInt(decode.amount);
-                if (profit < amount_n) {
-                    return
-                }
-
-
-                let profit_n = profit - amount_n;
-
-
-                console.log(profit_n.toString());
-                user.profit = profit_n.toString();
-
-                mysql_connection.query("UPDATE user SET profit='" + profit_n.toString() + "' WHERE address='" + decode.address + "';");
-
-                mysql_connection.query('INSERT INTO extract SET ?', {
-                    amount: decode.amount,
-                    address: decode.address,
-                    create_time: now(),
-                }, async (error, results, fields) => {
-                    if (error) throw error;
-                    console.log(results.insertId);
-
-                    let signature = await make_signature(process.env.PRIVATE_KEY, decode.amount, results.insertId)
-                    logger.info("signature:" + signature);
-
+                    // let extract_insert_sql = "INSERT INTO `extract` (`amount`,`address`) VALUES (" + amount + ",'" + decode.address + "');";
+                    // logger.info(extract_insert_sql);
+                    // let extract_insert_result = await mysql_connection.query(extract_insert_sql);
+                    // let extract_insert_id = extract_insert_result.insertId;
+                    // logger.info("extract_insert_id:" + extract_insert_id);
+                    break;
+                case "UpdateExtract":
+                    let update_extract_sql = "UPDATE extract SET status=1 AND txid='" + decode.txid + "' WHERE id=" + decode.id + ";";
+                    logger.info(update_extract_sql);
+                    let update_extract_result = await mysql_connection.query(update_extract_sql);
+                    logger.info(update_extract_result);
                     ws.send(JSON.stringify({
-                        method: "ExtractProfitSuccess",
-                        signature: signature,
-                        amount: decode.amount,
-                        nonce: results.insertId,
-                        create_time: now(),
-                        user: user,
+                        method: "UpdateExtractSuccess",
+                        id: decode.id,
+                        txid: decode.txid,
                     }));
-
-                    await mysql_connection.query("UPDATE extract SET signature='" + signature + "' WHERE id=" + results.insertId + ";")
-
-                });
-
-                // let extract_insert_sql = "INSERT INTO `extract` (`amount`,`address`) VALUES (" + amount + ",'" + decode.address + "');";
-                // logger.info(extract_insert_sql);
-                // let extract_insert_result = await mysql_connection.query(extract_insert_sql);
-                // let extract_insert_id = extract_insert_result.insertId;
-                // logger.info("extract_insert_id:" + extract_insert_id);
-                break;
-            case "UpdateExtract":
-                let update_extract_sql = "UPDATE extract SET status=1 AND txid='" + decode.txid + "' WHERE id=" + decode.id + ";";
-                logger.info(update_extract_sql);
-                let update_extract_result = await mysql_connection.query(update_extract_sql);
-                logger.info(update_extract_result);
-                ws.send(JSON.stringify({
-                    method: "UpdateExtractSuccess",
-                    id: decode.id,
-                    txid: decode.txid,
-                }));
-                break;
+                    break;
+            }
+        } catch (e) {
+            console.error(e);
         }
-
-
     });
 
     // 当连接关闭时触发
