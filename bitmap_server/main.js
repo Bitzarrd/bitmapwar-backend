@@ -213,7 +213,18 @@ const start_game = () => {
                     calculate_pool_1(win_team_users);
                     calculate_pool_2_by_color(win_team_users, win_team);
                     for (let user of win_team_users) {
-                        logger.info("用户：" + user.owner + " 名次：" + user.rank + " 颜色：" + user.statistics.color + " 领地：" + user.statistics.land + " 病毒：" + user.statistics.virus + " 损失：" + user.statistics.loss + " 奖励：" + user.reward_1 + "," + user.reward_2 + "");
+                        logger.info(
+                            "用户：" + user.owner +
+                            " 入场顺序：" + user.i,
+                            " 名次：" + user.rank +
+                            " 颜色：" + user.statistics.color +
+                            " 领地：" + user.statistics.land +
+                            " 初始化病毒：" + user.init_virus +
+                            " 当前病毒：" + user.statistics.virus +
+                            " 损失：" + user.statistics.loss + "" +
+                            " 奖励1：" + user.reward_1 +
+                            " 奖励2：" + user.reward_2
+                        );
                     }
                     logger.info("BITMAP持有者奖励为：")
                     calculate_bitmap_reward(users);
