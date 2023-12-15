@@ -23,7 +23,6 @@ export default {
   },
   methods:{
     formatEther,
-    ...mapMutations([''])
   }
 }
 </script>
