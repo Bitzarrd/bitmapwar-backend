@@ -9,6 +9,7 @@ import {gridWidth, colors, durationOfTheMatch, intervalBetweenMatches, circle} f
 import {get_events} from "./get_events.js";
 import {make_signature} from "./signature.js";
 import {mysql_query} from "./mysql.js";
+// import * as circle from "./circle.js";
 import {
     calculate_bitmap_reward,
     calculate_pool_1,
@@ -20,6 +21,8 @@ import {
 } from "./reward.js";
 
 dotenv.config();
+
+console.log(circle);
 
 export let mysql_connection = mysql.createConnection({
     host: process.env.MYSQL_HOST,
@@ -341,7 +344,7 @@ const start_game = () => {
         } catch (e) {
             console.error(e);
         }
-    }, 333)
+    }, 500)
 
 }
 

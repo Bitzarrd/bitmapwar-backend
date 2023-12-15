@@ -12,6 +12,7 @@
     "bitmap_sdk": "file:../bitmap_sdk/",
     "dotenv": "^16.3.1",
     "ethers": "^6.9.0",
+    "fs": "^0.0.1-security",
     "log4js": "^6.9.1",
     "mysql": "^2.18.1",
     "winston": "^3.11.0",
