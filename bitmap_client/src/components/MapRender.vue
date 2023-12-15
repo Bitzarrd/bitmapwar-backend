@@ -70,7 +70,7 @@ export default {
   computed: {
     ...mapState([
       'game_started', 'new_player', 'new_update', 'loading', 'players', 'grid',
-      'gridWidth', 'gridHeight', 'cellSize'
+      'gridWidth', 'gridHeight', 'cellSize', 'settlement'
     ]),
   },
   watch: {
@@ -108,6 +108,10 @@ export default {
         renderGrid(this.ctx, this.gridWidth, this.gridHeight, this.cellSize, this.grid, this.players);
       }
     },
+    settlement(newVal,oldVal){
+      clearAll(this.ctx);
+      this.init();
+    }
   },
   data() {
     return {

@@ -1,5 +1,5 @@
 <script>
-import {mapState} from "vuex";
+import {mapMutations, mapState} from "vuex";
 import {formatEther} from "ethers";
 
 export default {
@@ -23,10 +23,12 @@ export default {
     // }
   },
   data() {
-    return {}
+    return {
+      dialogVisible: false
+    }
   },
   methods: {
-    ...mapState(['setSettlementDialogVisible']),
+    ...mapMutations(['setSettlementDialogVisible']),
     formatEther,
   }
 }
