@@ -344,7 +344,7 @@ const start_game = () => {
         } catch (e) {
             console.error(e);
         }
-    }, 1000)
+    }, 333)
 
 }
 
