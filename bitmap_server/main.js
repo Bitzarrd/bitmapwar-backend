@@ -181,6 +181,15 @@ const start_game = () => {
 
                 if (players.length === 0) {
                     logger.info("no players");
+                    clients.forEach((client) => {
+                        if (client.readyState === WebSocket.OPEN) {
+                            client.send(JSON.stringify({
+                                method: "SetNextRoundSuccess",
+                                next_round: next_round,
+                                turn: turn,
+                            }));
+                        }
+                    });
                     return;
                 }
 
@@ -506,7 +515,8 @@ wss.on('connection', (ws) => {
                     clients.forEach((client) => {
                         client.send(JSON.stringify({
                             method: "SetNextRoundSuccess",
-                            timestamp: next_round
+                            next_round: next_round,
+                            turn: turn
                         }));
                     });
 

@@ -686,7 +686,8 @@ export const store = createStore({
                     state.purchase = message.purchase;
                     break;
                 case "SetNextRoundSuccess":
-                    state.next_round = (Number)(message.timestamp);
+                    state.next_round = (Number)(message.next_round);
+                    state.turn = message.turn;
                     break;
                 case "Settlement":
                     state.next_round = (Number)(message.next_round);
