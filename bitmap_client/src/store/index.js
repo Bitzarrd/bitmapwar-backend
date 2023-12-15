@@ -574,8 +574,8 @@ export const store = createStore({
         // setExtract(state, value): {
         //     state.extracts = value;
         // },
-        setSelectColor(state,value){
-          state.selected_color = value;
+        setSelectColor(state, value) {
+            state.selected_color = value;
         },
         setVirus(state, value) {
             state.virus = value
@@ -637,7 +637,7 @@ export const store = createStore({
             // 连接关闭时停掉心跳消息
             clearInterval(state.socket.heartBeatTimer);
             state.socket.heartBeatTimer = 0;
-            state.loading=true;
+            state.loading = true;
             console.log(event);
         },
         // 发生错误
@@ -668,7 +668,11 @@ export const store = createStore({
                     state.game_started = message.start_time;
                     break;
                 case "GameStopped":
-                    state.game_started = false;
+                    state.game_started = 0;
+                    state.turn = 0;
+                    state.next_round = 0;
+                    state.stop_time = 0;
+                    state.players = [];
                     break;
                 case "JoinedGameSuccess":
                     state.new_player = message.player;

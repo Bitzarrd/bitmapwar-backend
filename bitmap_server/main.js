@@ -512,6 +512,14 @@ wss.on('connection', (ws) => {
                     players = [];
                     turn = 0;
                     stop_time = 0;
+                    next_round = 0;
+
+                    clients.forEach((client) => {
+                        client.send(JSON.stringify({
+                            method: "GameStopped",
+                        }));
+                    });
+
                     break;
                 case "SetNextRound":
                     // const timestamp = new Date().getTime();
