@@ -230,7 +230,7 @@ export function get_total_init_virus(users) {
     let total = 0;
     for (let owner of Object.keys(users)) {
         let user = users[owner];
-        total += user[i].init_virus;
+        total += users[owner].init_virus;
     }
     return total;
 }

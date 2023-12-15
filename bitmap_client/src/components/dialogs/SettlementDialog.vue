@@ -1,12 +1,12 @@
 <script>
-import { mapState} from "vuex";
+import {mapState} from "vuex";
 import {formatEther} from "ethers";
 
 export default {
   name: "SettlementDialog",
   computed: {
     ...mapState([
-      'settlementDialogVisible','settlementLandList','settlement'
+      'settlementDialogVisible', 'settlementLandList', 'settlement'
     ]),
     dialogVisible: {
       get() {
@@ -17,11 +17,15 @@ export default {
       }
     },
   },
-  data() {
-    return {
+  watch: {
+    settlement(newVal, oldVal) {
+      this.dialogVisible = true;
     }
   },
-  methods:{
+  data() {
+    return {}
+  },
+  methods: {
     formatEther,
   }
 }
@@ -49,7 +53,7 @@ export default {
       <div>Your Land: {{ settlement.statistics.land }}</div>
       <div>Your Bit: {{ settlement.statistics.virus }}</div>
       <div>Your Loss {{ settlement.statistics.loss }}</div>
-      <div>Your Earnings(BTC): {{ formatEther(settlement.earning)}}</div>
+      <div>Your Earnings(BTC): {{ formatEther(settlement.earning) }}</div>
 
     </div>
   </el-dialog>
