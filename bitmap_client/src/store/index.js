@@ -563,7 +563,7 @@ export const store = createStore({
         bitmapListDialogVisible: false,
         profitDialogVisible: false,
         nextRoundSettingDialogVisible: false,
-        settlementDialogVisible: false,
+        // settlementDialogVisible: false,
         walletsDialogVisible: false,
         selected_map: "",
         selected_color: "red",
@@ -598,9 +598,9 @@ export const store = createStore({
         setNextRoundSettingDialogVisible(state, value) {
             state.nextRoundSettingDialogVisible = value
         },
-        setSettlementDialogVisible(state, value) {
-            state.settlementDialogVisible = value
-        },
+        // setSettlementDialogVisible(state, value) {
+        //     state.settlementDialogVisible = value
+        // },
         setWalletsDialogVisible(state, value) {
             state.walletsDialogVisible = value
         },
@@ -732,7 +732,7 @@ export const store = createStore({
                     ];
                     state.turn = 0;
                     state.players = [];
-                    state.settlementDialogVisible = true;
+                    // state.settlementDialogVisible = true;
                     break;
                 case "PurchaseSuccess":
                     state.user = message.user;

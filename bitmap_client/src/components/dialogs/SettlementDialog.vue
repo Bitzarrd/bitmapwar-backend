@@ -6,21 +6,21 @@ export default {
   name: "SettlementDialog",
   computed: {
     ...mapState([
-      'settlementDialogVisible', 'settlementLandList', 'settlement'
+      'settlementLandList', 'settlement'
     ]),
-    dialogVisible: {
-      get() {
-        return this.settlementDialogVisible
-      },
-      set(val) {
-        this.setSettlementDialogVisible(val)
-      }
-    },
+    // dialogVisible: {
+    //   get() {
+    //     return this.settlementDialogVisible
+    //   },
+    //   set(val) {
+    //     this.setSettlementDialogVisible(val)
+    //   }
+    // },
   },
   watch: {
-    // settlement(newVal, oldVal) {
-    //   this.dialogVisible = true;
-    // }
+    settlement(newVal, oldVal) {
+      this.dialogVisible = true;
+    }
   },
   data() {
     return {
@@ -28,7 +28,7 @@ export default {
     }
   },
   methods: {
-    ...mapMutations(['setSettlementDialogVisible']),
+    // ...mapMutations(['setSettlementDialogVisible']),
     formatEther,
   }
 }
