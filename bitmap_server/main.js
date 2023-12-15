@@ -215,7 +215,7 @@ const start_game = () => {
                     for (let user of win_team_users) {
                         logger.info(
                             "用户：" + user.owner +
-                            " 入场顺序：" + user.i,
+                            " 入场顺序：" + user.i +
                             " 名次：" + user.rank +
                             " 颜色：" + user.statistics.color +
                             " 领地：" + user.statistics.land +
