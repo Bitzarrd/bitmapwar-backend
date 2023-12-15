@@ -37,7 +37,7 @@ export default {
   computed: {
     ...mapState([
       'socket', 'conn', 'wallet_address', 'map_list', 'turn',
-      'landList', 'next_round', 'user', 'gridWidth',
+      'landList', 'user', 'gridWidth',
       'cellSize', 'loading', 'contract'
     ]),
   },

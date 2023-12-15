@@ -251,9 +251,20 @@ const start_game = () => {
                 //clear
                 players = [];
                 turn = 0;
+
+                clients.forEach((client) => {
+                    if (client.readyState === WebSocket.OPEN) {
+                        client.send(JSON.stringify({
+                            method: "SetNextRoundSuccess",
+                            next_round: next_round,
+                            turn: turn,
+                        }));
+                    }
+                });
+
                 return;
             }
-        }catch (e){
+        } catch (e) {
             console.log(e)
         }
 
@@ -313,7 +324,7 @@ const start_game = () => {
                     }));
                 }
             });
-        }catch (e) {
+        } catch (e) {
             console.error(e);
         }
     }, 333)
