@@ -15,7 +15,7 @@ export function get_win_team(players) {
     let red = 0;
     let blue = 0;
     let green = 0;
-    let yellow = 0;
+    let purple = 0;
     for (let i = 0; i < players.length; i++) {
         if (players[i].land >= 0) {
             switch (players[i].color) {
@@ -28,13 +28,22 @@ export function get_win_team(players) {
                 case 'green':
                     green++;
                     break;
-                case 'yellow':
-                    yellow++;
+                case 'purple':
+                    purple++;
                     break;
             }
         }
     }
-    return red > blue ? (red > green ? (red > yellow ? 'red' : 'yellow') : (green > yellow ? 'green' : 'yellow')) : (blue > green ? (blue > yellow ? 'blue' : 'yellow') : (green > yellow ? 'green' : 'yellow'));
+    let rank = [
+        {color: "red", land: red},
+        {color: "blue", land: blue},
+        {color: "green", land: green},
+        {color: "purple", land: purple},
+    ];
+    rank.sort((a, b) => {
+        return b.land - a.land;
+    });
+    return rank[0].color;
 }
 
 //获取排序后的获胜阵营的玩家列表

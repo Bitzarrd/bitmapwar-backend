@@ -100,9 +100,9 @@ export default {
       let y = Math.floor(searched_map / this.gridWidth);
       let x = searched_map % this.gridWidth;
 
-      if (this.pointer !== null) {
-        clearCell(this.ctx, this.cellSize, this.pointer.x, this.pointer.y);
-      }
+      // if (this.pointer !== null) {
+      //   clearCell(this.ctx, this.cellSize, this.pointer.x, this.pointer.y);
+      // }
 
       if (isCoordinateInArray(this.grid, x, y)) {
         let top = -(y * 10);
@@ -110,7 +110,7 @@ export default {
         console.log(x, y, left, top);
         this.y = top + (middle_height / 2);
         this.x = left + (middle_width / 2);
-        drawCell(this.ctx, this.cellSize, x, y, "black");
+        // drawCell(this.ctx, this.cellSize, x, y, "black");
         this.pointer = {x: x, y: y};
       }
 

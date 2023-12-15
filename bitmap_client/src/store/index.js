@@ -637,6 +637,7 @@ export const store = createStore({
             // 连接关闭时停掉心跳消息
             clearInterval(state.socket.heartBeatTimer);
             state.socket.heartBeatTimer = 0;
+            state.loading=true;
             console.log(event);
         },
         // 发生错误

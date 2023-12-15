@@ -138,6 +138,11 @@ const statistics = () => {
 }
 
 const start_game = () => {
+    if (turn !== 0) {
+        logger.error("game is running");
+        return;
+    }
+
     logger.info("StartGame");
 
     axios.get("https://develop.oasis.world/service/open/bitmap/count").then(resp => {
