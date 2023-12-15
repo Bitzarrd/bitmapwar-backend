@@ -13,19 +13,20 @@ export default {
         return this.settlementDialogVisible
       },
       set(val) {
-        this.settlementDialogVisible(val)
+        this.setSettlementDialogVisible(val)
       }
     },
   },
   watch: {
-    settlement(newVal, oldVal) {
-      this.dialogVisible = true;
-    }
+    // settlement(newVal, oldVal) {
+    //   this.dialogVisible = true;
+    // }
   },
   data() {
     return {}
   },
   methods: {
+    ...mapState(['setSettlementDialogVisible']),
     formatEther,
   }
 }
