@@ -13,7 +13,7 @@ import {mysql_query} from "./mysql.js";
 import {
     calculate_bitmap_reward,
     calculate_pool_1,
-    calculate_pool_2,
+    calculate_pool_2, calculate_pool_2_by_color,
     calculate_pool_2_proportion, calculate_virus_to_profit, get_all_init_virus, get_conn_by_owner, get_rank_for_save,
     get_users,
     get_users_by_color,
@@ -211,7 +211,7 @@ const start_game = () => {
                     logger.info("奖池2的比例为：" + pool_2);
                     logger.info("胜利方用户分别是:")
                     calculate_pool_1(win_team_users);
-                    calculate_pool_2(win_team_users);
+                    calculate_pool_2_by_color(win_team_users, win_team);
                     for (let user of win_team_users) {
                         logger.info("用户：" + user.owner + " 名次：" + user.rank + " 颜色：" + user.statistics.color + " 领地：" + user.statistics.land + " 病毒：" + user.statistics.virus + " 损失：" + user.statistics.loss + " 奖励：" + user.reward_1 + "," + user.reward_2 + "");
                     }

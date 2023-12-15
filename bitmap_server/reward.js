@@ -77,21 +77,25 @@ export function get_reward(users) {
 
 export function get_users(players) {
     let users = [];
+    let i = 0;
     players.forEach((player) => {
         if (users.hasOwnProperty(player.owner)) {
             users[player.owner].statistics.land += player.land;
             users[player.owner].statistics.virus += player.virus;
             users[player.owner].statistics.loss += player.loss;
             users[player.owner].bitmaps.push(player.bitmap);
+            users[player.owner].init_virus += player.init_virus;
         } else {
             users[player.owner] = {
                 // conn: player.conn,
+                i: ++i,
                 owner: player.owner,
                 statistics: {land: player.land, virus: player.virus, loss: player.loss, color: player.color},
                 bitmaps: [player.bitmap],
                 reward_1: 0,
                 reward_2: 0,
                 reward_3: 0,
+                init_virus: player.init_virus,
             };
         }
     });
@@ -218,5 +222,96 @@ export function get_color_by_owner(owner, players) {
         if (players[i].owner === owner) {
             return players[i].color;
         }
+    }
+}
+
+// 红：50%根据投入bit的数量进行分配
+export function get_total_init_virus(users) {
+    let total = 0;
+    for (let owner of Object.keys(users)) {
+        let user = users[owner];
+        total += user[i].init_virus;
+    }
+    return total;
+}
+
+export function calculate_pool_2_red(users) {
+    let proportion = calculate_pool_2_proportion(users);
+    let total_init_virus = get_total_init_virus(users);
+    for (let owner of Object.keys(users)) {
+        let user = users[owner];
+        user.reward_2 = proportion * (user.init_virus / total_init_virus);
+    }
+}
+
+// 绿：50%根据持有bitmap地块数量进行分配
+export function get_total_bitmap(users) {
+    let bitmaps = [];
+    for (let owner of Object.keys(users)) {
+        let user = users[owner];
+        bitmaps = bitmaps.concat(user.bitmaps);
+    }
+    return bitmaps;
+}
+
+export function calculate_pool_2_green(users) {
+    let proportion = calculate_pool_2_proportion(users);
+    let total_bitmaps = get_total_bitmap(users);
+    for (let owner of Object.keys(users)) {
+        let user = users[owner];
+        user.reward_2 = proportion * (user.bitmaps.length / total_bitmaps.length);
+    }
+}
+
+// 蓝：50%根据损失的bit数量进行分配
+export function get_total_loss(users) {
+    let total = 0;
+    for (let owner of Object.keys(users)) {
+        let user = users[owner];
+        total += user.statistics.loss;
+    }
+    return total;
+}
+
+export function calculate_pool_2_blue(users) {
+    let proportion = calculate_pool_2_proportion(users);
+    let total_loss = get_total_loss(users);
+    if (total_loss === 0) {
+        return calculate_pool_2(users);
+    }
+    for (let owner of Object.keys(users)) {
+        let user = users[owner];
+        user.reward_2 = proportion * (user.statistics.loss / total_loss);
+    }
+}
+
+// 紫：
+// 基础奖金=奖金/人数
+// 获奖系数=1 - (玩家序号 - 1) / 100
+// 奖金=基础奖金* 获奖系数）
+export function calculate_pool_2_purple_base(users) {
+    let proportion = calculate_pool_2_proportion(users);
+    return proportion / users.length;
+}
+
+export function calculate_pool_2_purple(users) {
+    let base = calculate_pool_2_purple_base(users);
+    for (let owner of Object.keys(users)) {
+        let user = users[owner];
+        let coefficient = (1 - (user.i - 1) / 100);
+        user.reward_2 = base * coefficient;
+    }
+}
+
+export function calculate_pool_2_by_color(users, color) {
+    switch (color) {
+        case "red":
+            return calculate_pool_2_red(users);
+        case "green":
+            return calculate_pool_2_green(users);
+        case "blue":
+            return calculate_pool_2_blue(users);
+        case "purple":
+            return calculate_pool_2_purple(users);
     }
 }

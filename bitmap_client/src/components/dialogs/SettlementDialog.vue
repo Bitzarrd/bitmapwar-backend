@@ -1,5 +1,5 @@
 <script>
-import {mapMutations, mapState} from "vuex";
+import { mapState} from "vuex";
 import {formatEther} from "ethers";
 
 export default {
