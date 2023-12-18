@@ -108,7 +108,7 @@ export default {
         renderGrid(this.ctx, this.gridWidth, this.gridHeight, this.cellSize, this.grid, this.players);
       }
     },
-    settlement(newVal,oldVal){
+    settlement(newVal, oldVal) {
       clearAll(this.ctx);
       this.init();
     }
@@ -147,6 +147,8 @@ export default {
     init() {
       this.canvas.width = this.cellSize * this.gridWidth;
       this.canvas.height = this.cellSize * this.gridHeight;
+      this.w = this.cellSize * this.gridWidth;
+      this.h = this.cellSize * this.gridHeight;
       drawGrid(this.canvas, this.ctx, this.gridWidth, this.gridHeight, this.cellSize);
     },
     enqueue(x, y, color) {
