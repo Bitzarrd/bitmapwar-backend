@@ -220,6 +220,7 @@ export default {
 
 canvas {
   background-color: orange;
+  image-rendering: pixelated;
 }
 
 </style>

@@ -179,6 +179,7 @@ export function drawHorizontalLine(canvas, ctx, y) {
     ctx.beginPath();
     ctx.moveTo(0, y);
     ctx.lineTo(canvas.width, y);
+    ctx.strokeStyle = 'black';
     ctx.stroke();
 }
 
@@ -186,6 +187,7 @@ export function drawVerticalLine(canvas, ctx, x) {
     ctx.beginPath();
     ctx.moveTo(x, 0);
     ctx.lineTo(x, canvas.height);
+    ctx.strokeStyle = 'black';
     ctx.stroke();
 }
 
