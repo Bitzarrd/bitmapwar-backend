@@ -123,7 +123,7 @@ export function getCircleCoordinates(radius) {
 export function drawCell(ctx, cellSize, x, y, color) {
     ctx.fillStyle = color;
     ctx.fillRect(x * cellSize, y * cellSize, cellSize, cellSize);
-    ctx.strokeStyle = 'rgb(128, 128, 128)';
+    ctx.strokeStyle = 'rgb(0, 0, 0)';
     ctx.strokeRect(x * cellSize, y * cellSize, cellSize, cellSize);
 }
 
