@@ -25,3 +25,8 @@ export function calculateCanvasPosition(gridWidth, gridHeight, cellSize, point) 
     // 返回left和top值
     return { left: left, top: top };
 }
+
+export function calculate_virus_to_profit(virus) {
+    //todo 金额待确定
+    return BigInt(virus) * BigInt(10000000000000);
+}
