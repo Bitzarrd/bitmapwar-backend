@@ -59,6 +59,14 @@ export function clearCell(ctx, cellSize, x, y) {
   ctx.clearRect(x * cellSize, y * cellSize, cellSize, cellSize);
 }
 
+
+export function drawRect(ctx, cellSize, x, y, color) {
+  ctx.strokeStyle = color;
+  ctx.strokeRect(x * cellSize, y * cellSize, cellSize, cellSize);
+}
+
+
+
 export function clearAll(ctx) {
   console.log("Clear All");
   ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
@@ -178,7 +186,7 @@ export default {
         console.log(x, y, left, top);
         this.y = top + (middle_height / 2);
         this.x = left + (middle_width / 2);
-        drawCell(this.ctx, this.cellSize, x, y, color);
+        drawRect(this.ctx, this.cellSize, x, y, color);
         this.pointer = {x: x, y: y};
       }
 
