@@ -20,6 +20,10 @@ export default {
             <Rank/>
           </el-icon>
           <span> Last Ranking</span>
+          <div style="float: right">
+          <el-button>Profit</el-button>
+          <el-button>Lands</el-button>
+          </div>
         </div>
       </template>
       <el-table :data="lastRanking" style="width: 100%">

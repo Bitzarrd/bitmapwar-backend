@@ -19,10 +19,12 @@ import SettlementDialog from "@/components/dialogs/SettlementDialog.vue";
 import WalletsDialog from "@/components/dialogs/WalletsDialog.vue";
 import PurchaseDialogV from "@/components/dialogs/PurchaseDialog.vue";
 import PurchaseDialog from "@/components/dialogs/PurchaseDialog.vue";
+import JackPot from "@/components/JackPot.vue";
 
 export default {
   name: "GameView",
   components: {
+    JackPot,
     PurchaseDialog,
     PurchaseDialogV,
     WalletsDialog,
@@ -139,6 +141,7 @@ export default {
               <CountDown/>
               <NextRound/>
               Turn:{{ turn }}
+              <JackPot/>
             </div>
             <div style="float: right;margin-top: 10px">
               <el-input size="small" placeholder="Search Bitmap" v-model="searched_map"
