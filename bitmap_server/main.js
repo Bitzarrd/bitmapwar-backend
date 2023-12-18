@@ -22,7 +22,7 @@ import {
 
 dotenv.config();
 
-console.log(circle);
+// console.log(circle);
 
 export let mysql_connection = mysql.createConnection({
     host: process.env.MYSQL_HOST,
@@ -35,6 +35,9 @@ export let mysql_connection = mysql.createConnection({
 const logger = winston.createLogger({
     transports: [new winston.transports.Console()],
     level: "debug",
+    format: winston.format.combine(
+        winston.format.simple(),
+    ),
 });
 
 
@@ -235,35 +238,43 @@ const start_game = () => {
 
                     const all_init_virus = get_all_init_virus(players);
                     const all_reward_profit = calculate_virus_to_profit(all_init_virus);
-                    const rank_to_save = get_rank_for_save(players);
-                    last_rank = rank_to_save;
+                    // const rank_to_save = get_rank_for_save(players);
                     logger.info("总发放奖励金额:" + all_reward_profit.toString());
 
+                    //计算奖励
                     for (let owner of Object.keys(users)) {
                         let user = users[owner];
                         let reward = user.reward_1 + user.reward_2 + user.reward_3;
                         let profit = all_reward_profit * BigInt(Math.floor(reward)) / BigInt(100);
                         logger.info("用户：" + owner + " 奖励金额：" + profit.toString() + " 奖励比例：" + reward + "%");
+                        user.profit = profit.toString();
+                    }
+                    last_rank = Object.values(users);
+
+                    //发放奖励
+                    for (let owner of Object.keys(users)) {
+                        let conn = get_conn_by_owner(players, owner);
+                        let user = users[owner];
 
                         let user_for_settlement = (await mysql_query(mysql_connection, "SELECT * FROM `user` WHERE `address`='" + owner + "';"))[0];
-                        user_for_settlement.profit = BigInt(user_for_settlement.profit) + BigInt(profit);
+                        user_for_settlement.profit = BigInt(user_for_settlement.profit) + BigInt(user.profit);
                         user_for_settlement.profit = user_for_settlement.profit.toString();
+                        await mysql_connection.query("UPDATE user set profit=" + user_for_settlement.profit + " WHERE `address`='" + owner + "';")
 
-                        let conn = get_conn_by_owner(players, owner);
                         if (conn) {
                             conn.send(JSON.stringify({
                                 method: "Settlement",
                                 next_round: next_round,
                                 statistics: user.statistics,
                                 user: user_for_settlement,
-                                earning: profit.toString(),
-                                rank: rank_to_save
+                                earning: user.profit.toString(),
+                                rank: Object.values(users)
                             }));
-
                         }
                     }
 
-                    const sql = "INSERT INTO `round` (`end_time`,`rank`) VALUES (" + now() + ",'" + JSON.stringify(rank_to_save) + "')";
+
+                    const sql = "INSERT INTO `round` (`end_time`,`rank`) VALUES (" + now() + ",'" + JSON.stringify(Object.values(users)) + "')";
                     logger.info(sql);
                     mysql_connection.query(sql, function (err, result) {
                         if (err) {

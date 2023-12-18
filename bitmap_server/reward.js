@@ -96,6 +96,7 @@ export function get_users(players) {
                 reward_2: 0,
                 reward_3: 0,
                 init_virus: player.init_virus,
+                profit: "0",
             };
         }
     });
@@ -315,3 +316,4 @@ export function calculate_pool_2_by_color(users, color) {
             return calculate_pool_2_purple(users);
     }
 }
+
