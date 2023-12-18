@@ -29,7 +29,12 @@ export default {
         return this.lastRanking.sort((a, b) => b.statistics.land - a.statistics.land)
       }
       if (this.tag === 'profit') {
-        return this.lastRanking.sort((a, b) => BigInt(b.profit) - BigInt(a.profit));
+        // console.log(this.lastRanking);
+        return this.lastRanking.sort((a, b) => {
+          // console.log(b.profit);
+          // console.log(a.profit);
+          return (Number)((BigInt(b.profit) - BigInt(a.profit)).toString())
+        });
       }
     }
   }
