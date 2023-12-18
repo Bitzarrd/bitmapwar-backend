@@ -9,7 +9,7 @@ export default {
   components: {Rank},
   data() {
     return {
-      tag: 'lands',
+      tag: 'profit',
     };
   },
   methods: {
