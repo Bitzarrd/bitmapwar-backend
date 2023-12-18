@@ -40,7 +40,7 @@ export default {
     ...mapState([
       'socket', 'conn', 'wallet_address', 'map_list', 'turn',
       'landList', 'user', 'gridWidth',
-      'cellSize', 'loading', 'contract'
+      'cellSize', 'loading', 'contract', 'selected_color'
     ]),
   },
   data() {
@@ -104,7 +104,7 @@ export default {
       const middle_width = middle.offsetWidth;
       const middle_height = middle.offsetHeight;
       console.log("middle", middle_width, middle_height);
-      render.search(middle_width, middle_height - 50, map_id);
+      render.search(middle_width, middle_height - 50, map_id, this.selected_color);
     },
     handleSearchEnter() {
       console.log("handleSearchEnter", this.searched_map);
@@ -170,7 +170,7 @@ export default {
 
   <ActionDialog @search="search"/>
   <ProfitDialog/>
-  <BitmapListDialog/>
+  <BitmapListDialog @search="search"/>
   <ProfitDialog/>
   <NextRoundSettingDialog/>
   <SettlementDialog/>

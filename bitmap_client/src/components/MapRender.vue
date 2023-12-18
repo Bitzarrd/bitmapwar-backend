@@ -164,7 +164,7 @@ export default {
       }
       setTimeout(this.consumeQueue, 100);
     },
-    search(middle_width, middle_height, searched_map) {
+    search(middle_width, middle_height, searched_map, color) {
       let y = Math.floor(searched_map / this.gridWidth);
       let x = searched_map % this.gridWidth;
 
@@ -178,7 +178,7 @@ export default {
         console.log(x, y, left, top);
         this.y = top + (middle_height / 2);
         this.x = left + (middle_width / 2);
-        // drawCell(this.ctx, this.cellSize, x, y, "black");
+        drawCell(this.ctx, this.cellSize, x, y, color);
         this.pointer = {x: x, y: y};
       }
 

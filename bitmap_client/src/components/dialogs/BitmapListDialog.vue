@@ -45,6 +45,15 @@ export default {
   },
   methods: {
     ...mapMutations(['setBitmapListDialogVisible', 'setSelectedMap']),
+    selectChange(e) {
+      console.log(e)
+    },
+    onClickConfirm() {
+
+      this.$emit('search', this.selected_map);
+
+      this.setBitmapListDialogVisible(false);
+    }
   }
 }
 </script>
@@ -57,7 +66,7 @@ export default {
   >
     <el-form label-width="100px">
       <el-form-item label="Maps">
-        <el-select v-model="selected_map" filterable placeholder="Select">
+        <el-select v-model="selected_map" filterable placeholder="Select" @change="selectChange">
           <el-option
               v-for="item in bitmap_list"
               :key="item.value"
@@ -71,7 +80,7 @@ export default {
     <template #footer>
       <span class="dialog-footer">
         <el-button @click="setBitmapListDialogVisible(false)">Cancel</el-button>
-        <el-button type="primary" @click="setBitmapListDialogVisible(false)">
+        <el-button type="primary" @click="onClickConfirm">
           Confirm
         </el-button>
       </span>
