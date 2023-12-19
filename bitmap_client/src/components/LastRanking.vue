@@ -30,7 +30,7 @@ export default {
       }
       if (this.tag === 'profit') {
         // console.log(this.lastRanking);
-        return this.lastRanking.sort((a, b) => {8
+        return this.lastRanking.sort((a, b) => {
           // console.log(b.profit);
           // console.log(a.profit);
           return (Number)((BigInt(b.profit) - BigInt(a.profit)).toString())
