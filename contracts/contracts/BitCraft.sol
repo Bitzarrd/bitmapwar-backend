@@ -37,6 +37,8 @@ contract BitCraft is ERC20, ERC20Burnable, Ownable {
 
     mapping(address => mapping(uint256 => bool)) public usedNonces;
 
+    event ETHWithdrawn(address indexed recipient, uint256 amount, uint256 indexed nonce);
+
     function withdrawETHWithSignature(uint256 amount, bytes memory signature, uint256 nonce) public {
         address signer = verifySignature(amount, nonce, signature);
         require(signer == owner(), "Invalid signature or not the owner");
@@ -45,6 +47,8 @@ contract BitCraft is ERC20, ERC20Burnable, Ownable {
 
         usedNonces[signer][nonce] = true;
         payable(owner()).transfer(amount);
+
+        emit ETHWithdrawn(msg.sender, amount, nonce);
     }
 
 
