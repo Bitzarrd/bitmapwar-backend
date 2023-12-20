@@ -31,6 +31,7 @@ export default {
       console.log("share");
       this.conn.sendObj({
         method: "Share",
+        owner: this.wallet_address,
       })
     }
   }

@@ -651,6 +651,7 @@ export const store = createStore({
             switch (message.method) {
                 case "ShareSuccess":
                     ElMessage.info("Thank you for sharing. Your soldier has been credited to your account.");
+                    state.user = message.user;
                     break;
                 case "Reload":
                     state.stop_time = message.stop_time;
@@ -694,7 +695,12 @@ export const store = createStore({
                     state.extracts = message.extracts;
                     state.purchase = message.purchase;
 
-                    ElMessage.info("Thank you for participating in BitmapWar. You have received 500 soldiers to help you participate in the game.")
+                    ElMessage.info(
+                        {
+                            message: "Thank you for participating in BitmapWar. You have received 500 soldiers to help you participate in the game.",
+                            duration: 10000
+                        }
+                    )
 
                     break;
                 case "SetNextRoundSuccess":

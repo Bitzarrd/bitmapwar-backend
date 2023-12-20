@@ -407,9 +407,19 @@ wss.on('connection', (ws) => {
             let decode = JSON.parse(message);
             switch (decode.method) {
                 case "Share":
+
+                    mysql_connection.query("INSERT INTO gift SET ?", {
+                        owner: decode.owner,
+                        create_time: now(),
+                        amount: 500,
+                        type: "share"
+                    })
+                    await mysql_connection.query("UPDATE user SET virus=virus+500 WHERE address='" + decode.owner + "';");
+                    let user_for_share = (await mysql_query(mysql_connection, "SELECT * FROM `user` WHERE `address`='" + decode.owner + "';"))[0];
                     ws.send(JSON.stringify({
                         method: "ShareSuccess",
-                    }))
+                        user: user_for_share
+                    }));
                     break;
                 case "Login":
                     const address = decode.address;
