@@ -12,6 +12,7 @@ import {decompress2, decompress3} from "bitmap_sdk";
 import axios from "axios";
 // import * as abi from "./bitcraft_abi.json";
 import {ethers} from "ethers";
+import {ElMessage} from "element-plus";
 
 const abi = [
     {
@@ -648,6 +649,9 @@ export const store = createStore({
         [SOCKET_ONMESSAGE](state, message) {
             console.log("SOCKET_ONMESSAGE", message);
             switch (message.method) {
+                case "ShareSuccess":
+                    ElMessage.info("Thank you for sharing. Your soldier has been credited to your account.");
+                    break;
                 case "Reload":
                     state.stop_time = message.stop_time;
                     state.landList = message.statistics;
@@ -689,6 +693,9 @@ export const store = createStore({
                     state.user = message.user;
                     state.extracts = message.extracts;
                     state.purchase = message.purchase;
+
+                    ElMessage.info("Thank you for participating in BitmapWar. You have received 500 soldiers to help you participate in the game.")
+
                     break;
                 case "SetNextRoundSuccess":
                     state.next_round = (Number)(message.next_round);

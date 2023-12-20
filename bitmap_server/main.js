@@ -406,6 +406,11 @@ wss.on('connection', (ws) => {
             logger.info(`Received message: ${message}`);
             let decode = JSON.parse(message);
             switch (decode.method) {
+                case "Share":
+                    ws.send(JSON.stringify({
+                        method: "ShareSuccess",
+                    }))
+                    break;
                 case "Login":
                     const address = decode.address;
                     const sql = "SELECT * FROM `user` WHERE `address`='" + address + "'";
