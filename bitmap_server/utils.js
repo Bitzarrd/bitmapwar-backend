@@ -32,3 +32,9 @@ export function simple_players(players) {
 
     return result;
 }
+
+export function isToday(timestamp) {
+    const today = new Date();
+    const date = new Date(timestamp * 1000);
+    return today.toDateString() === date.toDateString();
+}

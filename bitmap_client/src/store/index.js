@@ -650,7 +650,13 @@ export const store = createStore({
             console.log("SOCKET_ONMESSAGE", message);
             switch (message.method) {
                 case "ShareSuccess":
-                    ElMessage.info("Thank you for sharing. Your soldier has been credited to your account.");
+                    ElMessage.info(
+                        {
+                            message: "Thank you for sharing. Your soldier has been credited to your account.",
+                            duration: 10000
+                        }
+                    );
+
                     state.user = message.user;
                     break;
                 case "Reload":
@@ -695,12 +701,14 @@ export const store = createStore({
                     state.extracts = message.extracts;
                     state.purchase = message.purchase;
 
-                    ElMessage.info(
-                        {
-                            message: "Thank you for participating in BitmapWar. You have received 500 soldiers to help you participate in the game.",
-                            duration: 10000
-                        }
-                    )
+                    if(message.has_login_gift) {
+                        ElMessage.info(
+                            {
+                                message: "Thank you for participating in BitmapWar. You have received 500 soldiers to help you participate in the game.",
+                                duration: 10000
+                            }
+                        )
+                    }
 
                     break;
                 case "SetNextRoundSuccess":

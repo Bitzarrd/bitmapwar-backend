@@ -4,7 +4,7 @@ import winston from "winston";
 import dotenv from "dotenv";
 import axios from "axios";
 import mysql from "mysql";
-import {getRandomInt, now, simple_player, simple_players} from "./utils.js";
+import {getRandomInt, isToday, now, simple_player, simple_players} from "./utils.js";
 import {gridWidth, colors, durationOfTheMatch, intervalBetweenMatches, circle} from "./defines.js";
 import {get_events} from "./get_events.js";
 import {make_signature} from "./signature.js";
@@ -407,6 +407,12 @@ wss.on('connection', (ws) => {
             let decode = JSON.parse(message);
             switch (decode.method) {
                 case "Share":
+                    let last_share = (await mysql_query(mysql_connection, "SELECT * FROM gift WHERE owner='" + decode.owner + "' AND type='share' ORDER BY id DESC LIMIT 1;"))[0];
+                    if (last_share) {
+                        if (isToday(last_share.create_time)) {
+                            return;
+                        }
+                    }
 
                     mysql_connection.query("INSERT INTO gift SET ?", {
                         owner: decode.owner,
@@ -423,6 +429,28 @@ wss.on('connection', (ws) => {
                     break;
                 case "Login":
                     const address = decode.address;
+
+
+                    let has_login_gift = true;
+                    let last_login_gift = (await mysql_query(mysql_connection, "SELECT * FROM gift WHERE owner='" + decode.address + "' AND type='login' ORDER BY id DESC LIMIT 1;"))[0];
+                    if (last_login_gift) {
+                        if (isToday(last_login_gift.create_time)) {
+                            has_login_gift = false;
+                        }
+                    } else {
+                        has_login_gift = false;
+                    }
+
+                    if (!has_login_gift) {
+                        await mysql_connection.query("INSERT INTO gift SET ?", {
+                            owner: decode.address,
+                            create_time: now(),
+                            amount: 500,
+                            type: "login"
+                        });
+                        await mysql_connection.query("UPDATE user SET virus=virus+500 WHERE address='" + decode.address + "';");
+                    }
+
                     const sql = "SELECT * FROM `user` WHERE `address`='" + address + "'";
                     logger.info(sql);
                     try {
@@ -464,7 +492,8 @@ wss.on('connection', (ws) => {
                                 method: "LoginSuccess",
                                 user: user,
                                 extracts: extracts,
-                                purchase: purchase
+                                purchase: purchase,
+                                has_login_gift: has_login_gift
                             }));
                         }
                     } catch (err) {
