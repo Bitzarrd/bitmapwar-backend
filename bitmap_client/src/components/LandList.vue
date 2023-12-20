@@ -29,7 +29,7 @@ export default {
           </template>
         </el-table-column>
         <el-table-column prop="land" label="Land"/>
-        <el-table-column prop="virus" label="Bit"/>
+        <el-table-column prop="virus" label="Soldier"/>
         <el-table-column prop="loss" label="Loss"/>
       </el-table>
     </el-card>

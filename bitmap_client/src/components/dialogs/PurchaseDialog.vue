@@ -94,7 +94,7 @@ export default {
             type="warning"/>
       </div>
       <div>
-        <el-input-number placeholder="Bit" v-model="amount"></el-input-number>
+        <el-input-number placeholder="Soldier" v-model="amount"></el-input-number>
       </div>
       <div style="margin:20px;font-size: 20px">1BTC = 0.004</div>
 
@@ -128,7 +128,7 @@ export default {
             </template>
           </el-table-column>
 
-          <el-table-column prop="virus" label="BIT" width="140"/>
+          <el-table-column prop="virus" label="Soldier" width="140"/>
 
           <el-table-column
               prop="create_time"

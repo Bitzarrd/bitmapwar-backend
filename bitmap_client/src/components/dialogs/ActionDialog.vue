@@ -11,11 +11,11 @@ export default {
     ...mapMutations(['setActionDialogVisible']),
     onClickConfirm() {
       if (this.virus <= 0) {
-        ElMessage.error("Bit must be greater than 0")
+        ElMessage.error("Soldier must be greater than 0")
         return;
       }
       if (this.virus > this.user.virus) {
-        ElMessage.error("Insufficient Bit");
+        ElMessage.error("Insufficient Soldier");
         return;
       }
       if (!this.selected_map) {

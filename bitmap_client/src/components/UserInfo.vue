@@ -80,7 +80,7 @@ export default {
             </el-icon>
           </el-button>
         </el-form-item>
-        <el-form-item label="Bit:">
+        <el-form-item label="Soldier:">
           <el-input :value="user.virus" disabled
                     style="float: left;display: inline;width: 100px;margin-right: 10px"/>
           <el-button @click="onClickPurchase" style="float: right;display: inline">

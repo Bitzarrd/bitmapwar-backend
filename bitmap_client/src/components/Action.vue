@@ -117,7 +117,7 @@ export default {
             <el-input :value="shortend(wallet_address)" disabled/>
           </el-tooltip>
         </el-form-item>
-        <el-form-item label="Bit:">
+        <el-form-item label="Soldier:">
           <el-input-number :controls="false" :min="1" v-model="virus"/>
         </el-form-item>
       </el-form>
