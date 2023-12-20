@@ -8,6 +8,7 @@ import ElementPlus from 'element-plus'
 import 'element-plus/dist/index.css'
 import 'element-plus/theme-chalk/dark/css-vars.css'
 import VueNativeSock from "vue-native-websocket-vue3";
+import VueSocialSharing from 'vue-social-sharing'
 
 import * as ElementPlusIconsVue from '@element-plus/icons-vue'
 
@@ -21,6 +22,7 @@ for (const [key, component] of Object.entries(ElementPlusIconsVue)) {
 app.use(ElementPlus)
 app.use(router)
 app.use(store)
+app.use(VueSocialSharing);
 
 // const mutations = {
 //     SOCKET_ONOPEN,
