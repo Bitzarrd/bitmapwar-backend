@@ -110,6 +110,10 @@ export default {
       console.log("handleSearchEnter", this.searched_map);
       this.search(this.searched_map);
     },
+    onClickSearchIcon(){
+      console.log("onClickSearchIcon", this.searched_map);
+      this.search(this.searched_map);
+    }
   }
 }
 </script>
@@ -149,7 +153,7 @@ export default {
                 <template #prepend>
                   <el-button>
                     <el-icon color="white" class="no-inherit">
-                      <Search/>
+                      <Search @click="onClickSearchIcon"/>
                     </el-icon>
                   </el-button>
                 </template>
