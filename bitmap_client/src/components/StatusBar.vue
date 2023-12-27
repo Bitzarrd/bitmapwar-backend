@@ -1,9 +1,9 @@
 <template>
   <div class="m_md_top com_flex">
     <div class="mdl com_flex3">
-      <img src="images/ico5.png"/>
+      <img src="../../public/images/ico5.png"/>
       <em class="com_flex3">
-        <img src="images/ico7.png"/><i>Jackpot(BTC):</i>
+        <img src="../../public/images/ico7.png"/><i>Jackpot(BTC):</i>
         <font><JackPot/></font>
       </em>
     </div>

@@ -13,7 +13,7 @@ export default {
 
 <template>
   <div class="combg">
-    <div class="titc com_flex3"><img src="images/ico1.png" /><em>Land List</em></div>
+    <div class="titc com_flex3"><img src="../../public/images/ico1.png" /><em>Land List</em></div>
     <div class="list">
       <div class="list_top com_flex">
         <div class="w0">Team</div>

@@ -122,26 +122,26 @@ export default {
   <!--  </div>-->
 
   <div class="combg">
-    <div class="titc com_flex3"><img src="images/ico3.png"/><em>User Info</em></div>
+    <div class="titc com_flex3"><img src="../../public/images/ico3.png"/><em>User Info</em></div>
     <div class="infor_w" v-if="wallet_address">
       <div class="infor_id">
         <p>ID: {{ shortend(wallet_address) }}</p>
         <em>{{ (wallet_address) }}</em>
       </div>
       <div class="infor_c infor_1">
-        <a class="com_ico com_flex2" href="javascript:;" @click="onClickProfits"><img src="images/ico8_1.png"/></a>
+        <a class="com_ico com_flex2" href="javascript:;" @click="onClickProfits"><img src="../../public/images/ico8_1.png"/></a>
         <em>Profit(BTC)</em>
         <span>{{ formatEther(user.profit) }}</span>
       </div>
       <div class="infor_c com_flex"><em>Bitmaps</em><span>{{ selected_map }}</span>
         <a class="com_ico com_flex2" href="javascript:;" @click="onClickBitmapList">
-          <img src="images/ico8_2.png"/>
+          <img src="../../public/images/ico8_2.png"/>
         </a>
       </div>
       <div class="infor_c com_flex">
         <em>Soldier</em><span>{{ user.virus }}</span>
         <a class="com_ico com_flex2" href="javascipt:;" @click="onClickPurchase">
-          <img src="images/ico8_3.png"/>
+          <img src="../../public/images/ico8_3.png"/>
         </a>
       </div>
       <div class="infor_4" style="font-size: 12px">
@@ -157,7 +157,7 @@ export default {
             class="com_ico com_flex2"
         >
 <!--          <a class="com_ico com_flex2" href="#">-->
-            <img src="images/ico8_4.png"/>
+            <img src="../../public/images/ico8_4.png"/>
 <!--          </a>-->
         </ShareNetwork>
       </div>

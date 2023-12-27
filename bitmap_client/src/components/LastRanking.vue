@@ -43,9 +43,9 @@ export default {
 
 <template>
   <div class="combg">
-    <div class="titc com_flex3"><img src="images/ico2.png"/><em>Profit Last Ranking</em><a href="#"
+    <div class="titc com_flex3"><img src="../../public/images/ico2.png"/><em>Profit Last Ranking</em><a href="#"
                                                                                            class="sx_ico com_flex2"><img
-        src="images/ico0.png"/></a></div>
+        src="../../public/images/ico0.png"/></a></div>
     <div class="list ranking">
       <div class="list_top com_flex">
         <div class="w1">Ranking</div>
@@ -54,7 +54,7 @@ export default {
       </div>
       <ul>
         <li class="com_flex" v-for="item in list">
-          <div class="w1 com_flex2"><img src="images/n1.png"/></div>
+          <div class="w1 com_flex2"><img src="../../public/images/n1.png"/></div>
           <div class="w2">{{ shortend(item.owner) }}</div>
           <div class="w2">{{ formatEther(item.profit) }}</div>
         </li>

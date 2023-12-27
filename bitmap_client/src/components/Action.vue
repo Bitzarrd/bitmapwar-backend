@@ -89,7 +89,7 @@ export default {
 <template>
   <div class="combg">
     <div class="titc com_flex3">
-      <img src="images/ico4.png"/>
+      <img src="../../public/images/ico4.png"/>
       <em>Action</em>
     </div>
     <ul class="act_form" v-if="wallet_address">
