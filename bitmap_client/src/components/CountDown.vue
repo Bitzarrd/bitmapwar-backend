@@ -1,5 +1,5 @@
 <template>
-  Duration {{ countdown }}
+  {{ countdown }}
 </template>
 
 <script>

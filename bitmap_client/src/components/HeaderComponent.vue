@@ -6,7 +6,7 @@
         <li><a href="#">Explorer</a></li>
         <li><a href="#">Holders</a></li>
         <li class="cur"><a href="#">Bitmapwar</a></li>
-            <el-button @click="onClickStartGame">Start Game</el-button>
+        <el-button @click="onClickStartGame">Start Game</el-button>
 
       </ul>
     </div>
@@ -14,7 +14,7 @@
       <a href="#">
         <img src="images/ico6_1.png"/></a>
       <a href="#"><img src="images/ico6_2.png"/></a>
-      <a class="Wallet" href="javascript:;" @click="onClickConnUnisat">{{connText}}</a></div>
+      <a class="Wallet" href="javascript:;" @click="onClickConnUnisat">{{ connText }}</a></div>
   </div>
 
   <!--  <div class="top-div">-->
@@ -38,7 +38,7 @@ import {mapActions, mapMutations, mapState} from "vuex";
 export default {
   name: "HeaderComponent",
   computed: {
-    ...mapState(['wallet_address','conn']),
+    ...mapState(['wallet_address', 'conn']),
     connText() {
       if (this.wallet_address) {
         let address = (this.wallet_address);
@@ -49,12 +49,21 @@ export default {
     }
   },
   methods: {
-    ...mapActions(['connectMetaMask','connectUnisat']),
+    ...mapActions([
+      'connectMetaMask',
+      'connectUnisat',
+      'connectMetaMask',
+      'getBitMapList',
+      'login'
+    ]),
     async onClickConnWallet() {
       await this.connectMetaMask();
     },
     async onClickConnUnisat() {
       await this.connectUnisat();
+      await this.getBitMapList()
+      await this.login(this.wallet_address);
+      this.setWalletsDialogVisible(false)
     },
     onClickStartGame() {
       this.conn.sendObj({method: "StartGame"});

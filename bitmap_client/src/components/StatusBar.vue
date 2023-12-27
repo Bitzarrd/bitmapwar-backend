@@ -4,20 +4,36 @@
       <img src="images/ico5.png"/>
       <em class="com_flex3">
         <img src="images/ico7.png"/><i>Jackpot(BTC):</i>
-        <font>850,000.235</font>
+        <font><JackPot/></font>
       </em>
     </div>
     <div class="mdr com_flex1">
-      <em>Duration:<font class="red">00:28</font></em>
-      <em>Next Round:<font>00:00</font></em>
-      <em>Turn:<font>99</font></em>
+      <em>Duration:<font class="red">
+        <CountDown/>
+      </font></em>
+      <em>Next Round:<font>
+        <NextRound/>
+      </font></em>
+      <em>Turn:<font>{{ turn }}</font></em>
     </div>
   </div>
 </template>
 
 <script>
+
+import {mapState} from "vuex";
+import CountDown from "./CountDown.vue";
+import NextRound from "./NextRound.vue";
+import JackPot from "./JackPot.vue";
+
 export default {
-  name: "StatusBar"
+  name: "StatusBar",
+  components: {
+    CountDown, NextRound,JackPot
+  },
+  computed: {
+    ...mapState(['wallet_address', 'conn', 'turn']),
+  },
 }
 </script>
 
