@@ -22,29 +22,11 @@ export default {
         <div class="w1">Loss</div>
       </div>
       <ul>
-        <li class="com_flex">
+        <li class="com_flex" v-for="item in landList">
           <div class="w0 com_flex2"><i class="ibg ibg1"></i></div>
-          <div class="w1">99,999</div>
-          <div class="w1">99,999</div>
-          <div class="w1">99,999</div>
-        </li>
-        <li class="com_flex">
-          <div class="w0 com_flex2"><i class="ibg ibg2"></i></div>
-          <div class="w1">8,888</div>
-          <div class="w1">600,000</div>
-          <div class="w1">100,000</div>
-        </li>
-        <li class="com_flex">
-          <div class="w0 com_flex2"><i class="ibg ibg3"></i></div>
-          <div class="w1">129,999</div>
-          <div class="w1">99,999</div>
-          <div class="w1">99,999</div>
-        </li>
-        <li class="com_flex">
-          <div class="w0 com_flex2"><i class="ibg ibg4"></i></div>
-          <div class="w1">8</div>
-          <div class="w1">5</div>
-          <div class="w1">9,999</div>
+          <div class="w1">{{item.land}}</div>
+          <div class="w1">{{item.virus}}</div>
+          <div class="w1">{{item.loss}}</div>
         </li>
       </ul>
     </div>
