@@ -6,6 +6,8 @@
         <li><a href="#">Explorer</a></li>
         <li><a href="#">Holders</a></li>
         <li class="cur"><a href="#">Bitmapwar</a></li>
+            <el-button @click="onClickStartGame">Start Game</el-button>
+
       </ul>
     </div>
     <div class="h_rt com_flex3">
@@ -36,7 +38,7 @@ import {mapActions, mapMutations, mapState} from "vuex";
 export default {
   name: "HeaderComponent",
   computed: {
-    ...mapState(['wallet_address']),
+    ...mapState(['wallet_address','conn']),
     connText() {
       if (this.wallet_address) {
         let address = (this.wallet_address);
@@ -53,6 +55,9 @@ export default {
     },
     async onClickConnUnisat() {
       await this.connectUnisat();
+    },
+    onClickStartGame() {
+      this.conn.sendObj({method: "StartGame"});
     },
   }
 }

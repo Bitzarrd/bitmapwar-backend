@@ -136,7 +136,7 @@ export default {
           <StatusBar/>
           <div class="m_md_bot">
 <!--            <img src="images/pic.png"/>-->
-            <div style="width: 100%;display: list-item;overflow: hidden;height: 100vh">
+            <div style="width: 100%;display: list-item;overflow: hidden;height: 100vh" ref="middle">
               <div id="resizeable" :style="innerStyle()">
                 <MapRender ref="render"></MapRender>
               </div>
@@ -176,8 +176,10 @@ export default {
 
         <div class="m_rt">
           <UserInfo/>
-          <div class="search"><input class="s_inbut" type="button"/><input class="s_intxt" type="text"
-                                                                           placeholder="Serch bitmap"/></div>
+          <div class="search">
+            <input class="s_inbut" type="button" @click="onClickSearchIcon"/>
+            <input class="s_intxt" type="text" placeholder="Search bitmap" v-model="searched_map" @keyup.enter="handleSearchEnter"/>
+          </div>
           <Action/>
         </div>
       </div>
