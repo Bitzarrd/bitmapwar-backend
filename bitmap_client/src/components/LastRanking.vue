@@ -20,6 +20,13 @@ export default {
     },
     onClickProfit() {
       this.tag = "profit";
+    },
+    onClickChange() {
+      if (this.tag === 'lands') {
+        this.tag = 'profit';
+      } else {
+        this.tag = 'lands';
+      }
     }
   },
   computed: {
@@ -43,14 +50,17 @@ export default {
 
 <template>
   <div class="combg">
-    <div class="titc com_flex3"><img src="../../public/images/ico2.png"/><em>Profit Last Ranking</em><a href="#"
-                                                                                           class="sx_ico com_flex2"><img
-        src="../../public/images/ico0.png"/></a></div>
+    <div class="titc com_flex3"><img src="../../public/images/ico2.png"/>
+      <em>Profit Last Ranking</em>
+      <a href="javascript:;" class="sx_ico com_flex2" @click="onClickChange">
+        <img src="../../public/images/ico0.png"/>
+      </a>
+    </div>
     <div class="list ranking">
       <div class="list_top com_flex">
         <div class="w1">Ranking</div>
         <div class="w2">ID</div>
-        <div class="w2">Profit</div>
+        <div class="w2">{{ tag === 'lands' ? 'Lands' : "Profit" }}</div>
       </div>
       <ul>
         <li class="com_flex" v-for="item in list">
