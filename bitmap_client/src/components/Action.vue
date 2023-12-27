@@ -74,8 +74,13 @@ export default {
     onClickSubmit() {
       this.setActionDialogVisible(true);
     },
-    onClickColor(color){
-      this.selected_color = color;
+    onClickColor(color) {
+      if(this.lock){
+        return;
+      }
+      this.setSelectColor(color);
+
+      console.log("selected_color", color, this.selected_color);
     }
   }
 }
@@ -90,10 +95,14 @@ export default {
     <ul class="act_form" v-if="wallet_address">
       <li><em>Function:</em>
         <div class="ck_c com_flex1">
-          <span class="cur"><i class="ibg ibg1" @click="onClickColor('red')"></i></span>
-          <span><i class="ibg ibg2" @click="onClickColor('blue')"></i></span>
-          <span><i class="ibg ibg3" @click="onClickColor('red')"></i></span>
-          <span><i class="ibg ibg4" @click="onClickColor('red')"></i></span>
+          <span :class="{ 'cur': selected_color==='red' }"><i class="ibg ibg1" @click="onClickColor('red')"
+                                                              :style="{ backgroundColor: 'red' }"></i></span>
+          <span :class="{ 'cur': selected_color==='blue' }"><i class="ibg ibg2" @click="onClickColor('blue')"
+                                                               :style="{ backgroundColor: 'blue' }"></i></span>
+          <span :class="{ 'cur': selected_color==='green' }"><i class="ibg ibg3" @click="onClickColor('green')"
+                                                                :style="{ backgroundColor: 'green' }"></i></span>
+          <span :class="{ 'cur': selected_color==='purple' }"><i class="ibg ibg4" @click="onClickColor('purple')"
+                                                                 :style="{ backgroundColor: 'purple' }"></i></span>
         </div>
       </li>
       <li><em>Bitmap:</em>

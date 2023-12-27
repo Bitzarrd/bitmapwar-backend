@@ -23,7 +23,7 @@ export default {
       </div>
       <ul>
         <li class="com_flex" v-for="item in landList">
-          <div class="w0 com_flex2"><i class="ibg ibg1"></i></div>
+          <div class="w0 com_flex2"><i class="ibg ibg1" :style="{ backgroundColor: item.team }"></i></div>
           <div class="w1">{{item.land}}</div>
           <div class="w1">{{item.virus}}</div>
           <div class="w1">{{item.loss}}</div>
