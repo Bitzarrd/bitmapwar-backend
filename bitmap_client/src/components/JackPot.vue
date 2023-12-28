@@ -7,7 +7,7 @@ export default {
   name: "JackPot",
   methods: {formatEther},
   computed: {
-    ...mapState(['players']),
+    ...mapState(['players', 'jackpot']),
     value: {
       get() {
         let result = 0;
@@ -25,7 +25,7 @@ export default {
 </script>
 
 <template>
-  {{ formatEther(value) }}
+  {{ formatEther(jackpot) }}
 </template>
 
 <style scoped>

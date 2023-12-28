@@ -569,6 +569,8 @@ export const store = createStore({
         selected_map: "",
         selected_color: "red",
         virus: 0,
+        jackpot: "0",
+        jackpotLightUp: null
     },
     getters: {},
     mutations: {
@@ -670,6 +672,7 @@ export const store = createStore({
                     state.players = message.players;
                     console.log("state.grid", state.grid);
                     state.lastRanking = message.last_rank;
+                    state.jackpot = message.jackpot;
                     state.loading = false;
                     break;
                 case "GameStarted":
@@ -689,6 +692,7 @@ export const store = createStore({
                     state.new_player = message.player;
                     state.players.push(message.player);
                     state.user = message.user;
+                    state.jackpot = message.jackpot;
                     break;
                 case "Update":
                     state.turn = message.turn;
@@ -701,7 +705,7 @@ export const store = createStore({
                     state.extracts = message.extracts;
                     state.purchase = message.purchase;
 
-                    if(message.has_login_gift) {
+                    if (message.has_login_gift) {
                         ElMessage.info(
                             {
                                 message: "Thank you for participating in BitmapWar. You have received 500 soldiers to help you participate in the game.",
@@ -782,6 +786,17 @@ export const store = createStore({
                             state.extracts[i].txid = message.txid;
                             break;
                         }
+                    }
+                    break;
+                case "JackpotLightUp":
+                    state.jackpotLightUp = {
+                        team: message.team,
+                        land: message.land,
+                        jackpot: message.jackpot,
+                        user: message.user
+                    }
+                    if (message.user.address === state.user.address) {
+                        state.user = message.user
                     }
                     break;
 

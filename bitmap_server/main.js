@@ -274,7 +274,9 @@ const start_game = () => {
                     }
 
                     const all_init_virus = get_all_init_virus(players);
-                    const all_reward_profit = calculate_virus_to_profit(all_init_virus) * 0.9;
+                    let all_reward_profit = calculate_virus_to_profit(all_init_virus);
+                    all_reward_profit = BigInt(Math.floor(Number(all_reward_profit) * 0.9)); // 将 BigInt 转换为数值，进行浮点数乘法运算，再转换回 BigInt
+
                     // const rank_to_save = get_rank_for_save(players);
                     logger.info("总发放奖励金额:" + all_reward_profit.toString());
 
@@ -459,7 +461,7 @@ wss.on('connection', async (ws) => {
     clients.add(ws);
 
 
-    let jackpot = await mysql_query(mysql_connection, "SELECT val FROM `config` WHERE `key`='jackpot';");
+    let jackpot = await mysql_query(mysql_connection, "SELECT val FROM `global` WHERE `key`='jackpot';");
     jackpot = jackpot[0].val;
 
     ws.send(JSON.stringify(
@@ -618,12 +620,12 @@ wss.on('connection', async (ws) => {
                     user_for_join.virus -= decode.virus;
 
                     await mysql_connection.query("UPDATE user SET virus=virus-" + decode.virus + " WHERE address='" + decode.owner + "';");
-                    let jackpot = await mysql_query(mysql_connection, "SELECT val FROM `config` WHERE `key`='jackpot';");
+                    let jackpot = await mysql_query(mysql_connection, "SELECT val FROM `global` WHERE `key`='jackpot';");
                     jackpot = jackpot[0].val;
                     let profit_add_to_jackpot = calculate_virus_to_profit(decode.virus);
                     let new_jackpot = BigInt(jackpot) + BigInt(profit_add_to_jackpot);
 
-                    await mysql_connection.query("UPDATE config SET val='" + new_jackpot.toString() + "' WHERE `key`='jackpot';");
+                    await mysql_connection.query("UPDATE `global` SET val='" + new_jackpot.toString() + "' WHERE `key`='jackpot';");
 
                     let join_player = {
                         i: 0,
@@ -637,7 +639,6 @@ wss.on('connection', async (ws) => {
                         virus: decode.virus,
                         owner: decode.owner,
                         conn: ws,
-                        jackpot: new_jackpot.toString(),
                     };
 
                     players.push(join_player)
@@ -647,7 +648,8 @@ wss.on('connection', async (ws) => {
                             client.send(JSON.stringify({
                                 method: "JoinedGameSuccess",
                                 player: simple_player(join_player),
-                                user: user_for_join
+                                user: user_for_join,
+                                jackpot: new_jackpot.toString(),
                             }));
                         }
                     });

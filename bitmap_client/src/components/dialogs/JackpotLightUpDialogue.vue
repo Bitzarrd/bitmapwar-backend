@@ -4,14 +4,18 @@ import {mapMutations, mapState} from "vuex";
 export default {
   name: "JackpotLightUpDialogue",
   computed: {
-    ...mapState(['']),
+    ...mapState(['jackpotLightUp']),
   },
   data() {
     return {
-      dialogVisible: true
+      dialogVisible: false
     }
   },
-  watch: {},
+  watch: {
+    jackpotLightUp(newVal, oldVal) {
+      this.dialogVisible = true
+    }
+  },
   methods: {
     ...mapMutations([]),
     onClickConfirm() {
@@ -29,14 +33,14 @@ export default {
   >
     <div>
       <div>
-        <div class="w0 com_flex2"><i class="ibg ibg1" :style="{ backgroundColor: 'red' }"></i> 99999 Lands</div>
+        <div class="w0 com_flex2"><i class="ibg ibg1" :style="{ backgroundColor: jackpotLightUp.team }"></i> {{jackpotLightUp.land}} Lands</div>
       </div>
       <div>
-        <div class="w0 com_flex2">Winner:0x23123</div>
+        <div class="w0 com_flex2">Winner:{{jackpotLightUp.user.address}}</div>
       </div>
       <div>
         <div class="w0 com_flex2">
-          Jackpot: 99999
+          Jackpot: {{ jackpotLightUp.jackpot }}
 
           <ShareNetwork
               network="Twitter"
@@ -56,13 +60,13 @@ export default {
       </div>
     </div>
 
-<!--    <template #footer>-->
-<!--      <span class="dialog-footer">-->
-<!--        <el-button type="primary" @click="onClickConfirm">-->
-<!--          Confirm-->
-<!--        </el-button>-->
-<!--      </span>-->
-<!--    </template>-->
+    <!--    <template #footer>-->
+    <!--      <span class="dialog-footer">-->
+    <!--        <el-button type="primary" @click="onClickConfirm">-->
+    <!--          Confirm-->
+    <!--        </el-button>-->
+    <!--      </span>-->
+    <!--    </template>-->
   </el-dialog>
 </template>
 
