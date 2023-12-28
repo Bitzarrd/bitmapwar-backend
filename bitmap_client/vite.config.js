@@ -17,9 +17,16 @@ export default defineConfig(({mode, command}) => {
             alias: {
                 '@': fileURLToPath(new URL('./src', import.meta.url))
             }
+        },
+        build: {
+            rollupOptions: {
+                allowSyntheticDefaultImports: true
+            }
         }
     }
 });
+
+
 
 
 // https://vitejs.dev/config/

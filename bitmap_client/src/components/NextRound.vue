@@ -1,5 +1,5 @@
 <template>
-  NextRound {{ countdown }}
+  {{ countdown }}
 </template>
 
 <script>

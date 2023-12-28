@@ -19,11 +19,15 @@ import SettlementDialog from "@/components/dialogs/SettlementDialog.vue";
 import WalletsDialog from "@/components/dialogs/WalletsDialog.vue";
 import PurchaseDialogV from "@/components/dialogs/PurchaseDialog.vue";
 import PurchaseDialog from "@/components/dialogs/PurchaseDialog.vue";
+import HeaderComponent from "../components/HeaderComponent.vue";
 import JackPot from "@/components/JackPot.vue";
+import StatusBar from "../components/StatusBar.vue";
 
 export default {
   name: "GameView",
   components: {
+    StatusBar,
+    HeaderComponent,
     JackPot,
     PurchaseDialog,
     PurchaseDialogV,
@@ -110,7 +114,7 @@ export default {
       console.log("handleSearchEnter", this.searched_map);
       this.search(this.searched_map);
     },
-    onClickSearchIcon(){
+    onClickSearchIcon() {
       console.log("onClickSearchIcon", this.searched_map);
       this.search(this.searched_map);
     }
@@ -119,56 +123,63 @@ export default {
 </script>
 
 <template>
-  <div class="container" v-loading="loading">
-    <div class="top-div">
-      <span style="margin-right: 10px;">Socket Connect: {{ socket.isConnected ? "YES" : socket.reconnectError }}</span>
-      <el-button @click="onClickJoinGame">Join Game</el-button>
-      <el-button @click="onClickStartGame">Start Game</el-button>
-      <el-button @click="onClickStopGame">Stop Game</el-button>
-      <el-button @click="nextRoundSettingDialogVisible = true">Set Next Round</el-button>
-      <div style="float: right">
-        <el-button @click="setWalletsDialogVisible(true)">{{
-            wallet_address ? wallet_address : "Conn Wallet"
-          }}
-        </el-button>
-      </div>
-    </div>
-    <div class="bottom-div" id="bottom-div">
-      <div class="box">
-        <div class="left">
+  <HeaderComponent/>
+
+  <div class="warp" v-loading="loading">
+    <div class="main" id="bottom-div">
+      <div class="m_w com_flex">
+        <div class="m_lf">
           <LandList/>
           <LastRanking/>
         </div>
-        <div class="middle" ref="middle">
-          <div class="round">
-            <div style="float: left;padding-top: 12px;color: #E5EAF3">
-
-
-
-              <CountDown/>
-              <NextRound/>
-              Turn:{{ turn }}
-              <JackPot/>
+        <div class="m_md">
+          <StatusBar/>
+          <div class="m_md_bot">
+<!--            <img src="images/pic.png"/>-->
+            <div style="width: 100%;display: list-item;overflow: hidden;height: 100vh" ref="middle">
+              <div id="resizeable" :style="innerStyle()">
+                <MapRender ref="render"></MapRender>
+              </div>
             </div>
-            <div style="float: right;margin-top: 10px">
-              <el-input size="small" placeholder="Search Bitmap" v-model="searched_map"
-                        @keyup.enter="handleSearchEnter">
-                <template #prepend>
-                  <el-button>
-                    <el-icon color="white" class="no-inherit">
-                      <Search @click="onClickSearchIcon"/>
-                    </el-icon>
-                  </el-button>
-                </template>
-              </el-input>
-            </div>
-          </div>
-          <div id="resizeable" :style="innerStyle()">
-            <MapRender ref="render"></MapRender>
           </div>
         </div>
-        <div class="right">
+
+        <!--        <div class="middle" ref="middle">-->
+        <!--          <div class="round">-->
+        <!--            <div style="float: left;padding-top: 12px;color: #E5EAF3">-->
+
+
+        <!--              <CountDown/>-->
+        <!--              <NextRound/>-->
+        <!--              Turn:{{ turn }}-->
+        <!--              <JackPot/>-->
+        <!--            </div>-->
+        <!--            <div style="float: right;margin-top: 10px">-->
+        <!--              <el-input size="small" placeholder="Search Bitmap" v-model="searched_map"-->
+        <!--                        @keyup.enter="handleSearchEnter">-->
+        <!--                <template #prepend>-->
+        <!--                  <el-button>-->
+        <!--                    <el-icon color="white" class="no-inherit">-->
+        <!--                      <Search @click="onClickSearchIcon"/>-->
+        <!--                    </el-icon>-->
+        <!--                  </el-button>-->
+        <!--                </template>-->
+        <!--              </el-input>-->
+        <!--            </div>-->
+        <!--          </div>-->
+
+        <!--        </div>-->
+        <!--        <div class="right">-->
+        <!--          <UserInfo/>-->
+        <!--          <Action/>-->
+        <!--        </div>-->
+
+        <div class="m_rt">
           <UserInfo/>
+          <div class="search">
+            <input class="s_inbut" type="button" @click="onClickSearchIcon"/>
+            <input class="s_intxt" type="text" placeholder="Search bitmap" v-model="searched_map" @keyup.enter="handleSearchEnter"/>
+          </div>
           <Action/>
         </div>
       </div>

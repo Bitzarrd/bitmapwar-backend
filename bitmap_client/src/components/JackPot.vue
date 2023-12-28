@@ -25,7 +25,7 @@ export default {
 </script>
 
 <template>
-  Jackpot(BTC)：{{ formatEther(value) }}
+  {{ formatEther(value) }}
 </template>
 
 <style scoped>
