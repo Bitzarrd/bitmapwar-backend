@@ -19,7 +19,7 @@ import {
     get_users_by_color,
     get_win_team
 } from "./reward.js";
-import {calculate_pool_by_color, sort_win_team} from "./reward2.0";
+import {calculate_pool_by_color, sort_win_team} from "./reward2.0.js";
 
 dotenv.config();
 
@@ -274,7 +274,7 @@ const start_game = () => {
                     }
 
                     const all_init_virus = get_all_init_virus(players);
-                    const all_reward_profit = calculate_virus_to_profit(all_init_virus);
+                    const all_reward_profit = calculate_virus_to_profit(all_init_virus) * 0.9;
                     // const rank_to_save = get_rank_for_save(players);
                     logger.info("总发放奖励金额:" + all_reward_profit.toString());
 
@@ -315,8 +315,37 @@ const start_game = () => {
                     logger.info("计算爆灯");
                     let win_team = win_teams[0];
                     logger.info(`lands:${win_team.land} 是否质数:${isPrime(win_team.land)}`)
+                    //本轮游戏中最后一个投入士兵的账号（与阵营无关）
+                    let last_player = players[players.length - 1];
+                    logger.info(`本轮游戏中最后一个投入士兵的账号:${last_player.owner}`)
                     if (isPrime(win_team.land)) {
+                        //获得Jackpot中70%的奖励
+                        let jackpot = await mysql_query(mysql_connection, "select val from `global` where `key`='jackpot';");
+                        jackpot = jackpot[0].val;
+                        logger.info(`当前jackpot总量:${jackpot}`)
+                        logger.info(`获得Jackpot中70%的奖励:${jackpot * 0.7}`)
+                        let jackpot_reward = jackpot * 0.7;
+                        let jackpot_user = await (mysql_query(mysql_connection, "select * from `user` where `address`='" + last_player.owner + "';"))[0];
+                        let jackpot_user_profit = BigInt(jackpot_user.profit) + BigInt(jackpot_reward);
+                        jackpot_user.profit = jackpot_user_profit.toString();
+                        await mysql_connection.query("UPDATE `global` SET `val`=`val`-" + jackpot_reward + " WHERE `key`='jackpot';");
+                        await mysql_connection.query("UPDATE `user` SET `profit`=" + jackpot_user_profit + " WHERE `address`='" + last_player.owner + "';");
 
+                        let jackpot_message = {
+                            method: "JackpotLightUp",
+                            land: win_team.land,
+                            jackpot: jackpot_reward,
+                            user: jackpot_user,
+                            team: win_team.color,
+                        };
+
+                        logger.info(`jackpot_message:${JSON.stringify(jackpot_message)}`)
+
+                        clients.forEach((client) => {
+                            if (client.readyState === WebSocket.OPEN) {
+                                client.send(JSON.stringify(jackpot_message));
+                            }
+                        });
                     }
 
 
@@ -423,12 +452,15 @@ setInterval(() => {
     }
 }, 1000)
 // 当有新的连接建立时触发
-wss.on('connection', (ws) => {
+wss.on('connection', async (ws) => {
     logger.info("connection")
 
     // 将新连接的客户端添加到集合中
     clients.add(ws);
 
+
+    let jackpot = await mysql_query(mysql_connection, "SELECT val FROM `config` WHERE `key`='jackpot';");
+    jackpot = jackpot[0].val;
 
     ws.send(JSON.stringify(
         {
@@ -442,7 +474,8 @@ wss.on('connection', (ws) => {
             statistics: statistics(),
             stop_time: stop_time,
             // started: started,
-            last_rank: last_rank
+            last_rank: last_rank,
+            jackpot: jackpot
         }
     ));
 
@@ -585,6 +618,12 @@ wss.on('connection', (ws) => {
                     user_for_join.virus -= decode.virus;
 
                     await mysql_connection.query("UPDATE user SET virus=virus-" + decode.virus + " WHERE address='" + decode.owner + "';");
+                    let jackpot = await mysql_query(mysql_connection, "SELECT val FROM `config` WHERE `key`='jackpot';");
+                    jackpot = jackpot[0].val;
+                    let profit_add_to_jackpot = calculate_virus_to_profit(decode.virus);
+                    let new_jackpot = BigInt(jackpot) + BigInt(profit_add_to_jackpot);
+
+                    await mysql_connection.query("UPDATE config SET val='" + new_jackpot.toString() + "' WHERE `key`='jackpot';");
 
                     let join_player = {
                         i: 0,
@@ -598,6 +637,7 @@ wss.on('connection', (ws) => {
                         virus: decode.virus,
                         owner: decode.owner,
                         conn: ws,
+                        jackpot: new_jackpot.toString(),
                     };
 
                     players.push(join_player)
