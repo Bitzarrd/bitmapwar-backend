@@ -22,10 +22,12 @@ import PurchaseDialog from "@/components/dialogs/PurchaseDialog.vue";
 import HeaderComponent from "../components/HeaderComponent.vue";
 import JackPot from "@/components/JackPot.vue";
 import StatusBar from "../components/StatusBar.vue";
+import JackpotLightUpDialogue from "../components/dialogs/JackpotLightUpDialogue.vue";
 
 export default {
   name: "GameView",
   components: {
+    JackpotLightUpDialogue,
     StatusBar,
     HeaderComponent,
     JackPot,
@@ -195,6 +197,7 @@ export default {
   <SettlementDialog/>
   <WalletsDialog/>
   <PurchaseDialog/>
+  <JackpotLightUpDialogue/>
 </template>
 
 <style>
