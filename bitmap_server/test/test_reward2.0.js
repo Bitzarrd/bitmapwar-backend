@@ -4,6 +4,7 @@ import {
     get_users_by_color,
 } from "../reward.js";
 import {calculate_pool_by_color, sort_win_team} from "../reward2.0.js";
+import {isPrime} from "../utils.js";
 
 const logger = winston.createLogger({
     transports: [new winston.transports.Console()],
@@ -128,3 +129,7 @@ calculate_pool_by_color(win_team_users_3,win_teams[1].color,8);
 for (let user of win_team_users_3) {
     logger.info("用户：" + user.owner + " 名次：" + user.rank + " 颜色：" + user.statistics.color + " 领地：" + user.statistics.land + " 病毒：" + user.statistics.virus + " 损失：" + user.statistics.loss + " 奖励："  + user.reward_2 + "%");
 }
+
+logger.info("计算爆灯");
+let win_team = win_teams[0];
+logger.info(`lands:${win_team.land} isPrime:${isPrime(win_team.land)}`)

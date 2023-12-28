@@ -38,3 +38,21 @@ export function isToday(timestamp) {
     const date = new Date(timestamp * 1000);
     return today.toDateString() === date.toDateString();
 }
+
+export function isPrime(number) {
+    // 如果数字小于2，则不是质数
+    if (number < 2) {
+        return false;
+    }
+
+    // 遍历从2到number-1的所有数字
+    for (let i = 2; i < number; i++) {
+        // 如果number可以被任何一个数字整除，则不是质数
+        if (number % i === 0) {
+            return false;
+        }
+    }
+
+    // 当循环结束时，没有找到可以整除number的数字，因此number是质数
+    return true;
+}

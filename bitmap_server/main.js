@@ -4,7 +4,7 @@ import winston from "winston";
 import dotenv from "dotenv";
 import axios from "axios";
 import mysql from "mysql";
-import {getRandomInt, isToday, now, simple_player, simple_players} from "./utils.js";
+import {getRandomInt, isPrime, isToday, now, simple_player, simple_players} from "./utils.js";
 import {gridWidth, colors, durationOfTheMatch, intervalBetweenMatches, circle} from "./defines.js";
 import {get_events} from "./get_events.js";
 import {make_signature} from "./signature.js";
@@ -19,6 +19,7 @@ import {
     get_users_by_color,
     get_win_team
 } from "./reward.js";
+import {calculate_pool_by_color, sort_win_team} from "./reward2.0";
 
 dotenv.config();
 
@@ -202,38 +203,74 @@ const start_game = () => {
                     }
 
                     const users = get_users(players);
-                    const win_team = get_win_team(players);
-                    logger.info("当前胜利的队伍是：" + win_team);
-                    const win_team_users = get_users_by_color(win_team, users);
+                    // const win_team = get_win_team(players);
+                    // logger.info("当前胜利的队伍是：" + win_team);
+                    // const win_team_users = get_users_by_color(win_team, users);
+                    // logger.info("地块信息：")
+                    // for (let player of players) {
+                    //     logger.info("地图：" + player.bitmap + " 用户：" + player.owner + " 颜色：" + player.color + " 领地：" + player.land + " 病毒：" + player.virus + " 损失：" + player.loss);
+                    // }
+                    //
+                    // const pool_2 = calculate_pool_2_proportion(win_team_users);
+                    // logger.info("奖池2的比例为：" + pool_2);
+                    // logger.info("胜利方用户分别是:")
+                    // calculate_pool_1(win_team_users);
+                    // calculate_pool_2_by_color(win_team_users, win_team);
+                    // for (let user of win_team_users) {
+                    //     logger.info(
+                    //         "用户：" + user.owner +
+                    //         " 入场顺序：" + user.i +
+                    //         " 名次：" + user.rank +
+                    //         " 颜色：" + user.statistics.color +
+                    //         " 领地：" + user.statistics.land +
+                    //         " 初始化病毒：" + user.init_virus +
+                    //         " 当前病毒：" + user.statistics.virus +
+                    //         " 损失：" + user.statistics.loss + "" +
+                    //         " 奖励1：" + user.reward_1 +
+                    //         " 奖励2：" + user.reward_2
+                    //     );
+                    // }
+                    // logger.info("BITMAP持有者奖励为：")
+                    // calculate_bitmap_reward(users);
+                    // for (let owner of Object.keys(users)) {
+                    //     let user = users[owner];
+                    //     logger.info("用户：" + user.owner + " 颜色：" + user.statistics.color + " 持有地图：[" + user.bitmaps + "] 奖励为：" + user.reward_3)
+                    // }
+
+                    const win_teams = sort_win_team(players);
+
                     logger.info("地块信息：")
                     for (let player of players) {
                         logger.info("地图：" + player.bitmap + " 用户：" + player.owner + " 颜色：" + player.color + " 领地：" + player.land + " 病毒：" + player.virus + " 损失：" + player.loss);
                     }
 
-                    const pool_2 = calculate_pool_2_proportion(win_team_users);
-                    logger.info("奖池2的比例为：" + pool_2);
-                    logger.info("胜利方用户分别是:")
-                    calculate_pool_1(win_team_users);
-                    calculate_pool_2_by_color(win_team_users, win_team);
-                    for (let user of win_team_users) {
-                        logger.info(
-                            "用户：" + user.owner +
-                            " 入场顺序：" + user.i +
-                            " 名次：" + user.rank +
-                            " 颜色：" + user.statistics.color +
-                            " 领地：" + user.statistics.land +
-                            " 初始化病毒：" + user.init_virus +
-                            " 当前病毒：" + user.statistics.virus +
-                            " 损失：" + user.statistics.loss + "" +
-                            " 奖励1：" + user.reward_1 +
-                            " 奖励2：" + user.reward_2
-                        );
+                    logger.info("当前的队伍名次是：");
+                    for (let win_team of win_teams) {
+                        logger.info(win_team.color);
                     }
-                    logger.info("BITMAP持有者奖励为：")
-                    calculate_bitmap_reward(users);
-                    for (let owner of Object.keys(users)) {
-                        let user = users[owner];
-                        logger.info("用户：" + user.owner + " 颜色：" + user.statistics.color + " 持有地图：[" + user.bitmaps + "] 奖励为：" + user.reward_3)
+//
+                    const win_team_users_1 = get_users_by_color(win_teams[0].color, users);
+                    const win_team_users_2 = get_users_by_color(win_teams[1].color, users);
+                    const win_team_users_3 = get_users_by_color(win_teams[2].color, users);
+
+// console.log(win_team_users);
+
+                    logger.info("对第一名的队伍进行发奖：");
+                    calculate_pool_by_color(win_team_users_1, win_teams[0].color, 60);
+                    for (let user of win_team_users_1) {
+                        logger.info("用户：" + user.owner + " 名次：" + user.rank + " 颜色：" + user.statistics.color + " 领地：" + user.statistics.land + " 病毒：" + user.statistics.virus + " 损失：" + user.statistics.loss + " 奖励：" + user.reward_2 + "%");
+                    }
+
+                    logger.info("对第二名的队伍进行发奖：");
+                    calculate_pool_by_color(win_team_users_2, win_teams[1].color, 20);
+                    for (let user of win_team_users_2) {
+                        logger.info("用户：" + user.owner + " 名次：" + user.rank + " 颜色：" + user.statistics.color + " 领地：" + user.statistics.land + " 病毒：" + user.statistics.virus + " 损失：" + user.statistics.loss + " 奖励：" + user.reward_2 + "%");
+                    }
+
+                    logger.info("对第三名的队伍进行发奖：");
+                    calculate_pool_by_color(win_team_users_3, win_teams[1].color, 8);
+                    for (let user of win_team_users_3) {
+                        logger.info("用户：" + user.owner + " 名次：" + user.rank + " 颜色：" + user.statistics.color + " 领地：" + user.statistics.land + " 病毒：" + user.statistics.virus + " 损失：" + user.statistics.loss + " 奖励：" + user.reward_2 + "%");
                     }
 
                     const all_init_virus = get_all_init_virus(players);
@@ -271,6 +308,15 @@ const start_game = () => {
                                 rank: Object.values(users)
                             }));
                         }
+                    }
+
+                    //计算爆灯
+                    //胜利方战地面积如果为质数
+                    logger.info("计算爆灯");
+                    let win_team = win_teams[0];
+                    logger.info(`lands:${win_team.land} 是否质数:${isPrime(win_team.land)}`)
+                    if (isPrime(win_team.land)) {
+
                     }
 
 
