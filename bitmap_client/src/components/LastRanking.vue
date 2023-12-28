@@ -66,7 +66,7 @@ export default {
         <li class="com_flex" v-for="item in list">
           <div class="w1 com_flex2"><img src="../../public/images/n1.png"/></div>
           <div class="w2">{{ shortend(item.owner) }}</div>
-          <div class="w2">{{ formatEther(item.profit) }}</div>
+          <div class="w2">{{ tag === 'lands' ? item.statistics.land : formatEther(item.profit) }}</div>
         </li>
       </ul>
     </div>
