@@ -32,12 +32,16 @@ export let mysql_connection = mysql.createConnection({
     database: process.env.MYSQL_DB
 });
 
+const myFormat = winston.format.printf(({ level, message, label, timestamp }) => {
+    return `${timestamp} ${level}: ${message}`;
+});
 
 const logger = winston.createLogger({
     transports: [new winston.transports.Console()],
     level: "debug",
     format: winston.format.combine(
-        winston.format.simple(),
+        winston.format.timestamp(),
+        myFormat
     ),
 });
 
