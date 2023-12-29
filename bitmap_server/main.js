@@ -19,7 +19,7 @@ import {
     get_users_by_color,
     get_win_team
 } from "./reward.js";
-import {calculate_pool_by_color, sort_win_team} from "./reward2.0.js";
+import {calculate_pool_by_color, calculate_proportion, sort_win_team} from "./reward2.0.js";
 
 dotenv.config();
 
@@ -32,7 +32,7 @@ export let mysql_connection = mysql.createConnection({
     database: process.env.MYSQL_DB
 });
 
-const myFormat = winston.format.printf(({ level, message, label, timestamp }) => {
+const myFormat = winston.format.printf(({level, message, label, timestamp}) => {
     return `${timestamp} ${level}: ${message}`;
 });
 
@@ -259,20 +259,22 @@ const start_game = () => {
 
 // console.log(win_team_users);
 
+                    const proportions = calculate_proportion(win_team_users_1, win_team_users_2, win_team_users_3);
+
                     logger.info("对第一名的队伍进行发奖：");
-                    calculate_pool_by_color(win_team_users_1, win_teams[0].color, 60);
+                    calculate_pool_by_color(win_team_users_1, win_teams[0].color, proportions[0]);
                     for (let user of win_team_users_1) {
                         logger.info("用户：" + user.owner + " 名次：" + user.rank + " 颜色：" + user.statistics.color + " 领地：" + user.statistics.land + " 病毒：" + user.statistics.virus + " 损失：" + user.statistics.loss + " 奖励：" + user.reward_2 + "%");
                     }
 
                     logger.info("对第二名的队伍进行发奖：");
-                    calculate_pool_by_color(win_team_users_2, win_teams[1].color, 20);
+                    calculate_pool_by_color(win_team_users_2, win_teams[1].color, proportions[1]);
                     for (let user of win_team_users_2) {
                         logger.info("用户：" + user.owner + " 名次：" + user.rank + " 颜色：" + user.statistics.color + " 领地：" + user.statistics.land + " 病毒：" + user.statistics.virus + " 损失：" + user.statistics.loss + " 奖励：" + user.reward_2 + "%");
                     }
 
                     logger.info("对第三名的队伍进行发奖：");
-                    calculate_pool_by_color(win_team_users_3, win_teams[1].color, 8);
+                    calculate_pool_by_color(win_team_users_3, win_teams[1].color, proportions[2]);
                     for (let user of win_team_users_3) {
                         logger.info("用户：" + user.owner + " 名次：" + user.rank + " 颜色：" + user.statistics.color + " 领地：" + user.statistics.land + " 病毒：" + user.statistics.virus + " 损失：" + user.statistics.loss + " 奖励：" + user.reward_2 + "%");
                     }
@@ -627,6 +629,7 @@ wss.on('connection', async (ws) => {
                     let jackpot = await mysql_query(mysql_connection, "SELECT val FROM `global` WHERE `key`='jackpot';");
                     jackpot = jackpot[0].val;
                     let profit_add_to_jackpot = calculate_virus_to_profit(decode.virus);
+                    profit_add_to_jackpot = Math.floor(Number(profit_add_to_jackpot) * 0.1);
                     let new_jackpot = BigInt(jackpot) + BigInt(profit_add_to_jackpot);
 
                     await mysql_connection.query("UPDATE `global` SET val='" + new_jackpot.toString() + "' WHERE `key`='jackpot';");

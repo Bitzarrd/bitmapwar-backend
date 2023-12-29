@@ -57,7 +57,7 @@ export function get_total_bitmap(users) {
     return bitmaps;
 }
 
-export function calculate_pool_green(users,proportion) {
+export function calculate_pool_green(users, proportion) {
     let total_bitmaps = get_total_bitmap(users);
     for (let owner of Object.keys(users)) {
         let user = users[owner];
@@ -76,17 +76,17 @@ export function get_total_loss(users) {
 }
 
 
-export function calculate_pool(users,proportion) {
+export function calculate_pool(users, proportion) {
     for (let owner of Object.keys(users)) {
         let user = users[owner];
         user.reward_2 = proportion / users.length;
     }
 }
 
-export function calculate_pool_blue(users,proportion) {
+export function calculate_pool_blue(users, proportion) {
     let total_loss = get_total_loss(users);
     if (total_loss === 0) {
-        return calculate_pool(users,proportion);
+        return calculate_pool(users, proportion);
     }
     for (let owner of Object.keys(users)) {
         let user = users[owner];
@@ -98,7 +98,7 @@ export function calculate_pool_blue(users,proportion) {
 // 基础奖金=奖金/人数
 // 获奖系数=1 - (玩家序号 - 1) / 100
 // 奖金=基础奖金* 获奖系数）
-export function calculate_pool_purple_base(users,proportion) {
+export function calculate_pool_purple_base(users, proportion) {
     return proportion / users.length;
 }
 
@@ -114,12 +114,26 @@ export function calculate_pool_purple(users) {
 export function calculate_pool_by_color(users, color, proportion) {
     switch (color) {
         case "red":
-            return calculate_pool_red(users,proportion);
+            return calculate_pool_red(users, proportion);
         case "green":
-            return calculate_pool_green(users,proportion);
+            return calculate_pool_green(users, proportion);
         case "blue":
-            return calculate_pool_blue(users,proportion);
+            return calculate_pool_blue(users, proportion);
         case "purple":
-            return calculate_pool_purple(users,proportion);
+            return calculate_pool_purple(users, proportion);
     }
+}
+
+
+export function calculate_proportion(user1, user2, user3) {
+    if (user1.length !== 0 && user2.length === 0 && user3.length === 0) {
+        return [88, 0, 0];
+    }
+    if (user1.length !== 0 && user2.length !== 0 && user3.length === 0) {
+        return [60, 28, 0];
+    }
+    if (user1.length !== 0 && user2.length !== 0 && user3.length !== 0) {
+        return [60, 20, 8];
+    }
+    return [0, 0, 0];
 }
