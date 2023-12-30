@@ -93,7 +93,7 @@ export default {
       <em>Action</em>
     </div>
     <ul class="act_form" v-if="wallet_address">
-      <li><em>Function:</em>
+      <li><em>Faction:</em>
         <div class="ck_c com_flex1">
           <span :class="{ 'cur': selected_color==='red' }"><i class="ibg ibg1" @click="onClickColor('red')"
                                                               :style="{ backgroundColor: 'red' }"></i></span>
