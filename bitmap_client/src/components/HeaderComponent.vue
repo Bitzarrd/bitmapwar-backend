@@ -6,7 +6,7 @@
         <li><a href="#">Explorer</a></li>
         <li><a href="#">Holders</a></li>
         <li class="cur"><a href="#">Bitmapwar</a></li>
-        <el-button @click="onClickStartGame">Start Game</el-button>
+<!--        <el-button @click="onClickStartGame">Start Game</el-button>-->
 
       </ul>
     </div>
@@ -68,6 +68,9 @@ export default {
     onClickStartGame() {
       this.conn.sendObj({method: "StartGame"});
     },
+  },
+  mounted() {
+    window.StartGame = this.onClickStartGame
   }
 }
 </script>

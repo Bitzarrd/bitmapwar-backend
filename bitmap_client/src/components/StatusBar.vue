@@ -10,7 +10,7 @@
       </em>
 
       <em class="com_flex3">
-        <img src="../../public/images/ico7.png"/><i style="color: orange">Total bonus(BTC):</i>
+        <img src="../../public/images/ico7_2.png"/><i style="color: #ff961b">Total bonus(BTC):</i>
         <font>
           <TotalJackPot/>
         </font>

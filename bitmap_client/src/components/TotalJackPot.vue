@@ -26,7 +26,7 @@ export default {
 </script>
 
 <template>
-  <p style="color: orange">{{ formatEther(value) }}</p>
+  <p style="color: #ff961b">{{ formatEther(value) }}</p>
 </template>
 
 <style scoped>

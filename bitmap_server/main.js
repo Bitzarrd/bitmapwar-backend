@@ -61,6 +61,8 @@ mysql_connection.connect({}, async (err) => {
         logger.info("last_rounds:" + last_rounds[0].rank);
         last_rank = JSON.parse(last_rounds[0].rank);
     }
+
+    start_game()
 });
 
 
