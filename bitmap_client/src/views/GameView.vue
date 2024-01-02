@@ -58,6 +58,12 @@ export default {
     }
   },
   mounted() {
+
+    const audio = new Audio('../../public/music/bg.mp3');
+    audio.autoplay = true;
+    audio.loop = true;
+    audio.play();
+
     // 添加鼠标滚轮事件监听器
     let resizeable = document.getElementById('gridCanvas');
 
@@ -125,6 +131,12 @@ export default {
 </script>
 
 <template>
+
+<!--  <audio autoplay loop>-->
+<!--    <source src="../../public/music/bg.mp3" type="audio/mpeg">-->
+<!--    Your browser does not support the audio element.-->
+<!--  </audio>-->
+
   <HeaderComponent/>
 
   <div class="warp" v-loading="loading" style="  background-color: black;">
