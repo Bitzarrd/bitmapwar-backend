@@ -28,7 +28,7 @@ export default {
       this.setBitmapListDialogVisible(true);
     },
     onClickShare() {
-      console.log("share");
+      console.log("share", this.wallet_address);
       this.conn.sendObj({
         method: "Share",
         owner: this.wallet_address,
@@ -129,7 +129,8 @@ export default {
         <em>{{ (wallet_address) }}</em>
       </div>
       <div class="infor_c infor_1">
-        <a class="com_ico com_flex2" href="javascript:;" @click="onClickProfits"><img src="../../public/images/ico8_1.png"/></a>
+        <a class="com_ico com_flex2" href="javascript:;" @click="onClickProfits"><img
+            src="../../public/images/ico8_1.png"/></a>
         <em>Profit(BTC)</em>
         <span>{{ formatEther(user.profit) }}</span>
       </div>
@@ -154,10 +155,11 @@ export default {
             description="I just received a free soldier🤺 in #BitmapWar and am ready to engage in battles with other players on the #Bitmap. 🚀"
             hashtags="Bitmap,Bitcoin"
             class="com_ico com_flex2"
+            @click="onClickShare"
         >
-<!--          <a class="com_ico com_flex2" href="#">-->
-            <img src="../../public/images/ico8_4.png"/>
-<!--          </a>-->
+          <!--          <a class="com_ico com_flex2" href="#">-->
+          <img src="../../public/images/ico8_4.png"/>
+          <!--          </a>-->
         </ShareNetwork>
       </div>
     </div>

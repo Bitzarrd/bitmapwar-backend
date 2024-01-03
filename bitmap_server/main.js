@@ -496,12 +496,19 @@ wss.on('connection', async (ws) => {
             let decode = JSON.parse(message);
             switch (decode.method) {
                 case "Share":
+
+                    if(!decode.owner){
+                        logger.error("owner not set")
+                        return;
+                    }
+
                     let last_share = (await mysql_query(mysql_connection, "SELECT * FROM gift WHERE owner='" + decode.owner + "' AND type='share' ORDER BY id DESC LIMIT 1;"))[0];
                     if (last_share) {
                         if (isToday(last_share.create_time)) {
                             return;
                         }
                     }
+
 
                     mysql_connection.query("INSERT INTO gift SET ?", {
                         owner: decode.owner,
