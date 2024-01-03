@@ -202,7 +202,6 @@ export default {
   </div>
 
   <ActionDialog @search="search"/>
-  <ProfitDialog/>
   <BitmapListDialog @search="search"/>
   <ProfitDialog/>
   <NextRoundSettingDialog/>
