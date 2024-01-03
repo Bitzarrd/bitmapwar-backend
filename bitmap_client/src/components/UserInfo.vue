@@ -145,7 +145,7 @@ export default {
         </a>
       </div>
       <div class="infor_4" style="font-size: 12px">
-        <em>Daily Sharing Reward:</em>
+        <em>Sharing Reward:</em>
         <span>500 Soldier</span>
         <ShareNetwork
             network="Twitter"

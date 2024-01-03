@@ -72,6 +72,15 @@ export default {
     shortend,
     ...mapMutations(['setActionDialogVisible', 'setVirus', 'setSelectColor']),
     onClickSubmit() {
+      if(this.virus<=0){
+        console.warn("this.virus<=0");
+        return;
+      }
+      if(!this.selected_map){
+        console.warn("no selected_map");
+        return;
+      }
+
       this.setActionDialogVisible(true);
     },
     onClickColor(color) {
@@ -87,7 +96,7 @@ export default {
 </script>
 
 <template>
-  <div class="combg">
+  <div class="combg" v-if="wallet_address">
     <div class="titc com_flex3">
       <img src="../../public/images/ico4.png"/>
       <em>Action</em>

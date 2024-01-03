@@ -17,7 +17,10 @@ export default {
 
 
         const profit = calculate_virus_to_profit(result);
-        return (Math.floor(Number(profit) * 0.88)).toString()
+        const res = Math.floor(Number(profit) * 0.88).toString()
+        console.log("TotalJackPot", res);
+        return res;
+
       },
 
     }

@@ -620,6 +620,7 @@ wss.on('connection', async (ws) => {
                     let join_y = Math.floor(decode.map_id / gridWidth);
                     let join_x = decode.map_id % gridWidth;
                     logger.info(`JoinGame2 map_id=${decode.map_id} x=${join_x} y=${join_y}`);
+                    decode.virus = (Number)(decode.virus);
 
                     const user_for_join = (await mysql_query(mysql_connection, "SELECT * FROM `user` WHERE `address`='" + decode.owner + "';"))[0];
                     if (user_for_join.virus < decode.virus) {
