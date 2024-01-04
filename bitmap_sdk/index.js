@@ -240,6 +240,13 @@ export function decompress2(str) {
     return grid;
 }
 
+/**
+ * 数据解压
+ * @param str 压缩后的字符串
+ * @param width 行数
+ * @param height 列数
+ * @returns {uint[][]} 解压后的二维数组
+ */
 export function decompress3(str, width, height) {
     let compressed = base64ToUint8Array(str)
     const decompressed = pako.inflate(compressed);
