@@ -39,9 +39,9 @@ export default {
     }
   },
   watch: {
-    selected_map: function (newVal, oldVal) {
-      this.setSelectedMap(newVal);
-    }
+    // selected_map: function (newVal, oldVal) {
+    //   this.setSelectedMap(newVal);
+    // }
   },
   methods: {
     ...mapMutations(['setBitmapListDialogVisible', 'setSelectedMap']),
@@ -50,6 +50,7 @@ export default {
     },
     onClickConfirm() {
 
+      this.setSelectedMap(this.selected_map);
       this.$emit('search', this.selected_map);
 
       this.setBitmapListDialogVisible(false);

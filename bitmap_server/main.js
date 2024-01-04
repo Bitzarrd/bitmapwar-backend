@@ -458,9 +458,11 @@ setInterval(() => {
     // logger.info(timestampSeconds + ":" + next_round + ":" + (timestampSeconds === next_round ? "T" : "F"));
     if (now() === next_round) {
         logger.info("Start New Round");
+        turn = 0;
         start_game()
     }
-}, 1000)
+}, 1000);
+
 // 当有新的连接建立时触发
 wss.on('connection', async (ws) => {
     logger.info("connection")

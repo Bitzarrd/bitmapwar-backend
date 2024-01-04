@@ -81,7 +81,7 @@ export default {
       }
 
       if (this.scaleValue < 0.1) {
-        this.scaleValue = 0.02;
+        this.scaleValue = 0.1;
       }
       if (this.scaleValue > 5) {
         this.scaleValue = 5;
