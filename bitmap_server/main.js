@@ -487,7 +487,8 @@ wss.on('connection', async (ws) => {
             stop_time: stop_time,
             // started: started,
             last_rank: last_rank,
-            jackpot: jackpot
+            jackpot: jackpot,
+            now_time: now()
         }
     ));
 
@@ -499,7 +500,7 @@ wss.on('connection', async (ws) => {
             switch (decode.method) {
                 case "Share":
 
-                    if(!decode.owner){
+                    if (!decode.owner) {
                         logger.error("owner not set")
                         return;
                     }
