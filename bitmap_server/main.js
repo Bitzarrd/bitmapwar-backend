@@ -85,7 +85,7 @@ let stop_time = 0;
 //////////////////////////////////////////////////////
 
 
-axios.get("https://develop.oasis.world/service/open/bitmap/count").then(resp => {
+axios.get("https://global.bitmap.game/service/open/bitmap/count").then(resp => {
     let map_count = resp.data.data;
     gridHeight = Math.ceil(map_count / 1000)
     logger.info(`generate2DArray width=${gridWidth} height=${gridHeight}`);
@@ -162,7 +162,7 @@ const start_game = () => {
         clearInterval(interval);
     }
 
-    axios.get("https://develop.oasis.world/service/open/bitmap/count").then(resp => {
+    axios.get("https://global.bitmap.game/service/open/bitmap/count").then(resp => {
         let map_count = resp.data.data;
         turn = 0;
         gridHeight = Math.ceil(map_count / 1000)
