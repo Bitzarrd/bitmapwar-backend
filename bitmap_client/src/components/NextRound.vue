@@ -12,7 +12,7 @@ export default {
     };
   },
   computed: {
-    ...mapState(['next_round'])
+    ...mapState(['next_round', 'server_time_delta'])
   },
   mounted() {
     this.startCountdown();
@@ -20,7 +20,7 @@ export default {
   methods: {
     startCountdown() {
       const intervalId = setInterval(() => {
-        const now = Math.floor(Date.now() / 1000);
+        const now = Math.floor(Date.now() / 1000) - this.server_time_delta;
         const remainingTime = this.next_round - now;
 
         if (remainingTime > 0) {

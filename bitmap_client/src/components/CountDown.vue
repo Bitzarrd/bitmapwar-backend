@@ -12,7 +12,7 @@ export default {
     };
   },
   computed: {
-    ...mapState(['stop_time'])
+    ...mapState(['stop_time', 'server_time_delta'])
   },
   mounted() {
     this.startCountdown();
@@ -20,7 +20,7 @@ export default {
   methods: {
     startCountdown() {
       const intervalId = setInterval(() => {
-        const now = Math.floor(Date.now() / 1000);
+        const now = Math.floor(Date.now() / 1000) - service_default;
         const remainingTime = this.stop_time - now;
 
         if (remainingTime > 0) {

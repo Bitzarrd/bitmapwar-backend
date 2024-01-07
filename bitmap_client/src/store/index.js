@@ -570,7 +570,8 @@ export const store = createStore({
         selected_color: "red",
         virus: 0,
         jackpot: "0",
-        jackpotLightUp: null
+        jackpotLightUp: null,
+        server_time_delta: 0//服务器时差
     },
     getters: {},
     mutations: {
@@ -674,6 +675,14 @@ export const store = createStore({
                     state.lastRanking = message.last_rank;
                     state.jackpot = message.jackpot;
                     state.loading = false;
+
+                    const server_time = message.now_time;
+                    const local_time = Math.floor(new Date().getTime() / 1000);
+
+                    state.server_time_delta = local_time - server_time;
+
+                    console.log("server_time_delta", state.server_time_delta);
+
                     break;
                 case "GameStarted":
                     state.stop_time = message.stop_time;
