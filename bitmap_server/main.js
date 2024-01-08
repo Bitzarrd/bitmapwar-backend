@@ -1,4 +1,4 @@
-import {generate2DArray, runTurn, getCircleCoordinates, compress2, compress3} from 'bitmap_sdk';
+import {generate2DArray, runTurn, getCircleCoordinates, compress2, compress3, compress4} from 'bitmap_sdk';
 import WebSocket, {WebSocketServer} from 'ws';
 import winston from "winston";
 import dotenv from "dotenv";
@@ -477,7 +477,7 @@ wss.on('connection', async (ws) => {
     ws.send(JSON.stringify(
         {
             method: "Reload",
-            grid: compress3(grid),
+            grid: compress4(grid),
             gridWidth: gridWidth,
             gridHeight: gridHeight,
             players: players,
