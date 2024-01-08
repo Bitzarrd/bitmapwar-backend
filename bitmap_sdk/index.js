@@ -226,6 +226,11 @@ export function compress3(grid) {
     return uint8ArrayToBase64(pako.deflate(me));
 }
 
+export function compress4(grid) {
+    let me = merge2DArray(grid);
+    return uint8ArrayToBase64(pako.gzip(me));
+}
+
 export function decompress2(str) {
     const lines = str.trim().split("\n");
     const grid = [];
@@ -250,6 +255,24 @@ export function decompress2(str) {
 export function decompress3(str, width, height) {
     let compressed = base64ToUint8Array(str)
     const decompressed = pako.inflate(compressed);
+    let grid = new Array(height);
+    for (let i = 0; i < height; i++) {
+        grid[i] = decompressed.slice(i * width, (i + 1) * width);
+    }
+    return grid;
+}
+
+
+/**
+ * 数据解压
+ * @param str 压缩后的字符串
+ * @param width 行数
+ * @param height 列数
+ * @returns {uint[][]} 解压后的二维数组
+ */
+export function decompress4(str, width, height) {
+    let compressed = base64ToUint8Array(str)
+    const decompressed = pako.ungzip(compressed);
     let grid = new Array(height);
     for (let i = 0; i < height; i++) {
         grid[i] = decompressed.slice(i * width, (i + 1) * width);
