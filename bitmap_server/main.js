@@ -480,7 +480,7 @@ wss.on('connection', async (ws) => {
             grid: compress4(grid),
             gridWidth: gridWidth,
             gridHeight: gridHeight,
-            players: players,
+            players: simple_players(players),
             turn: turn,
             next_round: next_round,
             statistics: statistics(),
@@ -533,9 +533,7 @@ wss.on('connection', async (ws) => {
                     let has_login_gift = true;
                     let last_login_gift = (await mysql_query(mysql_connection, "SELECT * FROM gift WHERE owner='" + decode.address + "' AND type='login' ORDER BY id DESC LIMIT 1;"))[0];
                     if (last_login_gift) {
-                        if (isToday(last_login_gift.create_time)) {
-                            has_login_gift = false;
-                        }
+                        has_login_gift = isToday(last_login_gift.create_time);
                     } else {
                         has_login_gift = false;
                     }
