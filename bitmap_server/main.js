@@ -315,7 +315,8 @@ const start_game = () => {
                                 conn.send(JSON.stringify({
                                     method: "Settlement",
                                     next_round: next_round,
-                                    statistics: user.statistics,
+                                    my_statistics: user.statistics,
+                                    statistics:statistics(),
                                     user: user_for_settlement,
                                     earning: user.profit.toString(),
                                     rank: Object.values(users)
@@ -337,16 +338,17 @@ const start_game = () => {
                     if (isPrime(win_team.land)) {
                         //获得Jackpot中70%的奖励
                         let jackpot = await mysql_query(mysql_connection, "select val from `global` where `key`='jackpot';");
-                        jackpot = jackpot[0].val;
-                        logger.info(`当前jackpot总量:${jackpot}`)
-                        logger.info(`获得Jackpot中70%的奖励:${jackpot * 0.7}`)
-                        let jackpot_reward = jackpot * 0.7;
-                        let jackpot_user =  (await mysql_query(mysql_connection, "select * from `user` where `address`='" + last_player.owner + "';"))[0];
-                        logger.info("jackpot_user:"+JSON.stringify(jackpot_user));
-                        let jackpot_user_profit = BigInt(jackpot_user.profit) + BigInt(jackpot_reward);
-
+                        jackpot = BigInt(jackpot[0].val);
+                        logger.info(`当前jackpot总量:${jackpot.toString()}`)
+                        let jackpot_reward = BigInt((Number)(jackpot) * 0.7);
+                        logger.info(`获得Jackpot中70%的奖励:${jackpot_reward.toString()}`)
+                        let jackpot_user = (await mysql_query(mysql_connection, "select * from `user` where `address`='" + last_player.owner + "';"))[0];
+                        logger.info("jackpot_user:" + JSON.stringify(jackpot_user));
+                        let jackpot_user_profit = BigInt(jackpot_user.profit) + jackpot_reward;
                         jackpot_user.profit = jackpot_user_profit.toString();
-                        await mysql_connection.query("UPDATE `global` SET `val`=`val`-" + jackpot_reward + " WHERE `key`='jackpot';");
+                        const jackpot_remain = jackpot - jackpot_reward;
+
+                        await mysql_connection.query("UPDATE `global` SET `val`='" + jackpot_remain.toString() + "' WHERE `key`='jackpot';");
                         await mysql_connection.query("UPDATE `user` SET `profit`=" + jackpot_user_profit + " WHERE `address`='" + last_player.owner + "';");
 
                         let jackpot_message = {
