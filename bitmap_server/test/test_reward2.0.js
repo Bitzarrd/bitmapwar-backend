@@ -58,7 +58,7 @@ const players = [
         x: 0,
         y: 0,
         color: 'blue',
-        land: 4,
+        land: 5,
         loss: 0,
         virus: 4,
         init_virus: 4,

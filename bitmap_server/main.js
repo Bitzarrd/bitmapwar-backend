@@ -341,8 +341,10 @@ const start_game = () => {
                         logger.info(`当前jackpot总量:${jackpot}`)
                         logger.info(`获得Jackpot中70%的奖励:${jackpot * 0.7}`)
                         let jackpot_reward = jackpot * 0.7;
-                        let jackpot_user = await (mysql_query(mysql_connection, "select * from `user` where `address`='" + last_player.owner + "';"))[0];
+                        let jackpot_user =  (await mysql_query(mysql_connection, "select * from `user` where `address`='" + last_player.owner + "';"))[0];
+                        logger.info("jackpot_user:"+JSON.stringify(jackpot_user));
                         let jackpot_user_profit = BigInt(jackpot_user.profit) + BigInt(jackpot_reward);
+
                         jackpot_user.profit = jackpot_user_profit.toString();
                         await mysql_connection.query("UPDATE `global` SET `val`=`val`-" + jackpot_reward + " WHERE `key`='jackpot';");
                         await mysql_connection.query("UPDATE `user` SET `profit`=" + jackpot_user_profit + " WHERE `address`='" + last_player.owner + "';");
