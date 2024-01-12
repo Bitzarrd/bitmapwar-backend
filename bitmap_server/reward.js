@@ -193,16 +193,20 @@ export function get_rank_for_save(players) {
 }
 
 export function get_conn_by_owner(players, owner) {
+    const mySet = new Set();
+
     for (let i = 0; i < players.length; i++) {
         if (players[i].owner === owner) {
             if (players[i].hasOwnProperty('conn')) {
                 let conn = players[i].conn;
                 if (conn.readyState === WebSocket.OPEN) {
-                    return conn;
+                    mySet.add(conn)
+                    // return conn;
                 }
             }
         }
     }
+    return mySet;
 }
 
 export function get_all_init_virus(players) {

@@ -300,7 +300,7 @@ const start_game = () => {
 
                     //发放奖励
                     for (let owner of Object.keys(users)) {
-                        let conn = get_conn_by_owner(players, owner);
+                        let conns = get_conn_by_owner(players, owner);
                         let user = users[owner];
 
                         let user_for_settlement = (await mysql_query(mysql_connection, "SELECT * FROM `user` WHERE `address`='" + owner + "';"))[0];
@@ -308,16 +308,20 @@ const start_game = () => {
                         user_for_settlement.profit = user_for_settlement.profit.toString();
                         await mysql_connection.query("UPDATE user set profit=" + user_for_settlement.profit + " WHERE `address`='" + owner + "';")
 
-                        if (conn) {
-                            conn.send(JSON.stringify({
-                                method: "Settlement",
-                                next_round: next_round,
-                                statistics: user.statistics,
-                                user: user_for_settlement,
-                                earning: user.profit.toString(),
-                                rank: Object.values(users)
-                            }));
-                        }
+                        conns.forEach(conn => {
+                            if (conn) {
+                                conn.send(JSON.stringify({
+                                    method: "Settlement",
+                                    next_round: next_round,
+                                    statistics: user.statistics,
+                                    user: user_for_settlement,
+                                    earning: user.profit.toString(),
+                                    rank: Object.values(users)
+                                }));
+                            }
+                        });
+
+
                     }
 
                     //计算爆灯
@@ -400,8 +404,9 @@ const start_game = () => {
                     let {y, x} = runTurn(player, grid, circle);
                     let origin_player_virus = 0;
 
-
+                    let fight = false;
                     if (grid[y][x] !== 0) {
+                        fight = true
                         const origin_player_index = grid[y][x];
                         const origin_player = players[origin_player_index - 1];
                         if (origin_player.color !== player.color) {
@@ -431,6 +436,7 @@ const start_game = () => {
                         x: x,
                         y: y,
                         color: player.color,
+                        fight: fight
                     })
                 }
 

@@ -5,3 +5,4 @@ Cell定义了某一个格子的变更信息
 | x  | int  | 格子所在的行数  |
 | y  | int  | 格子所在的列数  |
 | color  | string  | 格子的颜色  |
+| fight  | bool  | true=是战斗  |
