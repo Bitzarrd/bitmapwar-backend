@@ -103,7 +103,7 @@ for (let player of players) {
 
 logger.info("当前的队伍名次是：");
 for (let win_team of win_teams) {
-    logger.info(win_team.color);
+    logger.info(win_team.color + " lands:" + win_team.land);
 }
 //
 const win_team_users_1 = get_users_by_color(win_teams[0].color, users);
@@ -113,21 +113,21 @@ const win_team_users_3 = get_users_by_color(win_teams[2].color, users);
 // console.log(win_team_users);
 
 logger.info("对第一名的队伍进行发奖：");
-calculate_pool_by_color(win_team_users_1,win_teams[0].color,60);
+calculate_pool_by_color(win_team_users_1, win_teams[0].color, 60);
 for (let user of win_team_users_1) {
     logger.info("用户：" + user.owner + " 名次：" + user.rank + " 颜色：" + user.statistics.color + " 领地：" + user.statistics.land + " 病毒：" + user.statistics.virus + " 损失：" + user.statistics.loss + " 奖励：" + user.reward_2 + "%");
 }
 
 logger.info("对第二名的队伍进行发奖：");
-calculate_pool_by_color(win_team_users_2,win_teams[1].color,20);
+calculate_pool_by_color(win_team_users_2, win_teams[1].color, 20);
 for (let user of win_team_users_2) {
-    logger.info("用户：" + user.owner + " 名次：" + user.rank + " 颜色：" + user.statistics.color + " 领地：" + user.statistics.land + " 病毒：" + user.statistics.virus + " 损失：" + user.statistics.loss + " 奖励："  + user.reward_2 + "%");
+    logger.info("用户：" + user.owner + " 名次：" + user.rank + " 颜色：" + user.statistics.color + " 领地：" + user.statistics.land + " 病毒：" + user.statistics.virus + " 损失：" + user.statistics.loss + " 奖励：" + user.reward_2 + "%");
 }
 
 logger.info("对第三名的队伍进行发奖：");
-calculate_pool_by_color(win_team_users_3,win_teams[1].color,8);
+calculate_pool_by_color(win_team_users_3, win_teams[1].color, 8);
 for (let user of win_team_users_3) {
-    logger.info("用户：" + user.owner + " 名次：" + user.rank + " 颜色：" + user.statistics.color + " 领地：" + user.statistics.land + " 病毒：" + user.statistics.virus + " 损失：" + user.statistics.loss + " 奖励："  + user.reward_2 + "%");
+    logger.info("用户：" + user.owner + " 名次：" + user.rank + " 颜色：" + user.statistics.color + " 领地：" + user.statistics.land + " 病毒：" + user.statistics.virus + " 损失：" + user.statistics.loss + " 奖励：" + user.reward_2 + "%");
 }
 
 logger.info("计算爆灯");

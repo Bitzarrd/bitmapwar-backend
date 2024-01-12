@@ -12,16 +12,16 @@ export function sort_win_team(players) {
         if (players[i].land >= 0) {
             switch (players[i].color) {
                 case 'red':
-                    red++;
+                    red += players[i].land;
                     break;
                 case 'blue':
-                    blue++;
+                    blue += players[i].land;
                     break;
                 case 'green':
-                    green++;
+                    green += players[i].land;
                     break;
                 case 'purple':
-                    purple++;
+                    purple += players[i].land;
                     break;
             }
         }
@@ -102,8 +102,8 @@ export function calculate_pool_purple_base(users, proportion) {
     return proportion / users.length;
 }
 
-export function calculate_pool_purple(users,proportion) {
-    let base = calculate_pool_purple_base(users,proportion);
+export function calculate_pool_purple(users, proportion) {
+    let base = calculate_pool_purple_base(users, proportion);
     for (let owner of Object.keys(users)) {
         let user = users[owner];
         let coefficient = (1 - (user.i - 1) / 100);

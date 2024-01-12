@@ -252,7 +252,7 @@ const start_game = () => {
 
                     logger.info("当前的队伍名次是：");
                     for (let win_team of win_teams) {
-                        logger.info(win_team.color);
+                        logger.info(win_team.color + " lands:" + win_team.land);
                     }
 //
                     const win_team_users_1 = get_users_by_color(win_teams[0].color, users);
