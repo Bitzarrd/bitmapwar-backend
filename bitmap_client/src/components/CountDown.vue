@@ -20,7 +20,7 @@ export default {
   methods: {
     startCountdown() {
       const intervalId = setInterval(() => {
-        const now = Math.floor(Date.now() / 1000) - service_default;
+        const now = Math.floor(Date.now() / 1000) - this.server_time_delta;
         const remainingTime = this.stop_time - now;
 
         if (remainingTime > 0) {

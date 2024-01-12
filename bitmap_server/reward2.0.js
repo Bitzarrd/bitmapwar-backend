@@ -102,8 +102,8 @@ export function calculate_pool_purple_base(users, proportion) {
     return proportion / users.length;
 }
 
-export function calculate_pool_purple(users) {
-    let base = calculate_pool_purple_base(users);
+export function calculate_pool_purple(users,proportion) {
+    let base = calculate_pool_purple_base(users,proportion);
     for (let owner of Object.keys(users)) {
         let user = users[owner];
         let coefficient = (1 - (user.i - 1) / 100);

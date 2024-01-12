@@ -276,7 +276,7 @@ const start_game = () => {
                     }
 
                     logger.info("对第三名的队伍进行发奖：");
-                    calculate_pool_by_color(win_team_users_3, win_teams[1].color, proportions[2]);
+                    calculate_pool_by_color(win_team_users_3, win_teams[2].color, proportions[2]);
                     for (let user of win_team_users_3) {
                         logger.info("用户：" + user.owner + " 名次：" + user.rank + " 颜色：" + user.statistics.color + " 领地：" + user.statistics.land + " 病毒：" + user.statistics.virus + " 损失：" + user.statistics.loss + " 奖励：" + user.reward_2 + "%");
                     }
@@ -292,9 +292,11 @@ const start_game = () => {
                     for (let owner of Object.keys(users)) {
                         let user = users[owner];
                         let reward = user.reward_1 + user.reward_2 + user.reward_3;
-                        let profit = all_reward_profit * BigInt(Math.floor(reward)) / BigInt(100);
-                        logger.info("用户：" + owner + " 奖励金额：" + profit.toString() + " 奖励比例：" + reward + "%");
-                        user.profit = profit.toString();
+                        if (reward >= 0) {
+                            let profit = all_reward_profit * BigInt(Math.floor(reward)) / BigInt(100);
+                            logger.info("用户：" + owner + " 奖励金额：" + profit.toString() + " 奖励比例：" + reward + "%");
+                            user.profit = profit.toString();
+                        }
                     }
                     last_rank = Object.values(users);
 
