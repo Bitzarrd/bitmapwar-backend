@@ -340,7 +340,7 @@ const start_game = () => {
                         let jackpot = await mysql_query(mysql_connection, "select val from `global` where `key`='jackpot';");
                         jackpot = BigInt(jackpot[0].val);
                         logger.info(`当前jackpot总量:${jackpot.toString()}`)
-                        let jackpot_reward = BigInt((Number)(jackpot) * 0.7);
+                        let jackpot_reward = BigInt(Math.floor((Number)(jackpot) * 0.7));
                         logger.info(`获得Jackpot中70%的奖励:${jackpot_reward.toString()}`)
                         let jackpot_user = (await mysql_query(mysql_connection, "select * from `user` where `address`='" + last_player.owner + "';"))[0];
                         logger.info("jackpot_user:" + JSON.stringify(jackpot_user));
@@ -354,7 +354,7 @@ const start_game = () => {
                         let jackpot_message = {
                             method: "JackpotLightUp",
                             land: win_team.land,
-                            jackpot: jackpot_reward,
+                            jackpot: jackpot_reward.toString(),
                             user: jackpot_user,
                             team: win_team.color,
                         };
@@ -446,6 +446,17 @@ const start_game = () => {
                     })
                 }
 
+                let jackpot = await mysql_query(mysql_connection, "select val from `global` where `key`='jackpot';");
+                jackpot = BigInt(jackpot[0].val);
+
+                let total_virus = 0;
+                for (let i = 0; i < players.length; i++) {
+                    total_virus += players[i].init_virus;
+                }
+
+
+                const profit = calculate_virus_to_profit(total_virus);
+                const total_bonus = Math.floor(Number(profit) * 0.88).toString()
 
                 clients.forEach((client) => {
                     if (client.readyState === WebSocket.OPEN) {
@@ -454,6 +465,8 @@ const start_game = () => {
                             payload: payload,
                             turn: turn,
                             statistics: statistics(),
+                            total_bonus:total_bonus,
+                            jackpot:jackpot.toString(),
                         }));
                     }
                 });
