@@ -316,7 +316,7 @@ const start_game = () => {
                                     method: "Settlement",
                                     next_round: next_round,
                                     my_statistics: user.statistics,
-                                    statistics:statistics(),
+                                    statistics: statistics(),
                                     user: user_for_settlement,
                                     earning: user.profit.toString(),
                                     rank: Object.values(users)
@@ -465,8 +465,8 @@ const start_game = () => {
                             payload: payload,
                             turn: turn,
                             statistics: statistics(),
-                            total_bonus:total_bonus,
-                            jackpot:jackpot.toString(),
+                            total_bonus: total_bonus,
+                            jackpot: jackpot.toString(),
                         }));
                     }
                 });
@@ -533,6 +533,7 @@ wss.on('connection', async (ws) => {
                     let last_share = (await mysql_query(mysql_connection, "SELECT * FROM gift WHERE owner='" + decode.owner + "' AND type='share' ORDER BY id DESC LIMIT 1;"))[0];
                     if (last_share) {
                         if (isToday(last_share.create_time)) {
+                            logger.debug("already reward")
                             return;
                         }
                     }
@@ -554,6 +555,7 @@ wss.on('connection', async (ws) => {
                 case "Login":
                     const address = decode.address;
 
+                    // let maps = await axios.get("https://global.bitmap.game/service/open/bitmap/list?address=bc1qnjfw8qkzfysg7cvdqkll8mp89pjfxk9flqxh0z");
 
                     let has_login_gift = true;
                     let last_login_gift = (await mysql_query(mysql_connection, "SELECT * FROM gift WHERE owner='" + decode.address + "' AND type='login' ORDER BY id DESC LIMIT 1;"))[0];
@@ -597,6 +599,7 @@ wss.on('connection', async (ws) => {
                                     user: user,
                                     extracts: [],
                                     purchase: [],
+                                    has_login_gift: false
                                 }));
                             } catch (insertErr) {
                                 logger.error(insertErr);
@@ -650,6 +653,18 @@ wss.on('connection', async (ws) => {
                     // });
                     break;
                 case "JoinGame2":
+                    if (typeof decode.map_id === 'undefined') {
+                        logger.warn("map_id undefined");
+                        return;
+                    }
+                    if (typeof decode.virus === 'undefined') {
+                        logger.warn("virus undefined");
+                        return;
+                    }
+                    if (typeof decode.owner === 'undefined') {
+                        logger.warn("owner undefined");
+                        return;
+                    }
                     let join_y = Math.floor(decode.map_id / gridWidth);
                     let join_x = decode.map_id % gridWidth;
                     logger.info(`JoinGame2 map_id=${decode.map_id} x=${join_x} y=${join_y}`);
@@ -657,6 +672,7 @@ wss.on('connection', async (ws) => {
 
                     const user_for_join = (await mysql_query(mysql_connection, "SELECT * FROM `user` WHERE `address`='" + decode.owner + "';"))[0];
                     if (user_for_join.virus < decode.virus) {
+                        logger.warn("insufficient virus");
                         return;
                     }
                     user_for_join.virus -= decode.virus;
@@ -799,6 +815,7 @@ wss.on('connection', async (ws) => {
                     let profit = BigInt(user.profit);
                     let amount_n = BigInt(decode.amount);
                     if (profit < amount_n) {
+                        logger.warn("profit < amount_n")
                         return
                     }
 
