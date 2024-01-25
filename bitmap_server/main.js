@@ -20,6 +20,7 @@ import {
     get_win_team
 } from "./reward.js";
 import {calculate_pool_by_color, calculate_proportion, sort_win_team} from "./reward2.0.js";
+import {errors} from "./errors.js";
 
 dotenv.config();
 
@@ -83,9 +84,10 @@ let grid = null;
 let stop_time = 0;
 
 //////////////////////////////////////////////////////
+const bitmap_count_url = "https://indexapitx.bitmap.game/api/v1/collection/bitmap/count";
+const bitmap_owner_url = "https://indexapitx.bitmap.game/api/v1/collection/bitmap/bc1q79petmktxmlq8nu6p3yn0sdyku7ywvgfzlfpav";
 
-
-axios.get("https://global.bitmap.game/service/open/bitmap/count").then(resp => {
+axios.get(bitmap_count_url).then(resp => {
     let map_count = resp.data.data;
     gridHeight = Math.ceil(map_count / 1000)
     logger.info(`generate2DArray width=${gridWidth} height=${gridHeight}`);
@@ -565,15 +567,7 @@ wss.on('connection', async (ws) => {
                         has_login_gift = false;
                     }
 
-                    if (!has_login_gift) {
-                        await mysql_connection.query("INSERT INTO gift SET ?", {
-                            owner: decode.address,
-                            create_time: now(),
-                            amount: 500,
-                            type: "login"
-                        });
-                        await mysql_connection.query("UPDATE user SET virus=virus+500 WHERE address='" + decode.address + "';");
-                    }
+
 
                     const sql = "SELECT * FROM `user` WHERE `address`='" + address + "'";
                     logger.info(sql);
@@ -585,15 +579,29 @@ wss.on('connection', async (ws) => {
 
                             try {
                                 mysql_connection.query('INSERT INTO user SET ?', {
-                                    profit: 1,
+                                    profit: "0",
                                     address: decode.address,
+                                    virus:0
                                 });
+
+                                if (!has_login_gift) {
+                                    await mysql_connection.query("INSERT INTO gift SET ?", {
+                                        owner: decode.address,
+                                        create_time: now(),
+                                        amount: 500,
+                                        type: "login"
+                                    });
+                                    await mysql_connection.query("UPDATE user SET virus=virus+500 WHERE address='" + decode.address + "';");
+                                }
 
                                 // const insertResult = await mysql_connection.query(insertSql);
                                 // logger.info(insertResult);
                                 let user = {
                                     address: address,
+                                    profit: "0",
+                                    virus: 500,
                                 };
+
                                 ws.send(JSON.stringify({
                                     method: "LoginSuccess",
                                     user: user,
@@ -605,8 +613,19 @@ wss.on('connection', async (ws) => {
                                 logger.error(insertErr);
                             }
                         } else {
+
+                            if (!has_login_gift) {
+                                await mysql_connection.query("INSERT INTO gift SET ?", {
+                                    owner: decode.address,
+                                    create_time: now(),
+                                    amount: 500,
+                                    type: "login"
+                                });
+                                await mysql_connection.query("UPDATE user SET virus=virus+500 WHERE address='" + decode.address + "';");
+                            }
+
                             let user = result[0];
-                            logger.info(user);
+                            logger.info(JSON.stringify(user));
 
                             let extracts_sql = "SELECT * FROM `extract` WHERE address='" + address + "' ORDER BY id DESC;";
                             logger.info(extracts_sql);
@@ -668,11 +687,28 @@ wss.on('connection', async (ws) => {
                     let join_y = Math.floor(decode.map_id / gridWidth);
                     let join_x = decode.map_id % gridWidth;
                     logger.info(`JoinGame2 map_id=${decode.map_id} x=${join_x} y=${join_y}`);
+
+                    let join_cell = grid[join_y][join_x];
+                    if (join_cell !== 0) {
+                        let cell_player = players[join_cell - 1];
+                        if (cell_player && cell_player.bitmap === decode.map_id) {
+                            logger.warn(`cell already exist player:${cell_player.owner} => ${cell_player.bitmap}`)
+                            return;
+                        }
+                    }
+
                     decode.virus = (Number)(decode.virus);
 
                     const user_for_join = (await mysql_query(mysql_connection, "SELECT * FROM `user` WHERE `address`='" + decode.owner + "';"))[0];
                     if (user_for_join.virus < decode.virus) {
                         logger.warn("insufficient virus");
+
+                        ws.send(JSON.stringify({
+                            method: "ErrorMsg",
+                            error_code: 100001,
+                            error_message: errors["100001"],
+                        }));
+
                         return;
                     }
                     user_for_join.virus -= decode.virus;
@@ -701,6 +737,9 @@ wss.on('connection', async (ws) => {
                     };
 
                     players.push(join_player)
+                    const player_index = players.length;
+
+                    grid[join_y][join_x] = player_index;
 
                     clients.forEach((client) => {
                         if (client.readyState === WebSocket.OPEN) {
