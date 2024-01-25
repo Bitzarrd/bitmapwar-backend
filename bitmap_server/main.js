@@ -85,7 +85,7 @@ let stop_time = 0;
 
 //////////////////////////////////////////////////////
 const bitmap_count_url = "https://indexapitx.bitmap.game/api/v1/collection/bitmap/count";
-const bitmap_owner_url = "https://indexapitx.bitmap.game/api/v1/collection/bitmap/bc1q79petmktxmlq8nu6p3yn0sdyku7ywvgfzlfpav";
+const bitmap_owner_url = "https://indexapitx.bitmap.game/api/v1/collection/bitmap/${address}/?page=1&limit=10000";
 
 axios.get(bitmap_count_url).then(resp => {
     let map_count = resp.data.data;
@@ -498,8 +498,18 @@ wss.on('connection', async (ws) => {
     clients.add(ws);
 
 
-    let jackpot = await mysql_query(mysql_connection, "SELECT val FROM `global` WHERE `key`='jackpot';");
-    jackpot = jackpot[0].val;
+    let jackpot = await mysql_query(mysql_connection, "select val from `global` where `key`='jackpot';");
+    jackpot = BigInt(jackpot[0].val);
+
+    let total_virus = 0;
+    for (let i = 0; i < players.length; i++) {
+        total_virus += players[i].init_virus;
+    }
+
+
+    const profit = calculate_virus_to_profit(total_virus);
+    const total_bonus = Math.floor(Number(profit) * 0.88).toString()
+
 
     ws.send(JSON.stringify(
         {
@@ -514,7 +524,8 @@ wss.on('connection', async (ws) => {
             stop_time: stop_time,
             // started: started,
             last_rank: last_rank,
-            jackpot: jackpot,
+            total_bonus: total_bonus,
+            jackpot: jackpot.toString(),
             now_time: now()
         }
     ));
