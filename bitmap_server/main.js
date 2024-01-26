@@ -424,9 +424,9 @@ const start_game = () => {
                                 logger.info(`attack!! origin_color=${origin_player.color} now_color=${player.color}`)
                                 const damage = Math.min(player.virus, origin_player.virus);
                                 origin_player.loss += damage;
-                                player.loss += damage;
                                 origin_player.virus -= damage;
-                                player.virus = damage;
+                                player.loss += damage;
+                                player.virus -= damage;
                                 if (player.virus <= 0) {
                                     continue;
                                 }
