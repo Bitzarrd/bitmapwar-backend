@@ -1,25 +1,48 @@
-import logo from './logo.svg';
+'use client';
 import './App.css';
 
-function App() {
-  return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
+
+import {
+    ConnectProvider as BTCConnectProvider,
+    OKXConnector,
+    UnisatConnector,
+} from '@particle-network/btc-connectkit';
+
+  function ConnectProvider({ children }: { children: React.ReactNode }) {
+    return (
+        <BTCConnectProvider
+            options={{
+                projectId: 'xxxx',
+                clientKey: 'xxxx',
+                appId: 'xxxx',
+                aaOptions: {
+                    accountContracts: {
+                        BTC: [
+                            {
+                                chainIds: [686868, 28206, 80001],
+                                version: '1.0.0',
+                            },
+                        ],
+                    },
+                },
+                walletOptions: { // optional: wallet options
+                    visible: true,
+                }
+            }}
+            connectors={[new UnisatConnector(), new OKXConnector()]}
         >
-          Learn React
-        </a>
-      </header>
-    </div>
-  );
+            {children}
+        </BTCConnectProvider>
+    );
+}
+
+
+function App() {
+    return (
+        <ConnectProvider>
+            <div>app</div>
+        </ConnectProvider>
+    );
 }
 
 export default App;
