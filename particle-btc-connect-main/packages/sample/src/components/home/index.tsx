@@ -1,11 +1,11 @@
 'use client';
 
-import bitcoinIcon from '@/assets/bitcoin.png';
-import particleLogo from '@/assets/particle-logo.svg';
-import { accountContracts } from '@/config';
-import { Button, Checkbox, Divider, Input, Select, SelectItem } from '@nextui-org/react';
+// import bitcoinIcon from '@/assets/bitcoin.png';
+// import particleLogo from '@/assets/particle-logo.svg';
+// import { accountContracts } from '@/config';
+// import { Button, Checkbox, Divider, Input, Select, SelectItem } from '@nextui-org/react';
 import {
-  UnisatConnector,
+  // UnisatConnector,
   useAccounts,
   useBTCProvider,
   useConnectModal,
@@ -14,12 +14,12 @@ import {
 } from '@particle-network/btc-connectkit';
 import { chains } from '@particle-network/chains';
 import { useRequest } from 'ahooks';
-import Image from 'next/image';
-import { useState } from 'react';
+// import Image from 'next/image';
+import { useState, useEffect } from 'react';
 import { toast } from 'react-toastify';
 
 export default function Home() {
-  const { openConnectModal, disconnect } = useConnectModal();
+  // const { openConnectModal, disconnect } = useConnectModal();
   const { accounts } = useAccounts();
   const { evmAccount, smartAccount, chainId, switchChain } = useETHProvider();
   const { provider, getNetwork, switchNetwork, signMessage, getPublicKey, sendBitcoin, sendInscription } =
@@ -206,8 +206,43 @@ export default function Home() {
     }
   );
 
+  //============================================Unity相关=======================================================
+
+  const hideFullScreenButton = '';
+  const buildUrl = 'unity_webgl_player/Build';
+  const loaderUrl = buildUrl + '/web.loader.js';
+  const config = {
+    dataUrl: buildUrl + '/web.data',
+    frameworkUrl: buildUrl + '/web.framework.js',
+    codeUrl: buildUrl + '/web.wasm',
+    streamingAssetsUrl: 'StreamingAssets',
+    companyName: 'DefaultCompany',
+    productName: 'Bitmap',
+    productVersion: '0.1',
+  };
+
+  const container = document.querySelector('#unity-container');
+  const canvas = document.querySelector('#unity-canvas');
+  const loadingCover = document.querySelector('#loading-cover');
+  const progressBarEmpty = document.querySelector('#unity-progress-bar-empty');
+  const progressBarFull = document.querySelector('#unity-progress-bar-full');
+  const fullscreenButton = document.querySelector('#unity-fullscreen-button');
+  const spinner = document.querySelector('.spinner');
+
+  useEffect(() => {
+    // 在组件加载完成后自动执行的函数
+    console.log('组件加载完成');
+    const script = document.createElement('script');
+    script.src = loaderUrl;
+    script.onload = () => {
+      console.log('script load success');
+    };
+    document.body.appendChild(script);
+  }, []); // 传递一个空数组作为依赖，确保只在组件加载完成时执行一次
+
   return (
-    <div>
+    <div id="unity-container" className="unity-desktop">
+      <canvas id="unity-canvas"></canvas>
     </div>
     // <div className="container mx-auto flex h-full flex-col items-center gap-6 overflow-auto py-10">
     //   <Image src={particleLogo} alt="" className=""></Image>
