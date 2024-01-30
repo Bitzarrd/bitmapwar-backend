@@ -5,9 +5,9 @@ import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 import "@openzeppelin/contracts/token/ERC20/extensions/ERC20Burnable.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 
-contract BitCraft is ERC20, ERC20Burnable, Ownable {
+contract BitMapWar is ERC20, ERC20Burnable, Ownable {
     constructor()
-    ERC20("BitCraft", "BC")
+    ERC20("BitMapWar", "BMW")
     Ownable()
     {}
 

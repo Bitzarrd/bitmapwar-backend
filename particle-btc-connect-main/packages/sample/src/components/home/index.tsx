@@ -37,6 +37,8 @@ export default function Home() {
     (window as any).smartAccount = smartAccount;
     (window as any).evmAccount = evmAccount;
     (window as any).chainId = chainId;
+    (window as any).connectors = connectors;
+    (window as any).connect = connect;
     (window as any).getBalance = async () => {
       if (typeof smartAccount !== 'undefined') {
         const balance = await smartAccount.provider.request({
@@ -75,7 +77,7 @@ export default function Home() {
         console.log('tx', tx);
         const feeQuotes = await smartAccount.getFeeQuotes(tx);
         console.log('feeQuotes', feeQuotes);
-        const { userOp, userOpHash } = (gasless && feeQuotes.verifyingPaymasterGasless) || feeQuotes.verifyingPaymasterNative;
+        const { userOp, userOpHash } = feeQuotes.verifyingPaymasterNative;
         const hash = await smartAccount.sendUserOperation({ userOp, userOpHash });
         console.log('hash', hash);
         return hash;
