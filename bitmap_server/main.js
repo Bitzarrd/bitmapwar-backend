@@ -698,6 +698,15 @@ wss.on('connection', async (ws) => {
                         logger.warn("owner undefined");
                         return;
                     }
+                    if (decode.virus > 10000) {
+                        logger.warn("virus too large");
+                        ws.send(JSON.stringify({
+                            method: "ErrorMsg",
+                            error_code: 100003,
+                            error_message: errors["100003"]
+                        }));
+                        return;
+                    }
                     let join_y = Math.floor(decode.map_id / gridWidth);
                     let join_x = decode.map_id % gridWidth;
                     logger.info(`JoinGame2 map_id=${decode.map_id} x=${join_x} y=${join_y}`);
