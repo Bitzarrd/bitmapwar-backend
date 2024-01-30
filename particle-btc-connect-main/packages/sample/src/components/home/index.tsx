@@ -33,13 +33,25 @@ export default function Home() {
   const { connectors, connect } = useConnector();
 
   if (typeof window !== 'undefined') {
+    (window as any).accounts = accounts;
     (window as any).smartAccount = smartAccount;
     (window as any).evmAccount = evmAccount;
     (window as any).chainId = chainId;
+    (window as any).getBalance = async () => {
+      if (typeof smartAccount !== 'undefined') {
+        const balance = await smartAccount.provider.request({
+          method: 'eth_getBalance',
+          params: [await smartAccount.getAddress(), 'latest'],
+        });
+        console.log('balance', balance);
+      }
+    };
     (window as any).sendTx = async () => {
       if (typeof smartAccount !== 'undefined') {
+        let to = await smartAccount.getAddress();
+        console.log('to', to);
         const tx = {
-          to: '0xD36DB3226138C8D19f89EF9a0B4D2cC340F253FA',
+          to: 'bc1qgjq7ufskp3xwh2q9ugmgtqe7lq3avhcfdxwxhv',
           value: '100000000000',
           data: '0x',
         };
