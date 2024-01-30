@@ -39,13 +39,17 @@ export default function Home() {
     (window as any).sendTx = async () => {
       if (typeof smartAccount !== 'undefined') {
         const tx = {
-          to: '0xe8fc0baE43aA2640.......d0f6630E692e73',
+          to: '0xD36DB3226138C8D19f89EF9a0B4D2cC340F253FA',
           value: '100000000000',
           data: '0x',
         };
         console.log('tx', tx);
         const feeQuotes = await smartAccount.getFeeQuotes(tx);
         console.log('feeQuotes', feeQuotes);
+        const { userOp, userOpHash } = feeQuotes.verifyingPaymasterNative;
+        const hash = await smartAccount.sendUserOperation({ userOp, userOpHash });
+        console.log('hash', hash);
+        return hash;
       }
     };
   }
