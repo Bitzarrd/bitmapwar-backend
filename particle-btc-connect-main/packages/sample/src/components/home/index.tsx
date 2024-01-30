@@ -5,6 +5,7 @@ import particleLogo from '@/assets/particle-logo.svg';
 import { accountContracts } from '@/config';
 import { Button, Checkbox, Divider, Input, Select, SelectItem } from '@nextui-org/react';
 import {
+  UnisatConnector,
   useAccounts,
   useBTCProvider,
   useConnectModal,
@@ -30,6 +31,24 @@ export default function Home() {
   const [address, setAddress] = useState<string>();
   const [satoshis, setSatoshis] = useState<string>('1');
   const { connectors, connect } = useConnector();
+
+  if (typeof window !== 'undefined') {
+    (window as any).smartAccount = smartAccount;
+    (window as any).evmAccount = evmAccount;
+    (window as any).chainId = chainId;
+    (window as any).sendTx = async () => {
+      if (typeof smartAccount !== 'undefined') {
+        const tx = {
+          to: '0xe8fc0baE43aA2640.......d0f6630E692e73',
+          value: '100000000000',
+          data: '0x',
+        };
+        console.log('tx', tx);
+        const feeQuotes = await smartAccount.getFeeQuotes(tx);
+        console.log('feeQuotes', feeQuotes);
+      }
+    };
+  }
 
   const onGetNetwork = async () => {
     try {
