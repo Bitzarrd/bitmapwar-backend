@@ -4,6 +4,7 @@
 // import particleLogo from '@/assets/particle-logo.svg';
 // import { accountContracts } from '@/config';
 // import { Button, Checkbox, Divider, Input, Select, SelectItem } from '@nextui-org/react';
+import logo from '@/assets/logo.png';
 import {
   // UnisatConnector,
   useAccounts,
@@ -14,7 +15,7 @@ import {
 } from '@particle-network/btc-connectkit';
 import { chains } from '@particle-network/chains';
 import { useRequest } from 'ahooks';
-// import Image from 'next/image';
+import Image from 'next/image';
 import { useState, useEffect } from 'react';
 import { toast } from 'react-toastify';
 
@@ -241,6 +242,7 @@ export default function Home() {
     script.src = loaderUrl;
     script.onload = () => {
       console.log('script load success');
+      loadingCover.style.display = 'block';
       const createUnityInstanceFn: createUnityInstanceFunction = (window as any).createUnityInstance;
       createUnityInstanceFn(canvas, config, (progress) => {
         console.log('progress:', progress);
@@ -263,12 +265,14 @@ export default function Home() {
 
   return (
     <div>
-      <div id="unity-container" className="unity-desktop" style={{ width: '100%', height: '100%' }}>
-        <canvas id="unity-canvas" style={{ width: '100%', height: '100%' }}></canvas>
+      <div id="unity-container" className="unity-desktop">
+        <canvas id="unity-canvas"></canvas>
       </div>
       <div id="loading-cover" style={{ display: 'none' }}>
         <div id="unity-loading-bar">
-          <div id="unity-logo"></div>
+          <div id="unity-logo">
+            <Image src={logo} alt="" />
+          </div>
           <div id="unity-progress-bar-empty" style={{ display: 'none' }}>
             <div id="unity-progress-bar-full"></div>
           </div>
