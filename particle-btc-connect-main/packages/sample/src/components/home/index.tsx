@@ -221,21 +221,37 @@ export default function Home() {
     productVersion: '0.1',
   };
 
-  const container = document.querySelector('#unity-container');
-  const canvas = document.querySelector('#unity-canvas');
-  const loadingCover = document.querySelector('#loading-cover');
-  const progressBarEmpty = document.querySelector('#unity-progress-bar-empty');
-  const progressBarFull = document.querySelector('#unity-progress-bar-full');
-  const fullscreenButton = document.querySelector('#unity-fullscreen-button');
-  const spinner = document.querySelector('.spinner');
+  interface createUnityInstanceFunction {
+    (canvas: Element, config: any, onProgress: (progress: number) => void): Promise<any>;
+  }
 
   useEffect(() => {
     // 在组件加载完成后自动执行的函数
     console.log('组件加载完成');
+    const container = document.querySelector('#unity-container');
+    const canvas = document.querySelector('#unity-canvas');
+    const loadingCover = document.querySelector('#loading-cover');
+    const progressBarEmpty = document.querySelector('#unity-progress-bar-empty');
+    const progressBarFull = document.querySelector('#unity-progress-bar-full');
+    const fullscreenButton = document.querySelector('#unity-fullscreen-button');
+    const spinner = document.querySelector('.spinner');
+
     const script = document.createElement('script');
     script.src = loaderUrl;
     script.onload = () => {
+      if (canvas == null) {
+        return;
+      }
       console.log('script load success');
+      const createUnityInstanceFn: createUnityInstanceFunction = (window as any).createUnityInstance;
+      createUnityInstanceFn(canvas, config, (progress) => {
+        console.log('progress:', progress);
+      }).then((unityInstance) => {
+        console.log('unityInstance', unityInstance);
+        unityInstance.SetFullscreen(1);
+      }).catch((message) => {
+        console.error(message);
+      });
     };
     document.body.appendChild(script);
   }, []); // 传递一个空数组作为依赖，确保只在组件加载完成时执行一次
