@@ -246,12 +246,16 @@ export default function Home() {
       const createUnityInstanceFn: createUnityInstanceFunction = (window as any).createUnityInstance;
       createUnityInstanceFn(canvas, config, (progress) => {
         console.log('progress:', progress);
-      }).then((unityInstance) => {
-        console.log('unityInstance', unityInstance);
-        unityInstance.SetFullscreen(1);
-      }).catch((message) => {
-        console.error(message);
-      });
+      })
+        .then((unityInstance) => {
+          console.log('unityInstance', unityInstance);
+          // unityInstance.SetFullscreen(1);//这个函数会报错
+          (canvas as HTMLElement).style.width = '100vw';
+          (canvas as HTMLElement).style.height = '100vh';
+        })
+        .catch((message) => {
+          console.error(message);
+        });
     };
     document.body.appendChild(script);
   }, []); // 传递一个空数组作为依赖，确保只在组件加载完成时执行一次
