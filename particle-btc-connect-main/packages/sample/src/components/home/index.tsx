@@ -51,7 +51,7 @@ export default function Home() {
         let to = await smartAccount.getAddress();
         console.log('to', to);
         const tx = {
-          to: 'bc1qgjq7ufskp3xwh2q9ugmgtqe7lq3avhcfdxwxhv',
+          to: to,
           value: '100000000000',
           data: '0x',
         };
@@ -59,6 +59,23 @@ export default function Home() {
         const feeQuotes = await smartAccount.getFeeQuotes(tx);
         console.log('feeQuotes', feeQuotes);
         const { userOp, userOpHash } = feeQuotes.verifyingPaymasterNative;
+        const hash = await smartAccount.sendUserOperation({ userOp, userOpHash });
+        console.log('hash', hash);
+        return hash;
+      }
+    };
+    (window as any).contractCall = async () => {
+      if (typeof smartAccount !== 'undefined') {
+        let to = await smartAccount.getAddress();
+        console.log('to', to);
+        const tx = {
+          to: '0x50CE6428D8aCA4ce02c1701E492A43C8E35a1bc5',
+          data: '0x6057361d000000000000000000000000000000000000000000000000000000000000002a',
+        };
+        console.log('tx', tx);
+        const feeQuotes = await smartAccount.getFeeQuotes(tx);
+        console.log('feeQuotes', feeQuotes);
+        const { userOp, userOpHash } = (gasless && feeQuotes.verifyingPaymasterGasless) || feeQuotes.verifyingPaymasterNative;
         const hash = await smartAccount.sendUserOperation({ userOp, userOpHash });
         console.log('hash', hash);
         return hash;
