@@ -46,6 +46,7 @@ export default function Home() {
           params: [await smartAccount.getAddress(), 'latest'],
         });
         console.log('balance', balance);
+        return balance;
       }
     };
     (window as any).sendTx = async () => {
@@ -222,32 +223,32 @@ export default function Home() {
   };
 
   interface createUnityInstanceFunction {
-    (canvas: Element, config: any, onProgress: (progress: number) => void): Promise<any>;
+    (canvas: HTMLElement, config: any, onProgress: (progress: number) => void): Promise<any>;
   }
 
   useEffect(() => {
     // 在组件加载完成后自动执行的函数
     console.log('组件加载完成');
-    const container = document.querySelector('#unity-container');
-    const canvas = document.querySelector('#unity-canvas');
-    const loadingCover = document.querySelector('#loading-cover');
-    const progressBarEmpty = document.querySelector('#unity-progress-bar-empty');
-    const progressBarFull = document.querySelector('#unity-progress-bar-full');
-    const fullscreenButton = document.querySelector('#unity-fullscreen-button');
+    const container = document.querySelector('#unity-container') as HTMLElement;
+    const canvas = document.querySelector('#unity-canvas') as HTMLElement;
+    const loadingCover = document.querySelector('#loading-cover') as HTMLElement;
+    const progressBarEmpty = document.querySelector('#unity-progress-bar-empty') as HTMLElement;
+    const progressBarFull = document.querySelector('#unity-progress-bar-full') as HTMLElement;
+    const fullscreenButton = document.querySelector('#unity-fullscreen-button') as HTMLElement;
     const spinner = document.querySelector('.spinner');
 
     const script = document.createElement('script');
     script.src = loaderUrl;
     script.onload = () => {
-      if (canvas == null) {
-        return;
-      }
       console.log('script load success');
       const createUnityInstanceFn: createUnityInstanceFunction = (window as any).createUnityInstance;
       createUnityInstanceFn(canvas, config, (progress) => {
         console.log('progress:', progress);
+        progressBarEmpty.style.display = '';
+        progressBarFull.style.width = `${100 * progress}%`;
       })
         .then((unityInstance) => {
+          loadingCover.style.display = 'none';
           console.log('unityInstance', unityInstance);
           // unityInstance.SetFullscreen(1);//这个函数会报错
           (canvas as HTMLElement).style.width = '100vw';
@@ -261,8 +262,19 @@ export default function Home() {
   }, []); // 传递一个空数组作为依赖，确保只在组件加载完成时执行一次
 
   return (
-    <div id="unity-container" className="unity-desktop" style={{ width: '100%', height: '100%' }}>
-      <canvas id="unity-canvas" style={{ width: '100%', height: '100%' }}></canvas>
+    <div>
+      <div id="unity-container" className="unity-desktop" style={{ width: '100%', height: '100%' }}>
+        <canvas id="unity-canvas" style={{ width: '100%', height: '100%' }}></canvas>
+      </div>
+      <div id="loading-cover" style={{ display: 'none' }}>
+        <div id="unity-loading-bar">
+          <div id="unity-logo"></div>
+          <div id="unity-progress-bar-empty" style={{ display: 'none' }}>
+            <div id="unity-progress-bar-full"></div>
+          </div>
+          <div className="spinner"></div>
+        </div>
+      </div>
     </div>
     // <div className="container mx-auto flex h-full flex-col items-center gap-6 overflow-auto py-10">
     //   <Image src={particleLogo} alt="" className=""></Image>
