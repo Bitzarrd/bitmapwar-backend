@@ -23,4 +23,6 @@ BTC Connect takes advantage of the ERC-4337 design and L2 EVM-compatible chains 
 - [Documentation](https://docs.particle.network/developers/btc-connect)
 
 
-yarn && npx lerna run build
+yarn
+npx lerna run build
+npx lerna run start

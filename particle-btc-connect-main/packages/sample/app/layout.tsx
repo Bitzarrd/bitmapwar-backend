@@ -1,6 +1,7 @@
 import ConnectProvider from '@/components/connectProvider';
 import UIProvider from '@/components/uiProvider';
 import '@/styles/globals.css';
+// import '@/styles/style.css';
 import type { Metadata } from 'next';
 import { Inter } from 'next/font/google';
 import { ToastContainer } from 'react-toastify';

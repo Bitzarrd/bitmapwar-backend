@@ -261,8 +261,8 @@ export default function Home() {
   }, []); // 传递一个空数组作为依赖，确保只在组件加载完成时执行一次
 
   return (
-    <div id="unity-container" className="unity-desktop">
-      <canvas id="unity-canvas"></canvas>
+    <div id="unity-container" className="unity-desktop" style={{ width: '100%', height: '100%' }}>
+      <canvas id="unity-canvas" style={{ width: '100%', height: '100%' }}></canvas>
     </div>
     // <div className="container mx-auto flex h-full flex-col items-center gap-6 overflow-auto py-10">
     //   <Image src={particleLogo} alt="" className=""></Image>

@@ -8,3 +8,9 @@
 ## Document
 
 [BTC-Connect](https://docs.particle.network/developers/btc-connect)
+
+
+yarn
+
+npx lerna run build
+npx lerna run start
