@@ -30,7 +30,8 @@ export let mysql_connection = mysql.createConnection({
     host: process.env.MYSQL_HOST,
     user: process.env.MYSQL_USER,
     password: process.env.MYSQL_PASS,
-    database: process.env.MYSQL_DB
+    database: process.env.MYSQL_DB,
+    idleTimeoutMillis: 86400 * 100 // 设置连接在没有活动时断开
 });
 
 const myFormat = winston.format.printf(({level, message, label, timestamp}) => {
@@ -63,8 +64,16 @@ mysql_connection.connect({}, async (err) => {
         last_rank = JSON.parse(last_rounds[0].rank);
     }
 
+    const keepAliveQuery = 'SELECT 1';
+
     setInterval(() => {
-        mysql_query(mysql_connection, "SELECT * FROM `round` ORDER BY id DESC LIMIT 1;");
+        mysql_connection.query(keepAliveQuery, (error, results, fields) => {
+            if (error) {
+                console.error('执行保持连接查询时出错:', error);
+                //退出进程
+                process.exit(1);
+            }
+        });
     }, 60 * 1000);
 
     start_game()
