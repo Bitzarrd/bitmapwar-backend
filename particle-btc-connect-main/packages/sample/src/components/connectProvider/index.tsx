@@ -13,6 +13,9 @@ if (typeof window !== 'undefined') {
 }
 
 export default function ConnectProvider({ children }: { children: React.ReactNode }) {
+  if (typeof window !== 'undefined') {
+    (window as any).unisatConnector = new UnisatConnector();
+  }
   return (
     <BTCConnectProvider
       options={{

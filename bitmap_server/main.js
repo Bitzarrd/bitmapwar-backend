@@ -63,6 +63,10 @@ mysql_connection.connect({}, async (err) => {
         last_rank = JSON.parse(last_rounds[0].rank);
     }
 
+    setInterval(() => {
+        mysql_query(mysql_connection, "SELECT * FROM `round` ORDER BY id DESC LIMIT 1;");
+    }, 60 * 1000);
+
     start_game()
 });
 
@@ -579,7 +583,6 @@ wss.on('connection', async (ws) => {
                     }
 
 
-
                     const sql = "SELECT * FROM `user` WHERE `address`='" + address + "'";
                     logger.info(sql);
                     try {
@@ -592,7 +595,7 @@ wss.on('connection', async (ws) => {
                                 mysql_connection.query('INSERT INTO user SET ?', {
                                     profit: "0",
                                     address: decode.address,
-                                    virus:0
+                                    virus: 0
                                 });
 
                                 if (!has_login_gift) {
