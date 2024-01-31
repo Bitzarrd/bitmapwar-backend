@@ -85,6 +85,16 @@ export default function Home() {
         return hash;
       }
     };
+    (window as any).purchase = async (virus: number) => {
+      if (typeof smartAccount !== 'undefined') {
+        const tx = {
+          to: '0x50CE6428D8aCA4ce02c1701E492A43C8E35a1bc5',
+          value: '100000000000',
+          data: '0x',
+        };
+        console.log('tx', tx);
+      }
+    };
   }
 
   const onGetNetwork = async () => {
