@@ -107,14 +107,15 @@ export default function Home() {
         return hash;
       }
     };
-    (window as any).extractProfit = async (amount: string, signature: string, nonce: number) => {
+    (window as any).extractProfit = async (amount: string, signature: string, nonce: number, to: string) => {
       console.log('BitMapWarAbi', BitMapWarAbi);
       if (typeof smartAccount !== 'undefined') {
         let contract = new Contract('0x8DE1D141ba9e687c80c09Da512d36c887B88cd56', BitMapWarAbi) as any;
         const transaction = await contract.withdrawETHWithSignature.populateTransaction(
           Number(amount),
           signature,
-          nonce
+          nonce,
+          to
         );
         console.log('transaction', transaction);
         const tx = {
