@@ -859,6 +859,7 @@ wss.on('connection', async (ws) => {
                                             ws.send(JSON.stringify({
                                                 method: "PurchaseSuccess",
                                                 user: user,
+                                                //todo
                                             }));
                                         } catch (selectErr) {
                                             logger.error(selectErr);
@@ -881,7 +882,14 @@ wss.on('connection', async (ws) => {
                     }
                     break;
                 case "ExtractProfit":
-
+                    if (typeof decode.address === 'undefined') {
+                        logger.warn("address undefined");
+                        return;
+                    }
+                    if (typeof decode.amount === 'undefined') {
+                        logger.warn("amount undefined");
+                        return;
+                    }
                     let user = (await mysql_query(mysql_connection, "SELECT * FROM `user` WHERE `address` = '" + decode.address + "';"))[0];
                     let profit = BigInt(user.profit);
                     let amount_n = BigInt(decode.amount);
