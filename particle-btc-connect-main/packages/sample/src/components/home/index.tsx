@@ -9,7 +9,7 @@ import {
   // UnisatConnector,
   useAccounts,
   useBTCProvider,
-  useConnectModal,
+  // useConnectModal,
   useConnector,
   useETHProvider,
 } from '@particle-network/btc-connectkit';
@@ -18,6 +18,7 @@ import { useRequest } from 'ahooks';
 import Image from 'next/image';
 import { useState, useEffect } from 'react';
 import { toast } from 'react-toastify';
+import { parseEther } from 'ethers';
 
 export default function Home() {
   // const { openConnectModal, disconnect } = useConnectModal();
@@ -86,137 +87,140 @@ export default function Home() {
       }
     };
     (window as any).purchase = async (virus: number) => {
+      const price = 0.00001;
+      const fee = parseEther((price * virus).toString()).toString();
+      console.log('fee', fee);
       if (typeof smartAccount !== 'undefined') {
         const tx = {
           to: '0x50CE6428D8aCA4ce02c1701E492A43C8E35a1bc5',
-          value: '100000000000',
+          value: fee,
           data: '0x',
         };
         console.log('tx', tx);
       }
     };
   }
+  //
+  // const onGetNetwork = async () => {
+  //   try {
+  //     const network = await getNetwork();
+  //     toast.success(network);
+  //   } catch (error: any) {
+  //     console.log('🚀 ~ onGetNetwork ~ error:', error);
+  //     toast.error(error.message || 'get network error');
+  //   }
+  // };
 
-  const onGetNetwork = async () => {
-    try {
-      const network = await getNetwork();
-      toast.success(network);
-    } catch (error: any) {
-      console.log('🚀 ~ onGetNetwork ~ error:', error);
-      toast.error(error.message || 'get network error');
-    }
-  };
+  // const onSwitchNetwork = async () => {
+  //   try {
+  //     const network = await getNetwork();
+  //     const changeTo = network === 'livenet' ? 'testnet' : 'livenet';
+  //     await switchNetwork(changeTo);
+  //     toast.success(`Change To ${changeTo}`);
+  //   } catch (error: any) {
+  //     console.log('🚀 ~ onSwitchNetwork ~ error:', error);
+  //     toast.error(error.message || 'switch chain error');
+  //   }
+  // };
 
-  const onSwitchNetwork = async () => {
-    try {
-      const network = await getNetwork();
-      const changeTo = network === 'livenet' ? 'testnet' : 'livenet';
-      await switchNetwork(changeTo);
-      toast.success(`Change To ${changeTo}`);
-    } catch (error: any) {
-      console.log('🚀 ~ onSwitchNetwork ~ error:', error);
-      toast.error(error.message || 'switch chain error');
-    }
-  };
+  // const onGetPubkey = async () => {
+  //   try {
+  //     const pubKey = await getPublicKey();
+  //     console.log('🚀 ~ onGetPubkey ~ pubKey:', pubKey);
+  //     toast.success(pubKey);
+  //   } catch (error: any) {
+  //     toast.error(error.message || 'get pubkey error');
+  //   }
+  // };
 
-  const onGetPubkey = async () => {
-    try {
-      const pubKey = await getPublicKey();
-      console.log('🚀 ~ onGetPubkey ~ pubKey:', pubKey);
-      toast.success(pubKey);
-    } catch (error: any) {
-      toast.error(error.message || 'get pubkey error');
-    }
-  };
+  // const onSignMessage = async () => {
+  //   if (!message) {
+  //     return;
+  //   }
+  //   try {
+  //     const sig = await signMessage(message);
+  //     toast.success(sig);
+  //   } catch (error: any) {
+  //     toast.error(error.message || 'sign message error');
+  //   }
+  // };
 
-  const onSignMessage = async () => {
-    if (!message) {
-      return;
-    }
-    try {
-      const sig = await signMessage(message);
-      toast.success(sig);
-    } catch (error: any) {
-      toast.error(error.message || 'sign message error');
-    }
-  };
+  // const onSendBitcoin = async () => {
+  //   if (!address || !satoshis) {
+  //     return;
+  //   }
+  //   try {
+  //     const txId = await sendBitcoin(address, Number(satoshis));
+  //     toast.success(txId);
+  //   } catch (error: any) {
+  //     toast.error(error.message || 'send bitcoin error');
+  //   }
+  // };
 
-  const onSendBitcoin = async () => {
-    if (!address || !satoshis) {
-      return;
-    }
-    try {
-      const txId = await sendBitcoin(address, Number(satoshis));
-      toast.success(txId);
-    } catch (error: any) {
-      toast.error(error.message || 'send bitcoin error');
-    }
-  };
+  // const onSendInscription = async () => {
+  //   if (!inscriptionReceiverAddress || !inscriptionId || !provider) {
+  //     return;
+  //   }
+  //   try {
+  //     const result = await sendInscription(inscriptionReceiverAddress, inscriptionId);
+  //     const txId = result.txid;
+  //     console.log('send inscription success, txid:', txId);
+  //     toast.success(`send success \n${txId}`);
+  //   } catch (error: any) {
+  //     toast.error(error.message || 'send inscription error');
+  //   }
+  // };
 
-  const onSendInscription = async () => {
-    if (!inscriptionReceiverAddress || !inscriptionId || !provider) {
-      return;
-    }
-    try {
-      const result = await sendInscription(inscriptionReceiverAddress, inscriptionId);
-      const txId = result.txid;
-      console.log('send inscription success, txid:', txId);
-      toast.success(`send success \n${txId}`);
-    } catch (error: any) {
-      toast.error(error.message || 'send inscription error');
-    }
-  };
+  // const onSwitchChain = async (e: any) => {
+  //   const chainId = Number(e.target.value);
+  //   if (chainId) {
+  //     try {
+  //       await switchChain(chainId);
+  //     } catch (error: any) {
+  //       toast.error(error.message || 'switch chain error');
+  //     }
+  //   }
+  // };
 
-  const onSwitchChain = async (e: any) => {
-    const chainId = Number(e.target.value);
-    if (chainId) {
-      try {
-        await switchChain(chainId);
-      } catch (error: any) {
-        toast.error(error.message || 'switch chain error');
-      }
-    }
-  };
-
-  const { run: onSendNativeToken, loading: sendTokenLoading } = useRequest(
-    async () => {
-      if (!smartAccount) {
-        throw new Error('Please connect wallet first!');
-      }
-      const balance = await smartAccount.provider.request({
-        method: 'eth_getBalance',
-        params: [await smartAccount.getAddress(), 'latest'],
-      });
-      const value = BigInt(balance) > 100000000n ? '100000000' : '0';
-      const tx = {
-        to: '0xe8fc0baE43aA264064199dd494d0f6630E692e73',
-        value,
-        data: '0x',
-      };
-      const feeQuotes = await smartAccount.getFeeQuotes(tx);
-      const { userOp, userOpHash } =
-        (gasless && feeQuotes.verifyingPaymasterGasless) || feeQuotes.verifyingPaymasterNative;
-      const hash = await smartAccount.sendUserOperation({ userOp, userOpHash });
-      return hash;
-    },
-    {
-      manual: true,
-      onSuccess: (hash) => {
-        toast.success('Send Success!', {
-          onClick: () => {
-            const chain = chains.getEVMChainInfoById(chainId ?? 0);
-            if (chain) {
-              window.open(`${chain.blockExplorerUrl}/tx/${hash}`, '_blank');
-            }
-          },
-        });
-      },
-      onError: (error) => {
-        console.log('🚀 ~ onSendNativeToken ~ error:', error);
-        toast.error(error.message || 'send token error');
-      },
-    }
-  );
+  // const { run: onSendNativeToken, loading: sendTokenLoading } = useRequest(
+  //   async () => {
+  //     if (!smartAccount) {
+  //       throw new Error('Please connect wallet first!');
+  //     }
+  //     const balance = await smartAccount.provider.request({
+  //       method: 'eth_getBalance',
+  //       params: [await smartAccount.getAddress(), 'latest'],
+  //     });
+  //     const value = BigInt(balance) > 100000000n ? '100000000' : '0';
+  //     const tx = {
+  //       to: '0xe8fc0baE43aA264064199dd494d0f6630E692e73',
+  //       value,
+  //       data: '0x',
+  //     };
+  //     const feeQuotes = await smartAccount.getFeeQuotes(tx);
+  //     const { userOp, userOpHash } =
+  //       (gasless && feeQuotes.verifyingPaymasterGasless) || feeQuotes.verifyingPaymasterNative;
+  //     const hash = await smartAccount.sendUserOperation({ userOp, userOpHash });
+  //     return hash;
+  //   },
+  //   {
+  //     manual: true,
+  //     onSuccess: (hash) => {
+  //       toast.success('Send Success!', {
+  //         onClick: () => {
+  //           const chain = chains.getEVMChainInfoById(chainId ?? 0);
+  //           if (chain) {
+  //             window.open(`${chain.blockExplorerUrl}/tx/${hash}`, '_blank');
+  //           }
+  //         },
+  //       });
+  //     },
+  //     onError: (error) => {
+  //       console.log('🚀 ~ onSendNativeToken ~ error:', error);
+  //       toast.error(error.message || 'send token error');
+  //     },
+  //   }
+  // );
 
   //============================================Unity相关=======================================================
 
