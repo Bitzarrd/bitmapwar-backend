@@ -915,7 +915,7 @@ wss.on('connection', async (ws) => {
                         if (error) throw error;
                         console.log(results.insertId);
 
-                        let signature = await make_signature(process.env.PRIVATE_KEY, decode.amount, results.insertId)
+                        let signature = await make_signature(process.env.PRIVATE_KEY, decode.amount, results.insertId, decode.address);
                         logger.info("signature:" + signature);
 
                         ws.send(JSON.stringify({

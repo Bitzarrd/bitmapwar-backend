@@ -10,8 +10,8 @@ import 'react-toastify/dist/ReactToastify.css';
 const inter = Inter({ subsets: ['latin'] });
 
 export const metadata: Metadata = {
-  title: 'BTC Connect',
-  description: 'First Account Abstraction Protocol on Bitcoin',
+  title: 'BitMapWar',
+  description: '',
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
