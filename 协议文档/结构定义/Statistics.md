@@ -4,5 +4,5 @@
 |-------|-------|-------|
 | team  | string  | 颜色  |
 | virus  | int  | 当前士兵数量  |
-| lose  | int  | 损失的士兵数量  |
+| loss  | int  | 损失的士兵数量  |
 | land  | int  | 当前地块数量  |

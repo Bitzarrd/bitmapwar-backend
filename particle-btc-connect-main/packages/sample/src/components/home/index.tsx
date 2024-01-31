@@ -9,7 +9,7 @@ import {
   // UnisatConnector,
   useAccounts,
   useBTCProvider,
-  // useConnectModal,
+  useConnectModal,
   useConnector,
   useETHProvider,
 } from '@particle-network/btc-connectkit';
@@ -21,17 +21,17 @@ import { toast } from 'react-toastify';
 import { parseEther } from 'ethers';
 
 export default function Home() {
-  // const { openConnectModal, disconnect } = useConnectModal();
+  const { openConnectModal, disconnect } = useConnectModal();
   const { accounts } = useAccounts();
   const { evmAccount, smartAccount, chainId, switchChain } = useETHProvider();
-  const { provider, getNetwork, switchNetwork, signMessage, getPublicKey, sendBitcoin, sendInscription } =
-    useBTCProvider();
-  const [gasless, setGasless] = useState<boolean>(false);
-  const [inscriptionReceiverAddress, setInscriptionReceiverAddress] = useState<string>();
-  const [inscriptionId, setInscriptionId] = useState<string>();
-  const [message, setMessage] = useState<string>('Hello, Particle!');
-  const [address, setAddress] = useState<string>();
-  const [satoshis, setSatoshis] = useState<string>('1');
+  // const { provider, getNetwork, switchNetwork, signMessage, getPublicKey, sendBitcoin, sendInscription } =
+  //   useBTCProvider();
+  // const [gasless, setGasless] = useState<boolean>(false);
+  // const [inscriptionReceiverAddress, setInscriptionReceiverAddress] = useState<string>();
+  // const [inscriptionId, setInscriptionId] = useState<string>();
+  // const [message, setMessage] = useState<string>('Hello, Particle!');
+  // const [address, setAddress] = useState<string>();
+  // const [satoshis, setSatoshis] = useState<string>('1');
   const { connectors, connect } = useConnector();
 
   if (typeof window !== 'undefined') {
@@ -41,6 +41,7 @@ export default function Home() {
     (window as any).chainId = chainId;
     (window as any).connectors = connectors;
     (window as any).connect = connect;
+    (window as any).disconnect = disconnect;
     (window as any).getBalance = async () => {
       if (typeof smartAccount !== 'undefined') {
         const balance = await smartAccount.provider.request({
@@ -87,16 +88,22 @@ export default function Home() {
       }
     };
     (window as any).purchase = async (virus: number) => {
-      const price = 0.00001;
-      const fee = parseEther((price * virus).toString()).toString();
-      console.log('fee', fee);
+      const price = parseEther('0.000001') as bigint;
+      const fee = price * BigInt(virus);
+      console.log('fee', fee.toString());
       if (typeof smartAccount !== 'undefined') {
         const tx = {
-          to: '0x50CE6428D8aCA4ce02c1701E492A43C8E35a1bc5',
-          value: fee,
+          to: '0xb9C579629d665621CA61B7B919f083816EEf9f36',
+          value: fee.toString(),
           data: '0x',
         };
         console.log('tx', tx);
+        const feeQuotes = await smartAccount.getFeeQuotes(tx);
+        console.log('feeQuotes', feeQuotes);
+        const { userOp, userOpHash } = feeQuotes.verifyingPaymasterNative;
+        const hash = await smartAccount.sendUserOperation({ userOp, userOpHash });
+        console.log('hash', hash);
+        return hash;
       }
     };
   }
