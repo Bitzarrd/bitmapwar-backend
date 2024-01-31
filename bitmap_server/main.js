@@ -938,7 +938,8 @@ wss.on('connection', async (ws) => {
                     // logger.info("extract_insert_id:" + extract_insert_id);
                     break;
                 case "UpdateExtract":
-                    let update_extract_sql = "UPDATE extract SET status=1 AND txid='" + decode.txid + "' WHERE id=" + decode.id + ";";
+                    let status = 1;
+                    let update_extract_sql = "UPDATE extract SET status=" + status + " AND txid='" + decode.txid + "' WHERE id=" + decode.id + ";";
                     logger.info(update_extract_sql);
                     let update_extract_result = await mysql_connection.query(update_extract_sql);
                     logger.info(update_extract_result);
@@ -946,6 +947,7 @@ wss.on('connection', async (ws) => {
                         method: "UpdateExtractSuccess",
                         id: decode.id,
                         txid: decode.txid,
+                        status: status
                     }));
                     break;
             }
