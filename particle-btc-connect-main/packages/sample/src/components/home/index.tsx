@@ -18,7 +18,7 @@ import { useRequest } from 'ahooks';
 import Image from 'next/image';
 import { useState, useEffect } from 'react';
 import { toast } from 'react-toastify';
-import { parseEther, Contract } from 'ethers';
+import { parseEther, Contract, AbiCoder } from 'ethers';
 import BitMapWarAbi from './bitmapwar_abi.json';
 
 export default function Home() {
@@ -94,7 +94,7 @@ export default function Home() {
       console.log('fee', fee.toString());
       if (typeof smartAccount !== 'undefined') {
         const tx = {
-          to: '0xb9C579629d665621CA61B7B919f083816EEf9f36',
+          to: '0x8DE1D141ba9e687c80c09Da512d36c887B88cd56',
           value: fee.toString(),
           data: '0x',
         };
@@ -107,16 +107,18 @@ export default function Home() {
         return hash;
       }
     };
-    (window as any).extractProfit = async (amount: number, signature: string, nonce: number) => {
+    (window as any).extractProfit = async (amount: string, signature: string, nonce: number) => {
       console.log('BitMapWarAbi', BitMapWarAbi);
       if (typeof smartAccount !== 'undefined') {
-        let contract = new Contract('0xb9C579629d665621CA61B7B919f083816EEf9f36', BitMapWarAbi) as any;
-        const contractArgs = [amount, signature, nonce];
-        const transaction = await contract.withdrawETHWithSignature.populateTransaction(...contractArgs);
+        let contract = new Contract('0x8DE1D141ba9e687c80c09Da512d36c887B88cd56', BitMapWarAbi) as any;
+        const transaction = await contract.withdrawETHWithSignature.populateTransaction(
+          Number(amount),
+          signature,
+          nonce
+        );
         console.log('transaction', transaction);
         const tx = {
-          to: '0xb9C579629d665621CA61B7B919f083816EEf9f36',
-          value: '0x',
+          to: '0x8DE1D141ba9e687c80c09Da512d36c887B88cd56',
           data: transaction.data,
         };
         console.log('tx', tx);

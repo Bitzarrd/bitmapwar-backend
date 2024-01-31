@@ -1,6 +1,6 @@
 import {ethers, Interface} from "ethers";
 
-const txid = "0xd03f067a6ed67b6165fe579f88cb0421d1f29a1f1de421b3f83475960ec0bdb6";
+const txid = "0xae6009c87e0b763634a206402c62c5eef7f5735defba5e07b1f003e15f0eb49d";
 const abi = [
     {
         "inputs": [],
@@ -88,13 +88,6 @@ const abi = [
         "type": "function"
     },
     {
-        "inputs": [],
-        "name": "BuyToken",
-        "outputs": [],
-        "stateMutability": "payable",
-        "type": "function"
-    },
-    {
         "inputs": [
             {
                 "internalType": "address",
@@ -117,6 +110,31 @@ const abi = [
         ],
         "stateMutability": "nonpayable",
         "type": "function"
+    },
+    {
+        "anonymous": false,
+        "inputs": [
+            {
+                "indexed": true,
+                "internalType": "address",
+                "name": "recipient",
+                "type": "address"
+            },
+            {
+                "indexed": false,
+                "internalType": "uint256",
+                "name": "amount",
+                "type": "uint256"
+            },
+            {
+                "indexed": true,
+                "internalType": "uint256",
+                "name": "nonce",
+                "type": "uint256"
+            }
+        ],
+        "name": "ETHWithdrawn",
+        "type": "event"
     },
     {
         "inputs": [
@@ -314,6 +332,10 @@ const abi = [
         "type": "function"
     },
     {
+        "stateMutability": "payable",
+        "type": "receive"
+    },
+    {
         "inputs": [
             {
                 "internalType": "address",
@@ -444,14 +466,42 @@ const abi = [
         ],
         "stateMutability": "view",
         "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "uint256",
+                "name": "amount",
+                "type": "uint256"
+            },
+            {
+                "internalType": "uint256",
+                "name": "nonce",
+                "type": "uint256"
+            },
+            {
+                "internalType": "bytes",
+                "name": "signature",
+                "type": "bytes"
+            }
+        ],
+        "name": "verifySignature",
+        "outputs": [
+            {
+                "internalType": "address",
+                "name": "",
+                "type": "address"
+            }
+        ],
+        "stateMutability": "pure",
+        "type": "function"
     }
 ];
 
 // const rpc_url = "https://data-seed-prebsc-1-s1.binance.org:8545";
-const rpc_url = "https://magical-wiser-uranium.bsc-testnet.quiknode.pro/129a6185443fadec6a5f672b3727e6864400dfd8/";
+const rpc_url = "https://testnet-rpc.merlinchain.io";
 const provider = new ethers.JsonRpcProvider(rpc_url);
 const iface = new Interface(abi)
-
 
 
 const receipt = await provider.getTransactionReceipt(txid);
@@ -467,4 +517,7 @@ const logs = result.logs;
 console.log("receipt", receipt);
 console.log("response", logs);
 
-console.log(iface.parseLog(logs[0]));
+for(let i = 0; i < logs.length; i++) {
+    const log = logs[i];
+    console.log("parseLog", iface.parseLog(log));
+}

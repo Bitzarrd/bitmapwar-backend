@@ -40,7 +40,7 @@ async function convertCallToTransaction() {
     const contractArgs = [42];
 
     // 创建智能合约实例
-    const contract = new Contract(contractAddress, contractABI, provider.getSigner());
+    const contract = new Contract(contractAddress, contractABI);
 
     // 调用智能合约函数，获取交易对象
     // const transaction = await contract.populateTransaction[contractFunction](...contractArgs);

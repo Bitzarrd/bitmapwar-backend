@@ -447,7 +447,8 @@ const abi = [
     }
 ];
 
-const rpc_url = "https://magical-wiser-uranium.bsc-testnet.quiknode.pro/129a6185443fadec6a5f672b3727e6864400dfd8/";
+// const rpc_url = "https://magical-wiser-uranium.bsc-testnet.quiknode.pro/129a6185443fadec6a5f672b3727e6864400dfd8/";
+const rpc_url = "https://testnet-rpc.merlinchain.io";
 const provider = new ethers.JsonRpcProvider(rpc_url);
 const iface = new Interface(abi)
 
@@ -476,7 +477,10 @@ export async function get_events(txid, callback) {
         const logs = receipt.logs;
         let events = [];
         for (let i = 0; i < logs.length; i++) {
-            events.push(iface.parseLog(logs[i]));
+            const parsedEvent = iface.parseLog(logs[i])
+            if(parsedEvent != null) {
+                events.push(parsedEvent);
+            }
         }
         return {
             tx: tx,
