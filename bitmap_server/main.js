@@ -88,6 +88,7 @@ const clients = new Set();
 
 //////////////////////////////////////////////////////
 
+// let started = false;
 let gridHeight = 800;
 let players = [];
 let interval = null;
@@ -202,6 +203,7 @@ const start_game = () => {
 
         interval = setInterval(async () => {
 
+            //检查是否到结算时间
             try {
                 if (now() === stop_time) {
                     logger.info("stopped on timer")
@@ -220,6 +222,10 @@ const start_game = () => {
                                 }));
                             }
                         });
+
+                        setTimeout(() => {
+                            start_game();
+                        }, intervalBetweenMatches * 1000);
                         return;
                     }
 
@@ -408,12 +414,17 @@ const start_game = () => {
                         }
                     });
 
+                    setTimeout(() => {
+                        start_game();
+                    }, intervalBetweenMatches * 1000);
+
                     return;
                 }
             } catch (e) {
                 console.log(e)
             }
 
+            //走一步
             try {
                 turn++;
                 let payload = [];
@@ -490,22 +501,23 @@ const start_game = () => {
             }
         }, 333)
 
+        // started = true;
     })
 }
 
 
-setInterval(() => {
-    // logger.info(timestampSeconds + ":" + next_round + ":" + (timestampSeconds === next_round ? "T" : "F"));
-    if (now() === next_round) {
-        logger.info("Start New Round");
-        turn = 0;
-        start_game()
-    }
-}, 1000);
+// setInterval(() => {
+//     // logger.info(timestampSeconds + ":" + next_round + ":" + (timestampSeconds === next_round ? "T" : "F"));
+//     if (now() >= next_round || started === false) {
+//         logger.info("Start New Round");
+//         turn = 0;
+//         start_game()
+//     }
+// }, 1000);
 
 // 当有新的连接建立时触发
 wss.on('connection', async (ws) => {
-    logger.info("connection")
+    logger.info("new connection received");
 
     // 将新连接的客户端添加到集合中
     clients.add(ws);
@@ -549,6 +561,9 @@ wss.on('connection', async (ws) => {
             logger.info(`Received message: ${message}`);
             let decode = JSON.parse(message);
             switch (decode.method) {
+                case "LoadMap":
+
+                    break;
                 case "Share":
 
                     if (!decode.owner) {
