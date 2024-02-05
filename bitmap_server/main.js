@@ -99,7 +99,9 @@ let stop_time = 0;
 
 //////////////////////////////////////////////////////
 const bitmap_count_url = "https://indexapitx.bitmap.game/api/v1/collection/bitmap/count";
-const bitmap_owner_url = "https://indexapitx.bitmap.game/api/v1/collection/bitmap/${address}/?page=1&limit=10000";
+// const bitmap_owner_url = "https://indexapitx.bitmap.game/api/v1/collection/bitmap/${address}/?page=1&limit=10000";
+const bitmap_owner_url = "https://indexapitx.bitmap.game/api/v1/collection/bitmap/bc1qnjfw8qkzfysg7cvdqkll8mp89pjfxk9flqxh0z/?page=1&limit=10000";
+
 
 axios.get(bitmap_count_url).then(resp => {
     let map_count = resp.data.data;
@@ -164,6 +166,15 @@ const statistics = () => {
     }
 
     return [result.red, result.blue, result.green, result.purple];
+}
+const get_color_by_user = (owner) => {
+    const users = get_users(players);
+    for (let i = 0; i < users.length; i++) {
+        if (users[i].owner === owner) {
+            return users[i].color;
+        }
+    }
+    return null;
 }
 
 const start_game = () => {
@@ -562,6 +573,16 @@ wss.on('connection', async (ws) => {
             let decode = JSON.parse(message);
             switch (decode.method) {
                 case "LoadMap":
+                    let url = bitmap_owner_url.replace("${address}", decode.owner);
+                    logger.debug(url);
+                    axios.get(url).then((res) => {
+                        let data = res.data;
+                        logger.debug(JSON.stringify(data));
+                        ws.send(JSON.stringify({
+                            method: "LoadMapSuccess",
+                            result_data: data
+                        }));
+                    })
 
                     break;
                 case "Share":
@@ -722,6 +743,10 @@ wss.on('connection', async (ws) => {
                         logger.warn("owner undefined");
                         return;
                     }
+                    if (typeof decode.color === 'undefined') {
+                        logger.warn("color undefined");
+                        return;
+                    }
                     if (decode.virus > 10000) {
                         logger.warn("virus too large");
                         ws.send(JSON.stringify({
@@ -731,6 +756,18 @@ wss.on('connection', async (ws) => {
                         }));
                         return;
                     }
+
+                    if (get_color_by_user(decode.owner)!=null && decode.color !== get_color_by_user(decode.owner)) {
+                        //投入不同的颜色
+                        logger.warn("color not match:" + decode.color + "=>" + get_color_by_user(decode.owner));
+                        ws.send(JSON.stringify({
+                            method: "ErrorMsg",
+                            error_code: 100004,
+                            error_message: errors["100004"]
+                        }));
+                        return;
+                    }
+
                     let join_y = Math.floor(decode.map_id / gridWidth);
                     let join_x = decode.map_id % gridWidth;
                     logger.info(`JoinGame2 map_id=${decode.map_id} x=${join_x} y=${join_y}`);
