@@ -5,8 +5,6 @@ import moment from "moment";
 import {shortend} from "../../utils";
 import {formatEther} from "ethers";
 
-import { Chain, ConnectConfig, ParticleConnect, Provider, metaMask, walletconnect } from '@particle-network/connect';
-
 export default {
   name: "ProfitDialog",
   computed: {

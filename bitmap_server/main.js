@@ -20,7 +20,7 @@ import {
     get_win_team
 } from "./reward.js";
 import {calculate_pool_by_color, calculate_proportion, sort_win_team} from "./reward2.0.js";
-import {errors} from "./errors.js";
+import {bitmap_errors} from "./bitmap_errors.js";
 
 dotenv.config();
 
@@ -167,13 +167,16 @@ const statistics = () => {
 
     return [result.red, result.blue, result.green, result.purple];
 }
-const get_color_by_user = (owner) => {
+const get_color_by_user = (owner, players) => {
+    // console.log("get_color_by_user", owner, players);
     const users = get_users(players);
-    for (let i = 0; i < users.length; i++) {
+    // console.log("users", users);
+    for (let i of Object.keys(users)) {
         if (users[i].owner === owner) {
-            return users[i].color;
+            // console.log("user", users[i])
+            return users[i].statistics.color;
         }
-    }
+    };
     return null;
 }
 
@@ -752,20 +755,24 @@ wss.on('connection', async (ws) => {
                         ws.send(JSON.stringify({
                             method: "ErrorMsg",
                             error_code: 100003,
-                            error_message: errors["100003"]
+                            error_message: bitmap_errors["100003"]
                         }));
                         return;
                     }
 
-                    if (get_color_by_user(decode.owner)!=null && decode.color !== get_color_by_user(decode.owner)) {
-                        //投入不同的颜色
-                        logger.warn("color not match:" + decode.color + "=>" + get_color_by_user(decode.owner));
-                        ws.send(JSON.stringify({
-                            method: "ErrorMsg",
-                            error_code: 100004,
-                            error_message: errors["100004"]
-                        }));
-                        return;
+                    const exist_color = get_color_by_user(decode.owner, players);
+                    logger.debug("get_color_by_user=>" + exist_color);
+                    if (exist_color != null) {
+                        if (exist_color !== decode.color) {
+                            //投入不同的颜色
+                            logger.warn("color not match:" + decode.color + "=>" + exist_color);
+                            ws.send(JSON.stringify({
+                                method: "ErrorMsg",
+                                error_code: 100004,
+                                error_message: bitmap_errors["100004"]
+                            }));
+                            return;
+                        }
                     }
 
                     let join_y = Math.floor(decode.map_id / gridWidth);
@@ -790,7 +797,7 @@ wss.on('connection', async (ws) => {
                         ws.send(JSON.stringify({
                             method: "ErrorMsg",
                             error_code: 100001,
-                            error_message: errors["100001"],
+                            error_message: bitmap_errors["100001"],
                         }));
 
                         return;

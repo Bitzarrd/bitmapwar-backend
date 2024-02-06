@@ -84,9 +84,9 @@ export default {
       this.setActionDialogVisible(true);
     },
     onClickColor(color) {
-      if(this.lock){
-        return;
-      }
+      // if(this.lock){
+      //   return;
+      // }
       this.setSelectColor(color);
 
       console.log("selected_color", color, this.selected_color);
