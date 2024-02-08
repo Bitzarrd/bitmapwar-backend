@@ -176,7 +176,8 @@ const get_color_by_user = (owner, players) => {
             // console.log("user", users[i])
             return users[i].statistics.color;
         }
-    };
+    }
+    ;
     return null;
 }
 
@@ -565,7 +566,8 @@ wss.on('connection', async (ws) => {
             last_rank: last_rank,
             total_bonus: total_bonus,
             jackpot: jackpot.toString(),
-            now_time: now()
+            now_time: now(),
+            virus_price: "1000000000000"
         }
     ));
 
