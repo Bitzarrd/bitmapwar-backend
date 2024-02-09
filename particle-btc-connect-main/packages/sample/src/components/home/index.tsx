@@ -279,7 +279,7 @@ export default function Home() {
     const container = document.querySelector('#unity-container') as HTMLElement;
     const canvas = document.querySelector('#unity-canvas') as HTMLElement;
     const loadingCover = document.querySelector('#loading-cover') as HTMLElement;
-    const progressBarEmpty = document.querySelector('#unity-progress-bar-empty') as HTMLElement;
+    // const progressBarEmpty = document.querySelector('#unity-progress-bar-empty') as HTMLElement;
     // const progressBarFull = document.querySelector('#unity-progress-bar-full') as HTMLElement;
     // const fullscreenButton = document.querySelector('#unity-fullscreen-button') as HTMLElement;
     // const spinner = document.querySelector('.spinner');
@@ -288,11 +288,11 @@ export default function Home() {
     script.src = loaderUrl;
     script.onload = () => {
       console.log('script load success');
-      loadingCover.style.display = 'block';
+      loadingCover.style.display = 'flex';
       const createUnityInstanceFn: createUnityInstanceFunction = (window as any).createUnityInstance;
       createUnityInstanceFn(canvas, config, (progress) => {
         console.log('progress:', progress);
-        progressBarEmpty.style.display = '';
+        // progressBarEmpty.style.display = '';
         // progressBarFull.style.width = `${100 * progress}%`;
       })
         .then((unityInstance) => {
@@ -314,13 +314,13 @@ export default function Home() {
       <div id="unity-container" className="unity-desktop">
         <canvas id="unity-canvas"></canvas>
       </div>
-      <div id="loading-cover" style={{ display: 'none' }}>
+      <div id="loading-cover" style={{ display: 'flex' }}>
         <div id="unity-loading-bar">
           <div id="unity-logo">
             <Image src={logo} alt="" />
-            <div className="loading-text" style={{ color: 'white' }}>
-              Entering BitmapWar Explorer...
-            </div>
+          </div>
+          <div className="loading-text" style={{ color: 'white' }}>
+            Entering BitmapWar Explorer...
           </div>
           {/*<div id="unity-progress-bar-empty" style={{ display: 'none' }}>*/}
           {/*  <div id="unity-progress-bar-full"></div>*/}
