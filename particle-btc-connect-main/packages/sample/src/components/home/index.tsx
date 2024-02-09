@@ -280,9 +280,9 @@ export default function Home() {
     const canvas = document.querySelector('#unity-canvas') as HTMLElement;
     const loadingCover = document.querySelector('#loading-cover') as HTMLElement;
     const progressBarEmpty = document.querySelector('#unity-progress-bar-empty') as HTMLElement;
-    const progressBarFull = document.querySelector('#unity-progress-bar-full') as HTMLElement;
-    const fullscreenButton = document.querySelector('#unity-fullscreen-button') as HTMLElement;
-    const spinner = document.querySelector('.spinner');
+    // const progressBarFull = document.querySelector('#unity-progress-bar-full') as HTMLElement;
+    // const fullscreenButton = document.querySelector('#unity-fullscreen-button') as HTMLElement;
+    // const spinner = document.querySelector('.spinner');
 
     const script = document.createElement('script');
     script.src = loaderUrl;
@@ -293,7 +293,7 @@ export default function Home() {
       createUnityInstanceFn(canvas, config, (progress) => {
         console.log('progress:', progress);
         progressBarEmpty.style.display = '';
-        progressBarFull.style.width = `${100 * progress}%`;
+        // progressBarFull.style.width = `${100 * progress}%`;
       })
         .then((unityInstance) => {
           loadingCover.style.display = 'none';
@@ -322,9 +322,9 @@ export default function Home() {
               Entering BitmapWar Explorer...
             </div>
           </div>
-          <div id="unity-progress-bar-empty" style={{ display: 'none' }}>
-            <div id="unity-progress-bar-full"></div>
-          </div>
+          {/*<div id="unity-progress-bar-empty" style={{ display: 'none' }}>*/}
+          {/*  <div id="unity-progress-bar-full"></div>*/}
+          {/*</div>*/}
           <div className="spinner"></div>
         </div>
       </div>
