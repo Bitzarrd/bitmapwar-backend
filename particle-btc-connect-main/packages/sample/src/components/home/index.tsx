@@ -4,7 +4,7 @@
 // import particleLogo from '@/assets/particle-logo.svg';
 // import { accountContracts } from '@/config';
 // import { Button, Checkbox, Divider, Input, Select, SelectItem } from '@nextui-org/react';
-import logo from '@/assets/logo.png';
+import logo from '@/assets/logo.gif';
 import {
   // UnisatConnector,
   useAccounts,
@@ -318,6 +318,9 @@ export default function Home() {
         <div id="unity-loading-bar">
           <div id="unity-logo">
             <Image src={logo} alt="" />
+            <div className="loading-text" style={{ color: 'white' }}>
+              Entering BitmapWar Explorer...
+            </div>
           </div>
           <div id="unity-progress-bar-empty" style={{ display: 'none' }}>
             <div id="unity-progress-bar-full"></div>
