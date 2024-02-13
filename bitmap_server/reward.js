@@ -209,6 +209,15 @@ export function get_conn_by_owner(players, owner) {
     return mySet;
 }
 
+export function get_conn_by_owner2(clients, owner) {
+    for (let client of clients) {
+        if (client.owner === owner && client.readyState === WebSocket.OPEN) {
+            return client;
+        }
+    }
+    return null;
+}
+
 export function get_all_init_virus(players) {
     let virus = 0;
     for (let i = 0; i < players.length; i++) {
