@@ -499,17 +499,17 @@ const checkStep = async () => {
 
         const profit = calculate_virus_to_profit(total_virus);
         const total_bonus = Math.floor(Number(profit) * 0.88).toString()
-
+        const update_message = JSON.stringify({
+            method: "Update",
+            payload: payload,
+            turn: turn,
+            statistics: statistics(),
+            total_bonus: total_bonus,
+            jackpot: jackpot.toString(),
+        });
         clients.forEach((client) => {
             if (client.readyState === WebSocket.OPEN) {
-                client.send(JSON.stringify({
-                    method: "Update",
-                    payload: payload,
-                    turn: turn,
-                    statistics: statistics(),
-                    total_bonus: total_bonus,
-                    jackpot: jackpot.toString(),
-                }));
+                client.send(update_message);
             }
         });
     } catch (e) {
@@ -1062,7 +1062,7 @@ wss.on('connection', async (ws, req) => {
 
     // 当连接关闭时触发
     ws.on('close', () => {
-        logger.debug("close")
+        logger.info(`websocket connection close id=${ws.id} addr=${ws._socket.remoteAddress} port=${ws._socket.remotePort} owner=${ws.owner}`);
         // 从集合中删除离开的客户端
         clients.delete(ws);
     });
