@@ -21,6 +21,7 @@ import {
 } from "./reward.js";
 import {calculate_pool_by_color, calculate_proportion, sort_win_team} from "./reward2.0.js";
 import {bitmap_errors} from "./bitmap_errors.js";
+import * as fs from "fs";
 
 dotenv.config();
 
@@ -86,6 +87,42 @@ const wss = new WebSocketServer({port: process.env.PORT});
 // 用于存储连接的客户端
 const clients = new Set();
 
+
+process.on('SIGUSR1', async () => {
+    console.log('Received SIGUSR1 signal');
+    // 在这里执行自定义操作
+
+    //close clients
+    for (let client of clients) {
+        logger.info("close client" + client);
+        await client.close();
+    }
+    wss.close();
+
+    //保存全局数据
+    await save_global_data_to_jsonfile();
+
+    process.exit(0);
+});
+
+function save_global_data_to_jsonfile(){
+    return new Promise((resolve, reject) => {
+        let data = {
+            players: players,
+            grid: grid,
+            turn: turn,
+            next_round: next_round,
+            stop_time: stop_time,
+            last_rank: last_rank
+        }
+        fs.writeFile('global_data.json', JSON.stringify(data), (err) => {
+            if (err) {
+                reject(err);
+            }
+            resolve();
+        });
+    });
+}
 //////////////////////////////////////////////////////
 
 // let started = false;
@@ -99,8 +136,8 @@ let stop_time = 0;
 
 //////////////////////////////////////////////////////
 const bitmap_count_url = "https://indexapitx.bitmap.game/api/v1/collection/bitmap/count";
-// const bitmap_owner_url = "https://indexapitx.bitmap.game/api/v1/collection/bitmap/${address}/?page=1&limit=10000";
-const bitmap_owner_url = "https://indexapitx.bitmap.game/api/v1/collection/bitmap/bc1qnjfw8qkzfysg7cvdqkll8mp89pjfxk9flqxh0z/?page=1&limit=10000";
+const bitmap_owner_url = "https://indexapitx.bitmap.game/api/v1/collection/bitmap/${address}/?page=1&limit=10000";
+// const bitmap_owner_url = "https://indexapitx.bitmap.game/api/v1/collection/bitmap/bc1qnjfw8qkzfysg7cvdqkll8mp89pjfxk9flqxh0z/?page=1&limit=10000";
 
 
 axios.get(bitmap_count_url).then(resp => {
@@ -1026,3 +1063,4 @@ wss.on('connection', async (ws) => {
 });
 
 logger.info('WebSocket chat server is running on port ' + process.env.PORT);
+logger.info('Process ID: ' + process.pid);
