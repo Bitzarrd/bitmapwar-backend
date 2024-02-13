@@ -123,6 +123,17 @@ function save_global_data_to_jsonfile(){
         });
     });
 }
+
+function load_global_data_from_jsonfile_sync(){
+    //判断文件是否存在
+    if (!fs.existsSync('global_data.json')) {
+        return null;
+    }
+    let data = fs.readFileSync('global_data.json');
+    return JSON.parse(data);
+}
+
+
 //////////////////////////////////////////////////////
 
 // let started = false;
@@ -1064,3 +1075,9 @@ wss.on('connection', async (ws) => {
 
 logger.info('WebSocket chat server is running on port ' + process.env.PORT);
 logger.info('Process ID: ' + process.pid);
+const global =  load_global_data_from_jsonfile_sync();
+if(global!=null){
+    // next_round = global.next_round;
+    // turn = global.turn;
+    console.log("global:"+global);
+}
