@@ -1,23 +1,20 @@
-import {generate2DArray, runTurn, getCircleCoordinates, compress2, compress3, compress4} from 'bitmap_sdk';
+import {generate2DArray, runTurn, compress4} from 'bitmap_sdk';
 import WebSocket, {WebSocketServer} from 'ws';
 import winston from "winston";
 import dotenv from "dotenv";
 import axios from "axios";
 import mysql from "mysql";
-import {getRandomInt, isPrime, isToday, now, simple_player, simple_players} from "./utils.js";
+import { isPrime, isToday, now, simple_player, simple_players} from "./utils.js";
 import {gridWidth, colors, durationOfTheMatch, intervalBetweenMatches, circle} from "./defines.js";
 import {get_events} from "./get_events.js";
 import {make_signature} from "./signature.js";
 import {mysql_query} from "./mysql.js";
-// import * as circle from "./circle.js";
 import {
-    calculate_bitmap_reward,
-    calculate_pool_1,
-    calculate_pool_2, calculate_pool_2_by_color,
-    calculate_pool_2_proportion, calculate_virus_to_profit, get_all_init_virus, get_conn_by_owner, get_rank_for_save,
+    calculate_virus_to_profit,
+    get_all_init_virus,
+    get_conn_by_owner,
     get_users,
     get_users_by_color,
-    get_win_team
 } from "./reward.js";
 import {calculate_pool_by_color, calculate_proportion, sort_win_team} from "./reward2.0.js";
 import {bitmap_errors} from "./bitmap_errors.js";
@@ -100,7 +97,9 @@ process.on('SIGUSR1', async () => {
     wss.close();
 
     //保存全局数据
-    await save_global_data_to_jsonfile();
+    if (turn > 0) {
+        await save_global_data_to_jsonfile();
+    }
 
     process.exit(0);
 });
@@ -134,6 +133,14 @@ function load_global_data_from_jsonfile_sync() {
         return JSON.parse(data);
     }
     return null;
+}
+
+function delete_global_data_from_jsonfile() {
+    fs.unlink('global_data.json', (err) => {
+        if (err) {
+            logger.error("delete global_data.json error:" + err);
+        }
+    });
 }
 
 
@@ -584,11 +591,11 @@ const start_game = () => {
 // 当有新的连接建立时触发
 wss.on('connection', async (ws, req) => {
     let ip = req.socket.remoteAddress;
-    if(req.headers['x-forwarded-for'] !== undefined) {
+    if (req.headers['x-forwarded-for'] !== undefined) {
         ip = req.headers['x-forwarded-for'].split(',')[0].trim();
     }
 
-    logger.info("new connection received: " + ip );
+    logger.info("new connection received: " + ip);
 
     // 将新连接的客户端添加到集合中
     clients.add(ws);
@@ -1091,3 +1098,4 @@ if (global != null) {
     // turn = global.turn;
     console.log("global:" + global);
 }
+delete_global_data_from_jsonfile();
