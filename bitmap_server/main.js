@@ -94,7 +94,7 @@ process.on('SIGUSR1', async () => {
 
     //close clients
     for (let client of clients) {
-        logger.info("close client" + client);
+        logger.info(`close client readyState=${client.readyState} addr=${client._socket.remoteAddress} owner=${client.owner}`);
         await client.close();
     }
     wss.close();
@@ -105,7 +105,7 @@ process.on('SIGUSR1', async () => {
     process.exit(0);
 });
 
-function save_global_data_to_jsonfile(){
+function save_global_data_to_jsonfile() {
     return new Promise((resolve, reject) => {
         let data = {
             players: players,
@@ -124,13 +124,16 @@ function save_global_data_to_jsonfile(){
     });
 }
 
-function load_global_data_from_jsonfile_sync(){
+function load_global_data_from_jsonfile_sync() {
     //判断文件是否存在
     if (!fs.existsSync('global_data.json')) {
         return null;
     }
     let data = fs.readFileSync('global_data.json');
-    return JSON.parse(data);
+    if (data && data.length > 0) {
+        return JSON.parse(data);
+    }
+    return null;
 }
 
 
@@ -579,8 +582,13 @@ const start_game = () => {
 // }, 1000);
 
 // 当有新的连接建立时触发
-wss.on('connection', async (ws) => {
-    logger.info("new connection received");
+wss.on('connection', async (ws, req) => {
+    let ip = req.socket.remoteAddress;
+    if(req.headers['x-forwarded-for'] !== undefined) {
+        ip = req.headers['x-forwarded-for'].split(',')[0].trim();
+    }
+
+    logger.info("new connection received: " + ip );
 
     // 将新连接的客户端添加到集合中
     clients.add(ws);
@@ -714,6 +722,7 @@ wss.on('connection', async (ws) => {
                                     virus: 500,
                                 };
 
+                                ws.owner = address;
                                 ws.send(JSON.stringify({
                                     method: "LoginSuccess",
                                     user: user,
@@ -744,6 +753,7 @@ wss.on('connection', async (ws) => {
                             let extracts = await mysql_query(mysql_connection, extracts_sql);
                             let purchase = await mysql_query(mysql_connection, "SELECT * FROM `purchase` WHERE owner='" + address + "' ORDER BY id DESC;");
 
+                            ws.owner = decode.address;
                             ws.send(JSON.stringify({
                                 method: "LoginSuccess",
                                 user: user,
@@ -1075,9 +1085,9 @@ wss.on('connection', async (ws) => {
 
 logger.info('WebSocket chat server is running on port ' + process.env.PORT);
 logger.info('Process ID: ' + process.pid);
-const global =  load_global_data_from_jsonfile_sync();
-if(global!=null){
+const global = load_global_data_from_jsonfile_sync();
+if (global != null) {
     // next_round = global.next_round;
     // turn = global.turn;
-    console.log("global:"+global);
+    console.log("global:" + global);
 }
