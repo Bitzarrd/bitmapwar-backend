@@ -359,12 +359,17 @@ const doSettlement = async () => {
         let user_for_settlement = (await mysql_query(mysql_connection, "SELECT * FROM `user` WHERE `address`='" + owner + "';"))[0];
         user_for_settlement.profit = BigInt(user_for_settlement.profit) + BigInt(user.profit);
         user_for_settlement.profit = user_for_settlement.profit.toString();
-        user_for_settlement.land = user_for_settlement + user.statistics.land;
+        user_for_settlement.land = user_for_settlement.land + user.statistics.land;
         user_for_settlement.total_profit = (BigInt(user_for_settlement.total_profit) + BigInt(user.profit)).toString();
 
-        // await mysql_connection.query("UPDATE user set profit=" + user_for_settlement.profit + " WHERE `address`='" + owner + "';")
-        await mysql_connection.query(`UPDATE user set profit=${user_for_settlement.profit} AND land=${user_for_settlement.land} WHERE address='${owner}';`)
+        await mysql_connection.query("UPDATE `user` SET profit=" + user_for_settlement.profit + " WHERE `address`='" + owner + "';")
+        // await mysql_connection.query(`UPDATE user set profit=${user_for_settlement.profit} AND land=${user_for_settlement.land} WHERE address='${owner}';`)
         await mysql_connection.query("UPDATE `user` SET `total_profit`=" +  user_for_settlement.total_profit + " WHERE `address`='" + owner + "';");
+        await mysql_connection.query("UPDATE `user` SET land=" + user_for_settlement.land + " WHERE `address`='" + owner + "';")
+
+        user.land = user_for_settlement.land;
+        user.profit = user_for_settlement.profit;
+        user.total_profit = user_for_settlement.total_profit;
 
         if (conn) {
             conn.send(JSON.stringify({
@@ -405,6 +410,11 @@ const doSettlement = async () => {
         await mysql_connection.query("UPDATE `global` SET `val`='" + jackpot_remain.toString() + "' WHERE `key`='jackpot';");
         await mysql_connection.query("UPDATE `user` SET `profit`=" + jackpot_user_profit + " WHERE `address`='" + last_player.owner + "';");
         await mysql_connection.query("UPDATE `user` SET `total_profit`=" +  jackpot_user.total_profit + " WHERE `address`='" + last_player.owner + "';");
+
+        let user = users[last_player.owner];
+        user.land = jackpot_user.land;
+        user.profit = jackpot_user.profit;
+        user.total_profit = jackpot_user.total_profit;
 
         let jackpot_message = {
             method: "JackpotLightUp",
