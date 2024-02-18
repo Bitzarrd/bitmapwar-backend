@@ -359,7 +359,9 @@ const doSettlement = async () => {
         let user_for_settlement = (await mysql_query(mysql_connection, "SELECT * FROM `user` WHERE `address`='" + owner + "';"))[0];
         user_for_settlement.profit = BigInt(user_for_settlement.profit) + BigInt(user.profit);
         user_for_settlement.profit = user_for_settlement.profit.toString();
-        await mysql_connection.query("UPDATE user set profit=" + user_for_settlement.profit + " WHERE `address`='" + owner + "';")
+        user_for_settlement.land = user_for_settlement + user.statistics.land;
+        // await mysql_connection.query("UPDATE user set profit=" + user_for_settlement.profit + " WHERE `address`='" + owner + "';")
+        await mysql_connection.query(`UPDATE user set profit=${user_for_settlement.profit} AND land=${user_for_settlement.land} WHERE address='${owner}';`)
 
         if (conn) {
             conn.send(JSON.stringify({

@@ -25,7 +25,6 @@ async function loadBitmap(owner) {
 
 async function test(){
     console.log(await loadBitmap("bc1qnjfw8qkzfysg7cvdqkll8mp89pjfxk9flqxh0z"));
-
     console.log(await loadBitmap("bc1pe7ju6esj9v9a4mczju6gt2kujq0pm4q2kuy90j7rdhkshlggszdqqs2pc9"))
 
 }

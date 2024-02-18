@@ -5,3 +5,4 @@ User定义了一个用户的数据，每个钱包有且仅有一个
 | address  | string  | 钱包地址  |
 | profit  | string  | 可领取的收益总数  |
 | virus  | int  | 当前拥有，但是未投入地图的士兵总数  |
+| land  | int  | 用户累计地块数，是对每轮统计的地块的累计数  |
