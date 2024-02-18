@@ -360,8 +360,11 @@ const doSettlement = async () => {
         user_for_settlement.profit = BigInt(user_for_settlement.profit) + BigInt(user.profit);
         user_for_settlement.profit = user_for_settlement.profit.toString();
         user_for_settlement.land = user_for_settlement + user.statistics.land;
+        user_for_settlement.total_profit = (BigInt(user_for_settlement.total_profit) + BigInt(user.profit)).toString();
+
         // await mysql_connection.query("UPDATE user set profit=" + user_for_settlement.profit + " WHERE `address`='" + owner + "';")
         await mysql_connection.query(`UPDATE user set profit=${user_for_settlement.profit} AND land=${user_for_settlement.land} WHERE address='${owner}';`)
+        await mysql_connection.query("UPDATE `user` SET `total_profit`=" +  user_for_settlement.total_profit + " WHERE `address`='" + owner + "';");
 
         if (conn) {
             conn.send(JSON.stringify({
@@ -397,9 +400,11 @@ const doSettlement = async () => {
         let jackpot_user_profit = BigInt(jackpot_user.profit) + jackpot_reward;
         jackpot_user.profit = jackpot_user_profit.toString();
         const jackpot_remain = jackpot - jackpot_reward;
+        jackpot_user.total_profit = (BigInt(jackpot_user.total_profit) + jackpot_reward).toString();
 
         await mysql_connection.query("UPDATE `global` SET `val`='" + jackpot_remain.toString() + "' WHERE `key`='jackpot';");
         await mysql_connection.query("UPDATE `user` SET `profit`=" + jackpot_user_profit + " WHERE `address`='" + last_player.owner + "';");
+        await mysql_connection.query("UPDATE `user` SET `total_profit`=" +  jackpot_user.total_profit + " WHERE `address`='" + last_player.owner + "';");
 
         let jackpot_message = {
             method: "JackpotLightUp",
@@ -595,6 +600,18 @@ wss.on('connection', async (ws, req) => {
 
     logger.info("new connection received: " + ip);
 
+    ws.on('ping', () => {
+        logger.debug("ping received")
+        ws.isAlive = true;
+        ws.pong();
+    });
+
+    ws.on('pong', () => {
+        logger.debug("pong received")
+        ws.isAlive = true;
+        ws.ping();
+    });
+
     // 将新连接的客户端添加到集合中
     clients.add(ws);
 
@@ -636,7 +653,16 @@ wss.on('connection', async (ws, req) => {
     ws.on('message', async (message) => {
         try {
             logger.info(`Received message: ${message}`);
-            let decode = JSON.parse(message);
+            let decode = null;
+            try {
+                decode = JSON.parse(message);
+            } catch (e) {
+                logger.error(e);
+                return;
+            }
+            if (decode == null) {
+                return;
+            }
             switch (decode.method) {
                 case "LoadMap":
                     let url = bitmap_owner_url.replace("${address}", decode.owner);
