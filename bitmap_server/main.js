@@ -364,7 +364,7 @@ const doSettlement = async () => {
 
         await mysql_connection.query("UPDATE `user` SET profit=" + user_for_settlement.profit + " WHERE `address`='" + owner + "';")
         // await mysql_connection.query(`UPDATE user set profit=${user_for_settlement.profit} AND land=${user_for_settlement.land} WHERE address='${owner}';`)
-        await mysql_connection.query("UPDATE `user` SET `total_profit`=" +  user_for_settlement.total_profit + " WHERE `address`='" + owner + "';");
+        await mysql_connection.query("UPDATE `user` SET `total_profit`=" + user_for_settlement.total_profit + " WHERE `address`='" + owner + "';");
         await mysql_connection.query("UPDATE `user` SET land=" + user_for_settlement.land + " WHERE `address`='" + owner + "';")
 
         user.land = user_for_settlement.land;
@@ -409,7 +409,7 @@ const doSettlement = async () => {
 
         await mysql_connection.query("UPDATE `global` SET `val`='" + jackpot_remain.toString() + "' WHERE `key`='jackpot';");
         await mysql_connection.query("UPDATE `user` SET `profit`=" + jackpot_user_profit + " WHERE `address`='" + last_player.owner + "';");
-        await mysql_connection.query("UPDATE `user` SET `total_profit`=" +  jackpot_user.total_profit + " WHERE `address`='" + last_player.owner + "';");
+        await mysql_connection.query("UPDATE `user` SET `total_profit`=" + jackpot_user.total_profit + " WHERE `address`='" + last_player.owner + "';");
 
         let user = users[last_player.owner];
         user.land = jackpot_user.land;
@@ -433,8 +433,12 @@ const doSettlement = async () => {
         });
     }
 
+    let rank_for_save = Object.values(users);
+    rank_for_save.sort((a, b) => {
+        return (Number)(BigInt(b.profit) - BigInt(a.profit));
+    })
 
-    const sql = "INSERT INTO `round` (`end_time`,`rank`) VALUES (" + now() + ",'" + JSON.stringify(Object.values(users)) + "')";
+    const sql = "INSERT INTO `round` (`end_time`,`rank`) VALUES (" + now() + ",'" + JSON.stringify(rank_for_save) + "')";
     logger.info(sql);
     mysql_connection.query(sql, function (err, result) {
         if (err) {
