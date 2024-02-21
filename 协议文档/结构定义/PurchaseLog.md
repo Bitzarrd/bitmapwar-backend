@@ -8,3 +8,5 @@
 | create_time | int | 创建时间 |
 | owner | string | 充值账户 |
 | virus | int | 士兵数量 |
+| status | int | 状态 0:Pending中 1:Success已完成 2:Failed |
+

@@ -237,7 +237,7 @@ const statistics = () => {
             result.red.land += player.land;
             result.red.loss += player.loss;
             result.red.virus += player.virus;
-        }
+        }cho
         if (player.color === "blue") {
             result.blue.land += player.land;
             result.blue.loss += player.loss;
@@ -255,7 +255,11 @@ const statistics = () => {
         }
     }
 
-    return [result.red, result.blue, result.green, result.purple];
+    let res = [result.red, result.blue, result.green, result.purple];
+    res.sort((a, b) => {
+        return b.land - a.land;
+    });
+    return res;
 }
 const get_color_by_user = (owner, players) => {
     // console.log("get_color_by_user", owner, players);
