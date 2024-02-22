@@ -41,7 +41,17 @@ export default function Home() {
     (window as any).evmAccount = evmAccount;
     (window as any).chainId = chainId;
     (window as any).connectors = connectors;
-    (window as any).connect = connect;
+    (window as any).connect = async (name: any) => {
+      await connect(name);
+      return await new Promise((resolve) => {
+        const interval = setInterval(() => {
+          if ((window as any).evmAccount !== undefined) {
+            clearInterval(interval);
+            resolve((window as any).evmAccount);
+          }
+        }, 50);
+      });
+    };
     (window as any).disconnect = disconnect;
     (window as any).getBalance = async () => {
       if (typeof smartAccount !== 'undefined') {
