@@ -163,6 +163,7 @@ function delete_global_data_from_jsonfile() {
 // let started = false;
 let gridHeight = 800;
 let players = [];
+let dead_cells_all = [];
 let interval = null;
 let turn = 0;
 let next_round = 0;
@@ -237,7 +238,8 @@ const statistics = () => {
             result.red.land += player.land;
             result.red.loss += player.loss;
             result.red.virus += player.virus;
-        }cho
+        }
+
         if (player.color === "blue") {
             result.blue.land += player.land;
             result.blue.loss += player.loss;
@@ -402,7 +404,11 @@ const doSettlement = async () => {
         let jackpot = await mysql_query(mysql_connection, "select val from `global` where `key`='jackpot';");
         jackpot = BigInt(jackpot[0].val);
         logger.info(`当前jackpot总量:${jackpot.toString()}`)
-        let jackpot_reward = BigInt(Math.floor((Number)(jackpot) * 0.7));
+        let jackpot_reward = BigInt(Math.floor((Number)(jackpot) * 0.5));
+        let blue_wand_reward = BigInt(Math.floor((Number)(jackpot) * 0.2));
+        //todo 概率=用户质押M-bluewand数量/M-bluewand总数量*100%
+
+
         logger.info(`获得Jackpot中70%的奖励:${jackpot_reward.toString()}`)
         let jackpot_user = (await mysql_query(mysql_connection, "select * from `user` where `address`='" + last_player.owner + "';"))[0];
         logger.info("jackpot_user:" + JSON.stringify(jackpot_user));
@@ -453,6 +459,7 @@ const doSettlement = async () => {
     });
 
     //clear
+    dead_cells_all = [];
     players = [];
     turn = 0;
 
@@ -487,6 +494,7 @@ const checkStep = async () => {
     try {
         turn++;
         let payload = [];
+        let dead_cells = [];
         for (let i = 0; i < players.length; i++) {
             let player = players[i];
             if (player.virus <= 0) {
@@ -510,6 +518,29 @@ const checkStep = async () => {
                         origin_player.virus -= damage;
                         player.loss += damage;
                         player.virus -= damage;
+
+                        if (origin_player.virus <= 0) {
+                            let dead = {
+                                x: origin_player.x,
+                                y: origin_player.y,
+                                color: origin_player.color,
+                                player_index: origin_player_index
+                            };
+                            dead_cells.push(dead);
+                            dead_cells_all.push(dead);
+                        }
+
+                        if (player.virus <= 0) {
+                            let dead = {
+                                x: player.x,
+                                y: player.y,
+                                color: player.color,
+                                player_index: i,
+                            };
+                            dead_cells.push(dead);
+                            dead_cells_all.push(dead);
+                        }
+
                         if (player.virus <= 0) {
                             continue;
                         }
@@ -545,6 +576,7 @@ const checkStep = async () => {
         const update_message = JSON.stringify({
             method: "Update",
             payload: payload,
+            dead_cells: dead_cells,
             turn: turn,
             statistics: statistics(),
             total_bonus: total_bonus,
@@ -663,7 +695,8 @@ wss.on('connection', async (ws, req) => {
             total_bonus: total_bonus,
             jackpot: jackpot.toString(),
             now_time: now(),
-            virus_price: "1000000000000"
+            virus_price: "1000000000000",
+            dead_cells: dead_cells_all
         }
     ));
 
@@ -710,6 +743,11 @@ wss.on('connection', async (ws, req) => {
                     let last_share = (await mysql_query(mysql_connection, "SELECT * FROM gift WHERE owner='" + decode.owner + "' AND type='share' ORDER BY id DESC LIMIT 1;"))[0];
                     if (last_share) {
                         if (isToday(last_share.create_time)) {
+                            ws.send(JSON.stringify({
+                                method: "ErrorMsg",
+                                error_code: 100005,
+                                error_message: bitmap_errors["100005"]
+                            }));
                             logger.debug("already reward")
                             return;
                         }
@@ -728,6 +766,7 @@ wss.on('connection', async (ws, req) => {
                         method: "ShareSuccess",
                         user: user_for_share
                     }));
+
                     break;
                 case "Login":
                     const address = decode.address;
