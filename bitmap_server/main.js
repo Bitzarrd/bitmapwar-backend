@@ -74,22 +74,22 @@ mysql_connection.connect({}, async (err) => {
         });
     }, 60 * 1000);
 
-    const global = load_global_data_from_jsonfile_sync();
-    if (global != null) {
-        players = global.players;
-        grid = global.grid;
-        turn = global.turn;
-        next_round = global.next_round;
-        stop_time = global.stop_time;
-        if (now() > stop_time) {
-            await doSettlement();
-        } else {
-            interval = setInterval(checkStep, stepInterval);
-        }
-        delete_global_data_from_jsonfile();
-    } else {
+    // const global = load_global_data_from_jsonfile_sync();
+    // if (global != null) {
+    //     players = global.players;
+    //     grid = global.grid;
+    //     turn = global.turn;
+    //     next_round = global.next_round;
+    //     stop_time = global.stop_time;
+    //     if (now() > stop_time) {
+    //         await doSettlement();
+    //     } else {
+    //         interval = setInterval(checkStep, stepInterval);
+    //     }
+    //     delete_global_data_from_jsonfile();
+    // } else {
         start_game()
-    }
+    // }
 });
 
 
@@ -159,10 +159,13 @@ function delete_global_data_from_jsonfile() {
 
 
 async function action_log(owner, action, data) {
+    if (data == null) {
+        data = {};
+    }
     let log = {
         owner: owner,
         action: action,
-        extra: data,
+        extra: JSON.stringify(data),
         create_time: now(),
     }
     await mysql_connection.query("INSERT INTO `action_log` SET ?", log);
@@ -1267,11 +1270,11 @@ wss.on('connection', async (ws, req) => {
                         leader_board_users = await mysql_query(mysql_connection, "SELECT * FROM `user` ORDER BY `land` DESC LIMIT 500;");
                         my_self_rank = await mysql_query(mysql_connection, "SELECT COUNT(*) FROM `user` WHERE `land` > (SELECT `land` FROM `user` WHERE `address` = '" + ws.owner + "');");
                     }
-                    if(decode.tab === 'jackpot'){
+                    if (decode.tab === 'jackpot') {
                         leader_board_users = await mysql_query(mysql_connection, "SELECT * FROM `user` ORDER BY `jackpot` DESC LIMIT 500;");
                         my_self_rank = await mysql_query(mysql_connection, "SELECT COUNT(*) FROM `user` WHERE `jackpot` > (SELECT `jackpot` FROM `user` WHERE `address` = '" + ws.owner + "');");
                     }
-                    if(decode.tab==='jackpot_bw'){
+                    if (decode.tab === 'jackpot_bw') {
                         leader_board_users = await mysql_query(mysql_connection, "SELECT * FROM `user` ORDER BY `jackpot_bw` DESC LIMIT 500;");
                         my_self_rank = await mysql_query(mysql_connection, "SELECT COUNT(*) FROM `user` WHERE `jackpot_bw` > (SELECT `jackpot_bw` FROM `user` WHERE `address` = '" + ws.owner + "');");
                     }
