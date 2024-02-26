@@ -158,6 +158,16 @@ function delete_global_data_from_jsonfile() {
 }
 
 
+async function action_log(owner, action, data) {
+    let log = {
+        owner: owner,
+        action: action,
+        extra: data,
+        create_time: now(),
+    }
+    await mysql_connection.query("INSERT INTO `action_log` SET ?", log);
+}
+
 //////////////////////////////////////////////////////
 
 // let started = false;
@@ -708,7 +718,7 @@ wss.on('connection', async (ws, req) => {
             try {
                 decode = JSON.parse(message);
             } catch (e) {
-                logger.error(e);
+                logger.error(e + " :" + message);
                 return;
             }
             if (decode == null) {
@@ -855,6 +865,9 @@ wss.on('connection', async (ws, req) => {
                                 has_login_gift: has_login_gift
                             }));
                         }
+
+
+                        await action_log(decode.address, "login", null);
                     } catch (err) {
                         logger.error(err);
                     }
@@ -995,6 +1008,79 @@ wss.on('connection', async (ws, req) => {
                             }));
                         }
                     });
+                    break;
+                case "JoinGameBatch":
+                    if (typeof decode.virus === 'undefined') {
+                        logger.warn("virus undefined");
+                        return;
+                    }
+                    if (typeof decode.owner === 'undefined') {
+                        logger.warn("owner undefined");
+                        return;
+                    }
+                    if (typeof decode.color === 'undefined') {
+                        logger.warn("color undefined");
+                        return;
+                    }
+                    let maps = await loadBitmap(decode.owner);
+                    let total_virus = maps.length * decode.virus;
+
+                    const user_for_join_batch = (await mysql_query(mysql_connection, "SELECT * FROM `user` WHERE `address`='" + decode.owner + "';"))[0];
+                    if (user_for_join_batch.virus < total_virus) {
+                        logger.warn("insufficient virus");
+
+                        ws.send(JSON.stringify({
+                            method: "ErrorMsg",
+                            error_code: 100006,
+                            error_message: bitmap_errors["100006"],
+                        }));
+
+                        return;
+                    }
+
+                    user_for_join_batch.virus -= decode.virus;
+
+                    await mysql_connection.query("UPDATE user SET virus=virus-" + total_virus + " WHERE address='" + decode.owner + "';");
+
+                    let join_batch_players = [];
+                    for (let i = 0; i < maps.length; i++) {
+                        let map_id = maps[i];
+                        let join_y = Math.floor(map_id / gridWidth);
+                        let join_x = map_id % gridWidth;
+
+                        let join_player = {
+                            i: 0,
+                            x: join_x,
+                            y: join_y,
+                            bitmap: decode.map_id,
+                            color: decode.color,
+                            land: 0,
+                            loss: 0,
+                            init_virus: decode.virus,
+                            virus: decode.virus,
+                            owner: decode.owner,
+                        };
+                        join_batch_players.push(join_player);
+                        players.push(join_player);
+                    }
+
+                    clients.forEach((client) => {
+                        if (client.readyState === WebSocket.OPEN) {
+                            client.send(JSON.stringify({
+                                method: "JoinedGameBatchSuccess",
+                                players: simple_players(join_batch_players),
+                                user: user_for_join_batch,
+                            }));
+                        }
+                    });
+
+
+                    ws.send(JSON.stringify({
+                        method: "ErrorMsg",
+                        error_code: 100007,
+                        error_message: bitmap_errors["100007"],
+                    }));
+
                     break;
                 case "StartGame":
                     start_game();
