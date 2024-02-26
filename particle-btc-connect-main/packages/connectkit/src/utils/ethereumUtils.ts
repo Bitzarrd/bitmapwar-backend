@@ -1,8 +1,9 @@
-import { bytesToHex, publicToAddress, toBytes, toChecksumAddress, toRpcSig } from '@ethereumjs/util';
+import {bytesToHex, publicToAddress, toBytes, toChecksumAddress, toRpcSig} from '@ethereumjs/util';
 import bitcore from 'bitcore-lib';
 
 export const pubKeyToEVMAddress = (pubKey: string) => {
   const address = toChecksumAddress(bytesToHex(publicToAddress(toBytes(`0x${pubKey}`), true)));
+  console.log("pubKeyToEVMAddress", pubKey, address)
   return address;
 };
 

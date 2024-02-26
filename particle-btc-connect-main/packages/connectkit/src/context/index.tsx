@@ -131,6 +131,7 @@ export const ConnectProvider = ({
     }
 
     if (!(window as any).__bitcoinSmartAccount) {
+      // console.log("options",options);
       const smartAccount = new SmartAccount(
         new AASignerProvider(evmSupportChainIds, options.projectId, options.clientKey) as any,
         options
