@@ -426,10 +426,14 @@ const doSettlement = async () => {
         jackpot_user.profit = jackpot_user_profit.toString();
         const jackpot_remain = jackpot - jackpot_reward;
         jackpot_user.total_profit = (BigInt(jackpot_user.total_profit) + jackpot_reward).toString();
+        jackpot_user.jackpot = (BigInt(jackpot_user.jackpot) + jackpot_reward).toString();
+        jackpot_user.jackpot_bw = (BigInt(jackpot_user.jackpot_bw) + blue_wand_reward).toString();
 
         await mysql_connection.query("UPDATE `global` SET `val`='" + jackpot_remain.toString() + "' WHERE `key`='jackpot';");
         await mysql_connection.query("UPDATE `user` SET `profit`=" + jackpot_user_profit + " WHERE `address`='" + last_player.owner + "';");
         await mysql_connection.query("UPDATE `user` SET `total_profit`=" + jackpot_user.total_profit + " WHERE `address`='" + last_player.owner + "';");
+        await mysql_connection.query("UPDATE `user` SET `jackpot`=" + jackpot_user.jackpot + " WHERE `address`='" + last_player.owner + "';");
+        await mysql_connection.query("UPDATE `user` SET `jackpot_bw`=" + jackpot_user.jackpot_bw + " WHERE `address`='" + last_player.owner + "';");
 
         let user = users[last_player.owner];
         user.land = jackpot_user.land;
@@ -1246,6 +1250,37 @@ wss.on('connection', async (ws, req) => {
                         id: decode.id,
                         txid: decode.txid,
                         status: status
+                    }));
+                    break;
+                case "GetLeaderBoardSuccess":
+                    if (typeof decode.tab === 'undefined') {
+                        logger.warn("tab undefined");
+                        return;
+                    }
+                    let my_self_rank = 0;
+                    let leader_board_users = [];
+                    if (decode.tab === "profit") {
+                        leader_board_users = await mysql_query(mysql_connection, "SELECT * FROM `user` ORDER BY `profit` DESC LIMIT 500;");
+                        my_self_rank = await mysql_query(mysql_connection, "SELECT COUNT(*) FROM `user` WHERE `profit` > (SELECT `profit` FROM `user` WHERE `address` = '" + ws.owner + "');");
+                    }
+                    if (decode.tab === 'land') {
+                        leader_board_users = await mysql_query(mysql_connection, "SELECT * FROM `user` ORDER BY `land` DESC LIMIT 500;");
+                        my_self_rank = await mysql_query(mysql_connection, "SELECT COUNT(*) FROM `user` WHERE `land` > (SELECT `land` FROM `user` WHERE `address` = '" + ws.owner + "');");
+                    }
+                    if(decode.tab === 'jackpot'){
+                        leader_board_users = await mysql_query(mysql_connection, "SELECT * FROM `user` ORDER BY `jackpot` DESC LIMIT 500;");
+                        my_self_rank = await mysql_query(mysql_connection, "SELECT COUNT(*) FROM `user` WHERE `jackpot` > (SELECT `jackpot` FROM `user` WHERE `address` = '" + ws.owner + "');");
+                    }
+                    if(decode.tab==='jackpot_bw'){
+                        leader_board_users = await mysql_query(mysql_connection, "SELECT * FROM `user` ORDER BY `jackpot_bw` DESC LIMIT 500;");
+                        my_self_rank = await mysql_query(mysql_connection, "SELECT COUNT(*) FROM `user` WHERE `jackpot_bw` > (SELECT `jackpot_bw` FROM `user` WHERE `address` = '" + ws.owner + "');");
+                    }
+
+                    ws.send(JSON.stringify({
+                        method: "GetLeaderBoardSuccess",
+                        tab: decode.tab,
+                        my_self_rank: my_self_rank,
+                        users: leader_board_users
                     }));
                     break;
             }
