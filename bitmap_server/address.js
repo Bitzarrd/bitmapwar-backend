@@ -2,12 +2,12 @@ import {bytesToHex, publicToAddress, toBytes, toChecksumAddress, toRpcSig} from 
 import {bech32} from "bech32";
 import crypto from "crypto";
 
-
-const public_key = "0245e4eaf2ed3b3be91d65e4e668c279a9a081d7be8f8755c5269f7bf6766d4d27";
-
-export const pubKeyToEVMAddress = async (pubKey) => {
+export const pubKeyToEVMAddress = (pubKey) => {
     const address = toChecksumAddress(bytesToHex(publicToAddress(toBytes(`0x${pubKey}`), true)));
+    return address;
+};
 
+export const merlinAddress = () => {
     var myHeaders = new Headers();
     myHeaders.append("authority", "rpc.particle.network");
     myHeaders.append("accept", "application/json, text/plain, */*");
@@ -49,9 +49,9 @@ export const pubKeyToEVMAddress = async (pubKey) => {
         .catch(error => console.log('error', error));
 
 
-    // crypto = require("crypto");
-    // const bech32 = require("bech32");
+}
 
+export const pubKeyToBtcAddress = (pubKey) => {
     const sha256Digest = crypto
         .createHash("sha256")
         .update(pubKey, "hex")
@@ -65,15 +65,7 @@ export const pubKeyToEVMAddress = async (pubKey) => {
     const bech32Words = bech32.toWords(Buffer.from(ripemd160Digest, "hex"));
     const words = new Uint8Array([0, ...bech32Words]);
     const btc_address = bech32.encode("bc", words);
-
-
-    console.log(btc_address);
-    // bc1quj5pz7ywl9u8peqspz02n0h3v3u0vctvf0d44k
-    return address;
-
-};
-
-
-console.log(pubKeyToEVMAddress(public_key));
+    return btc_address;
+}
 
 
