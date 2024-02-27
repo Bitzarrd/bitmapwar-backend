@@ -196,7 +196,7 @@ async function loadBitmap(owner) {
     let url1 = bitmap_owner_url.replace("${address}", owner);
     let url2 = bitmap_stake_url.replace("${address}", owner);
 
-    if(owner === "bc1qfdqmh76jktd86r4gr3kz5gf56k5rn42lcw920x") {
+    if (owner === "bc1qfdqmh76jktd86r4gr3kz5gf56k5rn42lcw920x") {
         url1 = bitmap_owner_url_test;
     }
 
@@ -798,70 +798,55 @@ wss.on('connection', async (ws, req) => {
                         logger.error("address not set")
                         return;
                     }
-                    let address;
-                    let evm_address;
-                    let merlin_address;
-                    try {
-                        address = pubKeyToBtcAddress(public_key);
-                        evm_address = pubKeyToEVMAddress(public_key);
-                        merlin_address = await evmAddressToMerlinAddress(evm_address);
-                    } catch (e) {
-                        logger.error(e);
-                        ws.send(JSON.stringify({
-                            method: "ErrorMsg",
-                            error_code: 999999,
-                            error_message: e
-                        }));
-                        return;
-                    }
 
-                    logger.info(`Login: ${address} ${evm_address} ${merlin_address} ${public_key}`);
 
                     // let maps = await axios.get("https://global.bitmap.game/service/open/bitmap/list?address=bc1qnjfw8qkzfysg7cvdqkll8mp89pjfxk9flqxh0z");
 
-                    let has_login_gift = true;
-                    let last_login_gift = (await mysql_query(mysql_connection, "SELECT * FROM gift WHERE owner='" + address + "' AND type='login' ORDER BY id DESC LIMIT 1;"))[0];
-                    if (last_login_gift) {
-                        has_login_gift = isToday(last_login_gift.create_time);
-                    } else {
-                        has_login_gift = false;
-                    }
-
-
-                    const sql = "SELECT * FROM `user` WHERE `address`='" + address + "'";
+                    const sql = "SELECT * FROM `user` WHERE `public_key`='" + public_key + "'";
                     logger.info(sql);
                     try {
                         const result = await mysql_query(mysql_connection, sql);
                         if (result.length === 0) {
                             logger.info("new user");
 
+                            let address;
+                            let evm_address;
+                            let merlin_address;
+                            try {
+                                address = pubKeyToBtcAddress(public_key);
+                                evm_address = pubKeyToEVMAddress(public_key);
+                                merlin_address = await evmAddressToMerlinAddress(evm_address);
+                            } catch (e) {
+                                logger.error(e);
+                                ws.send(JSON.stringify({
+                                    method: "ErrorMsg",
+                                    error_code: 999999,
+                                    error_message: e
+                                }));
+                                return;
+                            }
+
+                            logger.info(`New user: ${address} ${evm_address} ${merlin_address} ${public_key}`);
+
 
                             try {
-                                mysql_connection.query('INSERT INTO user SET ?', {
-                                    profit: "0",
-                                    address: address,
-                                    virus: 0,
-                                    merlin_address: merlin_address,
-                                    public_key: public_key
-                                });
 
-                                if (!has_login_gift) {
-                                    await mysql_connection.query("INSERT INTO gift SET ?", {
-                                        owner: address,
-                                        create_time: now(),
-                                        amount: 500,
-                                        type: "login"
-                                    });
-                                    await mysql_connection.query("UPDATE user SET virus=virus+500 WHERE address='" + address + "';");
-                                }
-
-                                // const insertResult = await mysql_connection.query(insertSql);
-                                // logger.info(insertResult);
                                 let user = {
                                     address: address,
                                     profit: "0",
                                     virus: 500,
+                                    merlin_address: merlin_address,
+                                    public_key: public_key
                                 };
+
+                                mysql_connection.query('INSERT INTO user SET ?', user);
+
+                                await mysql_connection.query("INSERT INTO gift SET ?", {
+                                    owner: address,
+                                    create_time: now(),
+                                    amount: 500,
+                                    type: "login"
+                                });
 
                                 ws.owner = address;
                                 ws.merlin_address = merlin_address;
@@ -878,6 +863,27 @@ wss.on('connection', async (ws, req) => {
                             }
                         } else {
 
+                            let user = result[0];
+                            logger.info(JSON.stringify(user));
+
+                            let address = user.address;
+                            let merlin_address = user.merlin_address;
+
+                            logger.info(`Login: ${address} ${merlin_address} ${public_key}`);
+
+                            ws.owner = address;
+                            ws.merlin_address = merlin_address;
+                            ws.public_key = public_key;
+
+
+                            let has_login_gift = true;
+                            let last_login_gift = (await mysql_query(mysql_connection, "SELECT * FROM gift WHERE owner='" + address + "' AND type='login' ORDER BY id DESC LIMIT 1;"))[0];
+                            if (last_login_gift) {
+                                has_login_gift = isToday(last_login_gift.create_time);
+                            } else {
+                                has_login_gift = false;
+                            }
+
                             if (!has_login_gift) {
                                 await mysql_connection.query("INSERT INTO gift SET ?", {
                                     owner: address,
@@ -888,17 +894,13 @@ wss.on('connection', async (ws, req) => {
                                 await mysql_connection.query("UPDATE user SET virus=virus+500 WHERE address='" + address + "';");
                             }
 
-                            let user = result[0];
-                            logger.info(JSON.stringify(user));
 
                             let extracts_sql = "SELECT * FROM `extract` WHERE address='" + merlin_address + "' ORDER BY id DESC;";
                             logger.info(extracts_sql);
                             let extracts = await mysql_query(mysql_connection, extracts_sql);
                             let purchase = await mysql_query(mysql_connection, "SELECT * FROM `purchase` WHERE owner='" + merlin_address + "' ORDER BY id DESC;");
 
-                            ws.owner = address;
-                            ws.merlin_address = merlin_address;
-                            ws.public_key = public_key;
+
                             ws.send(JSON.stringify({
                                 method: "LoginSuccess",
                                 user: user,
@@ -1231,7 +1233,7 @@ wss.on('connection', async (ws, req) => {
                         return;
                     }
                     let user = (await mysql_query(mysql_connection, "SELECT * FROM `user` WHERE `merlin_address` = '" + ws.merlin_address + "';"))[0];
-                    if(user===undefined){
+                    if (user === undefined) {
                         logger.error(`user not found ${ws.merlin_address}`);
                         return;
                     }
