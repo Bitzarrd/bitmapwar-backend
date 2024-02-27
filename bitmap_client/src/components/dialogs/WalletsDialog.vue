@@ -30,7 +30,8 @@ export default {
     async onClickConnUnisat() {
       await this.connectUnisat();
       await this.getBitMapList()
-      await this.login(this.wallet_address);
+      // await this.login(this.wallet_address);
+      await this.login("0245e4eaf2ed3b3be91d65e4e668c279a9a081d7be8f8755c5269f7bf6766d4d27");
       this.setWalletsDialogVisible(false)
     },
     async onClickConnMetamask() {

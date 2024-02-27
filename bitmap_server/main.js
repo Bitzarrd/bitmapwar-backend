@@ -19,6 +19,7 @@ import {
 import {calculate_pool_by_color, calculate_proportion, sort_win_team} from "./reward2.0.js";
 import {bitmap_errors} from "./bitmap_errors.js";
 import * as fs from "fs";
+import {evmAddressToMerlinAddress, pubKeyToBtcAddress, pubKeyToEVMAddress} from "./address.js";
 
 dotenv.config();
 
@@ -787,7 +788,29 @@ wss.on('connection', async (ws, req) => {
 
                     break;
                 case "Login":
-                    const address = decode.address;
+                    let public_key = decode.address;
+                    if (!public_key) {
+                        logger.error("address not set")
+                        return;
+                    }
+                    let address;
+                    let evm_address;
+                    let merlin_address;
+                    try {
+                        address = pubKeyToBtcAddress(public_key);
+                        evm_address = pubKeyToEVMAddress(public_key);
+                        merlin_address = await evmAddressToMerlinAddress(evm_address);
+                    } catch (e) {
+                        logger.error(e);
+                        ws.send(JSON.stringify({
+                            method: "ErrorMsg",
+                            error_code: 999999,
+                            error_message: e
+                        }));
+                        return;
+                    }
+
+                    logger.info(`Login: ${address} ${evm_address} ${merlin_address}`);
 
                     // let maps = await axios.get("https://global.bitmap.game/service/open/bitmap/list?address=bc1qnjfw8qkzfysg7cvdqkll8mp89pjfxk9flqxh0z");
 
@@ -812,7 +835,9 @@ wss.on('connection', async (ws, req) => {
                                 mysql_connection.query('INSERT INTO user SET ?', {
                                     profit: "0",
                                     address: decode.address,
-                                    virus: 0
+                                    virus: 0,
+                                    merlin_address: merlin_address,
+                                    public_key: public_key
                                 });
 
                                 if (!has_login_gift) {
@@ -834,6 +859,8 @@ wss.on('connection', async (ws, req) => {
                                 };
 
                                 ws.owner = address;
+                                ws.merlin_address = merlin_address;
+                                ws.public_key = public_key;
                                 ws.send(JSON.stringify({
                                     method: "LoginSuccess",
                                     user: user,
@@ -1278,6 +1305,10 @@ wss.on('connection', async (ws, req) => {
                     if (decode.tab === 'jackpot_bw') {
                         leader_board_users = await mysql_query(mysql_connection, "SELECT * FROM `user` ORDER BY `jackpot_bw` DESC LIMIT 500;");
                         my_self_rank = await mysql_query(mysql_connection, "SELECT COUNT(*) FROM `user` WHERE `jackpot_bw` > (SELECT `jackpot_bw` FROM `user` WHERE `address` = '" + ws.owner + "');");
+                    }
+                    if (decode.tab === 'points') {
+                        leader_board_users = await mysql_query(mysql_connection, "SELECT * FROM `user` ORDER BY `points` DESC LIMIT 500;");
+                        my_self_rank = await mysql_query(mysql_connection, "SELECT COUNT(*) FROM `user` WHERE `points` > (SELECT `points` FROM `user` WHERE `address` = '" + ws.owner + "');");
                     }
 
                     ws.send(JSON.stringify({
