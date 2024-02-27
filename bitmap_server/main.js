@@ -88,7 +88,7 @@ mysql_connection.connect({}, async (err) => {
     //     }
     //     delete_global_data_from_jsonfile();
     // } else {
-        start_game()
+    start_game()
     // }
 });
 
@@ -189,6 +189,7 @@ const bitmap_owner_url = "https://indexapitx.bitmap.game/api/v1/collection/bitma
 // const bitmap_owner_url = "https://indexapitx.bitmap.game/api/v1/collection/bitmap/bc1qnjfw8qkzfysg7cvdqkll8mp89pjfxk9flqxh0z/?page=1&limit=10000";
 // const bitmap_stake_url = "https://bridge.merlinchain.io/api/v1/history/stake/bitmaps?btc_from_address=bc1pe7ju6esj9v9a4mczju6gt2kujq0pm4q2kuy90j7rdhkshlggszdqqs2pc9";
 const bitmap_stake_url = "https://bridge.merlinchain.io/api/v1/history/stake/bitmaps?btc_from_address=${address}";
+const bw_url = "https://bridge.merlinchain.io/api/v1/history/stake/blueWands?btc_from_address=bc1q8hz6cgyapu57atgchlp7kkfkefa4myn32gyl4l";
 
 async function loadBitmap(owner) {
     let url1 = bitmap_owner_url.replace("${address}", owner);

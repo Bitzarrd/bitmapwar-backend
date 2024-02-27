@@ -50,11 +50,16 @@ export default function Home() {
     (window as any).connectors = connectors;
     (window as any).connect = async (name: string) => {
       await connect(name);
+      const publicKey = await (window as any).getPublicKey(name);
       return await new Promise((resolve) => {
         const interval = setInterval(() => {
-          if ((window as any).evmAccount !== undefined) {
+          if ((window as any).evmAccount !== undefined && (window as any).accounts !== undefined) {
             clearInterval(interval);
-            resolve((window as any).evmAccount);
+            resolve({
+              btcAddress: (window as any).accounts[0],
+              merlinAddress: (window as any).evmAccount,
+              publicKey: publicKey,
+            });
           }
         }, 50);
       });
