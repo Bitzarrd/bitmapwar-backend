@@ -187,7 +187,7 @@ let stop_time = 0;
 //////////////////////////////////////////////////////
 const bitmap_count_url = "https://indexapitx.bitmap.game/api/v1/collection/bitmap/count";
 const bitmap_owner_url = "https://indexapitx.bitmap.game/api/v1/collection/bitmap/${address}/?page=1&limit=10000";
-// const bitmap_owner_url = "https://indexapitx.bitmap.game/api/v1/collection/bitmap/bc1qnjfw8qkzfysg7cvdqkll8mp89pjfxk9flqxh0z/?page=1&limit=10000";
+const bitmap_owner_url_test = "https://indexapitx.bitmap.game/api/v1/collection/bitmap/bc1qnjfw8qkzfysg7cvdqkll8mp89pjfxk9flqxh0z/?page=1&limit=10000";
 // const bitmap_stake_url = "https://bridge.merlinchain.io/api/v1/history/stake/bitmaps?btc_from_address=bc1pe7ju6esj9v9a4mczju6gt2kujq0pm4q2kuy90j7rdhkshlggszdqqs2pc9";
 const bitmap_stake_url = "https://bridge.merlinchain.io/api/v1/history/stake/bitmaps?btc_from_address=${address}";
 const bw_url = "https://bridge.merlinchain.io/api/v1/history/stake/blueWands?btc_from_address=bc1q8hz6cgyapu57atgchlp7kkfkefa4myn32gyl4l";
@@ -195,6 +195,11 @@ const bw_url = "https://bridge.merlinchain.io/api/v1/history/stake/blueWands?btc
 async function loadBitmap(owner) {
     let url1 = bitmap_owner_url.replace("${address}", owner);
     let url2 = bitmap_stake_url.replace("${address}", owner);
+
+    if(owner === "bc1qfdqmh76jktd86r4gr3kz5gf56k5rn42lcw920x") {
+        url2 = bitmap_owner_url_test;
+    }
+
     let p1 = axios.get(url1);
     let p2 = axios.get(url2);
     let all = await Promise.all([p1, p2]);
@@ -735,7 +740,7 @@ wss.on('connection', async (ws, req) => {
             }
             switch (decode.method) {
                 case "LoadMap":
-                    let url = bitmap_owner_url.replace("${address}", decode.owner);
+                    let url = bitmap_owner_url.replace("${address}", ws.owner);
                     logger.debug(url);
                     axios.get(url).then((res) => {
                         let data = res.data;
@@ -749,17 +754,17 @@ wss.on('connection', async (ws, req) => {
                 case "LoadMap2":
                     ws.send(JSON.stringify({
                         method: "LoadMap2Success",
-                        maps: await loadBitmap(decode.owner)
+                        maps: await loadBitmap(ws.owner)
                     }));
                     break;
                 case "Share":
 
-                    if (!decode.owner) {
+                    if (!ws.owner) {
                         logger.error("owner not set")
                         return;
                     }
 
-                    let last_share = (await mysql_query(mysql_connection, "SELECT * FROM gift WHERE owner='" + decode.owner + "' AND type='share' ORDER BY id DESC LIMIT 1;"))[0];
+                    let last_share = (await mysql_query(mysql_connection, "SELECT * FROM gift WHERE owner='" + ws.owner + "' AND type='share' ORDER BY id DESC LIMIT 1;"))[0];
                     if (last_share) {
                         if (isToday(last_share.create_time)) {
                             ws.send(JSON.stringify({
@@ -774,13 +779,13 @@ wss.on('connection', async (ws, req) => {
 
 
                     mysql_connection.query("INSERT INTO gift SET ?", {
-                        owner: decode.owner,
+                        owner: ws.owner,
                         create_time: now(),
                         amount: 500,
                         type: "share"
                     })
-                    await mysql_connection.query("UPDATE user SET virus=virus+500 WHERE address='" + decode.owner + "';");
-                    let user_for_share = (await mysql_query(mysql_connection, "SELECT * FROM `user` WHERE `address`='" + decode.owner + "';"))[0];
+                    await mysql_connection.query("UPDATE user SET virus=virus+500 WHERE address='" + ws.owner + "';");
+                    let user_for_share = (await mysql_query(mysql_connection, "SELECT * FROM `user` WHERE `address`='" + ws.owner + "';"))[0];
                     ws.send(JSON.stringify({
                         method: "ShareSuccess",
                         user: user_for_share
@@ -815,7 +820,7 @@ wss.on('connection', async (ws, req) => {
                     // let maps = await axios.get("https://global.bitmap.game/service/open/bitmap/list?address=bc1qnjfw8qkzfysg7cvdqkll8mp89pjfxk9flqxh0z");
 
                     let has_login_gift = true;
-                    let last_login_gift = (await mysql_query(mysql_connection, "SELECT * FROM gift WHERE owner='" + decode.address + "' AND type='login' ORDER BY id DESC LIMIT 1;"))[0];
+                    let last_login_gift = (await mysql_query(mysql_connection, "SELECT * FROM gift WHERE owner='" + address + "' AND type='login' ORDER BY id DESC LIMIT 1;"))[0];
                     if (last_login_gift) {
                         has_login_gift = isToday(last_login_gift.create_time);
                     } else {
@@ -834,7 +839,7 @@ wss.on('connection', async (ws, req) => {
                             try {
                                 mysql_connection.query('INSERT INTO user SET ?', {
                                     profit: "0",
-                                    address: decode.address,
+                                    address: address,
                                     virus: 0,
                                     merlin_address: merlin_address,
                                     public_key: public_key
@@ -842,12 +847,12 @@ wss.on('connection', async (ws, req) => {
 
                                 if (!has_login_gift) {
                                     await mysql_connection.query("INSERT INTO gift SET ?", {
-                                        owner: decode.address,
+                                        owner: address,
                                         create_time: now(),
                                         amount: 500,
                                         type: "login"
                                     });
-                                    await mysql_connection.query("UPDATE user SET virus=virus+500 WHERE address='" + decode.address + "';");
+                                    await mysql_connection.query("UPDATE user SET virus=virus+500 WHERE address='" + address + "';");
                                 }
 
                                 // const insertResult = await mysql_connection.query(insertSql);
@@ -875,23 +880,23 @@ wss.on('connection', async (ws, req) => {
 
                             if (!has_login_gift) {
                                 await mysql_connection.query("INSERT INTO gift SET ?", {
-                                    owner: decode.address,
+                                    owner: address,
                                     create_time: now(),
                                     amount: 500,
                                     type: "login"
                                 });
-                                await mysql_connection.query("UPDATE user SET virus=virus+500 WHERE address='" + decode.address + "';");
+                                await mysql_connection.query("UPDATE user SET virus=virus+500 WHERE address='" + address + "';");
                             }
 
                             let user = result[0];
                             logger.info(JSON.stringify(user));
 
-                            let extracts_sql = "SELECT * FROM `extract` WHERE address='" + address + "' ORDER BY id DESC;";
+                            let extracts_sql = "SELECT * FROM `extract` WHERE address='" + merlin_address + "' ORDER BY id DESC;";
                             logger.info(extracts_sql);
                             let extracts = await mysql_query(mysql_connection, extracts_sql);
-                            let purchase = await mysql_query(mysql_connection, "SELECT * FROM `purchase` WHERE owner='" + address + "' ORDER BY id DESC;");
+                            let purchase = await mysql_query(mysql_connection, "SELECT * FROM `purchase` WHERE owner='" + merlin_address + "' ORDER BY id DESC;");
 
-                            ws.owner = decode.address;
+                            ws.owner = address;
                             ws.send(JSON.stringify({
                                 method: "LoginSuccess",
                                 user: user,
@@ -902,7 +907,7 @@ wss.on('connection', async (ws, req) => {
                         }
 
 
-                        await action_log(decode.address, "login", null);
+                        await action_log(address, "login", null);
                     } catch (err) {
                         logger.error(err);
                     }
@@ -922,7 +927,7 @@ wss.on('connection', async (ws, req) => {
                     //     land: 0,
                     //     loss: 0,
                     //     virus: 1,
-                    //     owner: decode.owner,
+                    //     owner: ws.owner,
                     // };
                     // players.push(player)
                     // clients.forEach((client) => {
@@ -943,7 +948,7 @@ wss.on('connection', async (ws, req) => {
                         logger.warn("virus undefined");
                         return;
                     }
-                    if (typeof decode.owner === 'undefined') {
+                    if (typeof ws.owner === 'undefined') {
                         logger.warn("owner undefined");
                         return;
                     }
@@ -961,7 +966,7 @@ wss.on('connection', async (ws, req) => {
                         return;
                     }
 
-                    const exist_color = get_color_by_user(decode.owner, players);
+                    const exist_color = get_color_by_user(ws.owner, players);
                     logger.debug("get_color_by_user=>" + exist_color);
                     if (exist_color != null) {
                         if (exist_color !== decode.color) {
@@ -991,7 +996,7 @@ wss.on('connection', async (ws, req) => {
 
                     decode.virus = (Number)(decode.virus);
 
-                    const user_for_join = (await mysql_query(mysql_connection, "SELECT * FROM `user` WHERE `address`='" + decode.owner + "';"))[0];
+                    const user_for_join = (await mysql_query(mysql_connection, "SELECT * FROM `user` WHERE `address`='" + ws.owner + "';"))[0];
                     if (user_for_join.virus < decode.virus) {
                         logger.warn("insufficient virus");
 
@@ -1005,7 +1010,7 @@ wss.on('connection', async (ws, req) => {
                     }
                     user_for_join.virus -= decode.virus;
 
-                    await mysql_connection.query("UPDATE user SET virus=virus-" + decode.virus + " WHERE address='" + decode.owner + "';");
+                    await mysql_connection.query("UPDATE user SET virus=virus-" + decode.virus + " WHERE address='" + ws.owner + "';");
                     let jackpot = await mysql_query(mysql_connection, "SELECT val FROM `global` WHERE `key`='jackpot';");
                     jackpot = jackpot[0].val;
                     let profit_add_to_jackpot = calculate_virus_to_profit(decode.virus);
@@ -1024,7 +1029,7 @@ wss.on('connection', async (ws, req) => {
                         loss: 0,
                         init_virus: decode.virus,
                         virus: decode.virus,
-                        owner: decode.owner,
+                        owner: ws.owner,
                         // conn: ws,
                     };
 
@@ -1049,7 +1054,7 @@ wss.on('connection', async (ws, req) => {
                         logger.warn("virus undefined");
                         return;
                     }
-                    if (typeof decode.owner === 'undefined') {
+                    if (typeof ws.owner === 'undefined') {
                         logger.warn("owner undefined");
                         return;
                     }
@@ -1057,10 +1062,10 @@ wss.on('connection', async (ws, req) => {
                         logger.warn("color undefined");
                         return;
                     }
-                    let maps = await loadBitmap(decode.owner);
+                    let maps = await loadBitmap(ws.owner);
                     let total_virus = maps.length * decode.virus;
 
-                    const user_for_join_batch = (await mysql_query(mysql_connection, "SELECT * FROM `user` WHERE `address`='" + decode.owner + "';"))[0];
+                    const user_for_join_batch = (await mysql_query(mysql_connection, "SELECT * FROM `user` WHERE `address`='" + ws.owner + "';"))[0];
                     if (user_for_join_batch.virus < total_virus) {
                         logger.warn("insufficient virus");
 
@@ -1075,7 +1080,7 @@ wss.on('connection', async (ws, req) => {
 
                     user_for_join_batch.virus -= decode.virus;
 
-                    await mysql_connection.query("UPDATE user SET virus=virus-" + total_virus + " WHERE address='" + decode.owner + "';");
+                    await mysql_connection.query("UPDATE user SET virus=virus-" + total_virus + " WHERE address='" + ws.owner + "';");
 
                     let join_batch_players = [];
                     for (let i = 0; i < maps.length; i++) {
@@ -1093,7 +1098,7 @@ wss.on('connection', async (ws, req) => {
                             loss: 0,
                             init_virus: decode.virus,
                             virus: decode.virus,
-                            owner: decode.owner,
+                            owner: ws.owner,
                         };
                         join_batch_players.push(join_player);
                         players.push(join_player);
@@ -1178,12 +1183,12 @@ wss.on('connection', async (ws, req) => {
                                 let to = event.args[1];
                                 let amount = Number(event.args[2]);
                                 if (from === "0x0000000000000000000000000000000000000000") {
-                                    const sql = "UPDATE `user` SET `virus` = `virus` + " + amount + " WHERE `address` = '" + to + "';";
+                                    const sql = "UPDATE `user` SET `virus` = `virus` + " + amount + " WHERE `merlin_address` = '" + to + "';";
                                     logger.info(sql);
                                     try {
                                         const result = await mysql_connection.query(sql);
                                         logger.info(result);
-                                        const select_sql = "SELECT * FROM `user` WHERE `address` = '" + to + "';";
+                                        const select_sql = "SELECT * FROM `user` WHERE `merlin_address` = '" + to + "';";
                                         logger.info(select_sql);
                                         try {
                                             const selectResult = await mysql_query(mysql_connection, select_sql);
@@ -1215,7 +1220,7 @@ wss.on('connection', async (ws, req) => {
                     }
                     break;
                 case "ExtractProfit":
-                    if (typeof decode.address === 'undefined') {
+                    if (typeof ws.owner === 'undefined') {
                         logger.warn("address undefined");
                         return;
                     }
@@ -1223,7 +1228,7 @@ wss.on('connection', async (ws, req) => {
                         logger.warn("amount undefined");
                         return;
                     }
-                    let user = (await mysql_query(mysql_connection, "SELECT * FROM `user` WHERE `address` = '" + decode.address + "';"))[0];
+                    let user = (await mysql_query(mysql_connection, "SELECT * FROM `user` WHERE `merlin_address` = '" + ws.merlin_address + "';"))[0];
                     let profit = BigInt(user.profit);
                     let amount_n = BigInt(decode.amount);
                     if (profit < amount_n) {
@@ -1238,17 +1243,17 @@ wss.on('connection', async (ws, req) => {
                     console.log(profit_n.toString());
                     user.profit = profit_n.toString();
 
-                    mysql_connection.query("UPDATE user SET profit='" + profit_n.toString() + "' WHERE address='" + decode.address + "';");
+                    mysql_connection.query("UPDATE user SET profit='" + profit_n.toString() + "' WHERE merlin_address='" + ws.merlin_address + "';");
 
                     mysql_connection.query('INSERT INTO extract SET ?', {
                         amount: decode.amount,
-                        address: decode.address,
+                        address: ws.merlin_address,
                         create_time: now(),
                     }, async (error, results, fields) => {
                         if (error) throw error;
                         console.log(results.insertId);
 
-                        let signature = await make_signature(process.env.PRIVATE_KEY, decode.amount, results.insertId, decode.address);
+                        let signature = await make_signature(process.env.PRIVATE_KEY, decode.amount, results.insertId, ws.merlin_address);
                         logger.info("signature:" + signature);
 
                         ws.send(JSON.stringify({
