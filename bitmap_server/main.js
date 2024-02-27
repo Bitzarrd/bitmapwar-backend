@@ -197,7 +197,7 @@ async function loadBitmap(owner) {
     let url2 = bitmap_stake_url.replace("${address}", owner);
 
     if(owner === "bc1qfdqmh76jktd86r4gr3kz5gf56k5rn42lcw920x") {
-        url2 = bitmap_owner_url_test;
+        url1 = bitmap_owner_url_test;
     }
 
     let p1 = axios.get(url1);
@@ -815,7 +815,7 @@ wss.on('connection', async (ws, req) => {
                         return;
                     }
 
-                    logger.info(`Login: ${address} ${evm_address} ${merlin_address}`);
+                    logger.info(`Login: ${address} ${evm_address} ${merlin_address} ${public_key}`);
 
                     // let maps = await axios.get("https://global.bitmap.game/service/open/bitmap/list?address=bc1qnjfw8qkzfysg7cvdqkll8mp89pjfxk9flqxh0z");
 
@@ -897,6 +897,8 @@ wss.on('connection', async (ws, req) => {
                             let purchase = await mysql_query(mysql_connection, "SELECT * FROM `purchase` WHERE owner='" + merlin_address + "' ORDER BY id DESC;");
 
                             ws.owner = address;
+                            ws.merlin_address = merlin_address;
+                            ws.public_key = public_key;
                             ws.send(JSON.stringify({
                                 method: "LoginSuccess",
                                 user: user,
@@ -1220,8 +1222,8 @@ wss.on('connection', async (ws, req) => {
                     }
                     break;
                 case "ExtractProfit":
-                    if (typeof ws.owner === 'undefined') {
-                        logger.warn("address undefined");
+                    if (typeof ws.merlin_address === 'undefined') {
+                        logger.warn("merlin_address undefined");
                         return;
                     }
                     if (typeof decode.amount === 'undefined') {
@@ -1229,6 +1231,10 @@ wss.on('connection', async (ws, req) => {
                         return;
                     }
                     let user = (await mysql_query(mysql_connection, "SELECT * FROM `user` WHERE `merlin_address` = '" + ws.merlin_address + "';"))[0];
+                    if(user===undefined){
+                        logger.error(`user not found ${ws.merlin_address}`);
+                        return;
+                    }
                     let profit = BigInt(user.profit);
                     let amount_n = BigInt(decode.amount);
                     if (profit < amount_n) {
