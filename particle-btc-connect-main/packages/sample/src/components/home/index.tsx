@@ -36,12 +36,19 @@ export default function Home() {
   const { connectors, connect } = useConnector();
 
   if (typeof window !== 'undefined') {
+    (window as any).getPublicKey = async (id: string) => {
+      for (const connector in connectors) {
+        if (connectors[connector].metadata.id === id) {
+          return await connectors[connector].getPublicKey();
+        }
+      }
+    };
     (window as any).accounts = accounts;
     (window as any).smartAccount = smartAccount;
     (window as any).evmAccount = evmAccount;
     (window as any).chainId = chainId;
     (window as any).connectors = connectors;
-    (window as any).connect = async (name: any) => {
+    (window as any).connect = async (name: string) => {
       await connect(name);
       return await new Promise((resolve) => {
         const interval = setInterval(() => {
@@ -65,7 +72,7 @@ export default function Home() {
     };
     (window as any).sendTx = async () => {
       if (typeof smartAccount !== 'undefined') {
-        let to = await smartAccount.getAddress();
+        const to = await smartAccount.getAddress();
         console.log('to', to);
         const tx = {
           to: to,
@@ -83,7 +90,7 @@ export default function Home() {
     };
     (window as any).contractCall = async () => {
       if (typeof smartAccount !== 'undefined') {
-        let to = await smartAccount.getAddress();
+        const to = await smartAccount.getAddress();
         console.log('to', to);
         const tx = {
           to: '0x50CE6428D8aCA4ce02c1701E492A43C8E35a1bc5',
@@ -120,7 +127,7 @@ export default function Home() {
     (window as any).extractProfit = async (amount: string, signature: string, nonce: number, to: string) => {
       console.log('BitMapWarAbi', BitMapWarAbi);
       if (typeof smartAccount !== 'undefined') {
-        let contract = new Contract('0x512ab02d40758c3D2Fe8d8833aB2f7A0dbeb8E62', BitMapWarAbi) as any;
+        const contract = new Contract('0x512ab02d40758c3D2Fe8d8833aB2f7A0dbeb8E62', BitMapWarAbi) as any;
         const transaction = await contract.withdrawETHWithSignature.populateTransaction(
           Number(amount),
           signature,
