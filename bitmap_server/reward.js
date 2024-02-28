@@ -90,6 +90,7 @@ export function get_users(players) {
                 // conn: player.conn,
                 i: ++i,
                 owner: player.owner,
+                taproot_address: player.taproot_address,
                 statistics: {land: player.land, virus: player.virus, loss: player.loss, color: player.color},
                 bitmaps: [player.bitmap],
                 reward_1: 0,

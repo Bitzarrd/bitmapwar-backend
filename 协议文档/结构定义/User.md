@@ -4,6 +4,7 @@ User定义了一个用户的数据，每个钱包有且仅有一个
 |-------|-------|-------|
 | address  | string  | BTC钱包地址  |
 | merlin_address  | string  | 钱包地址  |
+| taproot_address  | string  | taproot钱包地址  |
 | public_key  | string  | 公钥  |
 | profit  | string  | 可领取的收益总数  |
 | jackpot  | string  | 爆灯奖励  |

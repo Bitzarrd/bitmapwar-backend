@@ -19,7 +19,7 @@ import {
 import {calculate_pool_by_color, calculate_proportion, sort_win_team} from "./reward2.0.js";
 import {bitmap_errors} from "./bitmap_errors.js";
 import * as fs from "fs";
-import {evmAddressToMerlinAddress, pubKeyToBtcAddress, pubKeyToEVMAddress} from "./address.js";
+import {evmAddressToMerlinAddress, pubKeyToBtcAddress, pubKeyToEVMAddress, pubKeyToTaprootAddress} from "./address.js";
 
 dotenv.config();
 
@@ -196,7 +196,12 @@ async function loadBitmap(owner) {
     let url1 = bitmap_owner_url.replace("${address}", owner);
     let url2 = bitmap_stake_url.replace("${address}", owner);
 
-    if (owner === "bc1qfdqmh76jktd86r4gr3kz5gf56k5rn42lcw920x") {
+    let white_address_list = [
+        "bc1p2gqqvfh5khjs5024uajk3pfun66e6l6xj3kr8y8pljfj6ehkph9s3y6gyz",
+        "bc1qfdqmh76jktd86r4gr3kz5gf56k5rn42lcw920x"
+    ];
+
+    if (owner === white_address_list[0]) {
         url1 = bitmap_owner_url_test;
     }
 
@@ -740,7 +745,7 @@ wss.on('connection', async (ws, req) => {
             }
             switch (decode.method) {
                 case "LoadMap":
-                    let url = bitmap_owner_url.replace("${address}", ws.owner);
+                    let url = bitmap_owner_url.replace("${address}", ws.taproot_address);
                     logger.debug(url);
                     axios.get(url).then((res) => {
                         let data = res.data;
@@ -754,7 +759,7 @@ wss.on('connection', async (ws, req) => {
                 case "LoadMap2":
                     ws.send(JSON.stringify({
                         method: "LoadMap2Success",
-                        maps: await loadBitmap(ws.owner)
+                        maps: await loadBitmap(ws.taproot_address)
                     }));
                     break;
                 case "Share":
@@ -812,10 +817,12 @@ wss.on('connection', async (ws, req) => {
                             let address;
                             let evm_address;
                             let merlin_address;
+                            let taproot_address;
                             try {
                                 address = pubKeyToBtcAddress(public_key);
                                 evm_address = pubKeyToEVMAddress(public_key);
                                 merlin_address = await evmAddressToMerlinAddress(evm_address);
+                                taproot_address = pubKeyToTaprootAddress(public_key);
                             } catch (e) {
                                 logger.error(e);
                                 ws.send(JSON.stringify({
@@ -836,6 +843,7 @@ wss.on('connection', async (ws, req) => {
                                     profit: "0",
                                     virus: 500,
                                     merlin_address: merlin_address,
+                                    taproot_address: taproot_address,
                                     public_key: public_key
                                 };
 
@@ -851,6 +859,7 @@ wss.on('connection', async (ws, req) => {
                                 ws.owner = address;
                                 ws.merlin_address = merlin_address;
                                 ws.public_key = public_key;
+                                ws.taproot_address = taproot_address;
                                 ws.send(JSON.stringify({
                                     method: "LoginSuccess",
                                     user: user,
@@ -870,12 +879,14 @@ wss.on('connection', async (ws, req) => {
 
                             let address = user.address;
                             let merlin_address = user.merlin_address;
+                            let taproot_address = user.taproot_address;
 
                             logger.info(`Login: ${address} ${merlin_address} ${public_key}`);
 
                             ws.owner = address;
                             ws.merlin_address = merlin_address;
                             ws.public_key = public_key;
+                            ws.taproot_address = taproot_address;
 
 
                             let has_login_gift = true;
@@ -1036,6 +1047,7 @@ wss.on('connection', async (ws, req) => {
                         init_virus: decode.virus,
                         virus: decode.virus,
                         owner: ws.owner,
+                        taproot_address: ws.taproot_address,
                         // conn: ws,
                     };
 

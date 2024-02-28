@@ -1,6 +1,8 @@
 import {bytesToHex, publicToAddress, toBytes, toChecksumAddress, toRpcSig} from '@ethereumjs/util';
-import {bech32} from "bech32";
+import {bech32, bech32m} from "bech32";
 import crypto from "crypto";
+import ecurve from "ecurve";
+import schnorr from "bip-schnorr";
 
 export const pubKeyToEVMAddress = (pubKey) => {
     const address = toChecksumAddress(bytesToHex(publicToAddress(toBytes(`0x${pubKey}`), true)));
@@ -77,8 +79,22 @@ export const pubKeyToBtcAddress = (pubKey) => {
 
     const bech32Words = bech32.toWords(Buffer.from(ripemd160Digest, "hex"));
     const words = new Uint8Array([0, ...bech32Words]);
+
     const btc_address = bech32.encode("bc", words);
     return btc_address;
+}
+
+export const pubKeyToTaprootAddress = (pubKey) => {
+    const secp256k1 = ecurve.getCurveByName('secp256k1')
+    const internalPubkey = Buffer.from(
+        pubKey,
+        'hex',
+    );
+    const ipubKey = ecurve.Point.decodeFrom(secp256k1,internalPubkey )
+    const taprootPubkey = schnorr.taproot.taprootConstruct(ipubKey)
+    const words = bech32.toWords(taprootPubkey)
+    words.unshift(1)
+    return bech32m.encode('bc',words)
 }
 
 

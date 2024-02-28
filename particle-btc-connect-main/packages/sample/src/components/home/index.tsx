@@ -25,12 +25,12 @@ export default function Home() {
   const { openConnectModal, disconnect } = useConnectModal();
   const { accounts } = useAccounts();
   const { evmAccount, smartAccount, chainId, switchChain } = useETHProvider();
-  // const { provider, getNetwork, switchNetwork, signMessage, getPublicKey, sendBitcoin, sendInscription } =
-  //   useBTCProvider();
+  const { provider, getNetwork, switchNetwork, signMessage, getPublicKey, sendBitcoin, sendInscription } =
+    useBTCProvider();
   // const [gasless, setGasless] = useState<boolean>(false);
   // const [inscriptionReceiverAddress, setInscriptionReceiverAddress] = useState<string>();
   // const [inscriptionId, setInscriptionId] = useState<string>();
-  // const [message, setMessage] = useState<string>('Hello, Particle!');
+  const [message, setMessage] = useState<string>('Login For Bitmapwar!');
   // const [address, setAddress] = useState<string>();
   // const [satoshis, setSatoshis] = useState<string>('1');
   const { connectors, connect } = useConnector();
@@ -187,17 +187,18 @@ export default function Home() {
   //   }
   // };
 
-  // const onSignMessage = async () => {
-  //   if (!message) {
-  //     return;
-  //   }
-  //   try {
-  //     const sig = await signMessage(message);
-  //     toast.success(sig);
-  //   } catch (error: any) {
-  //     toast.error(error.message || 'sign message error');
-  //   }
-  // };
+  (window as any).onSignMessage = async () => {
+    if (!message) {
+      return;
+    }
+    try {
+      const sig = await signMessage(message);
+      toast.success(sig);
+      return sig;
+    } catch (error: any) {
+      toast.error(error.message || 'sign message error');
+    }
+  };
 
   // const onSendBitcoin = async () => {
   //   if (!address || !satoshis) {
