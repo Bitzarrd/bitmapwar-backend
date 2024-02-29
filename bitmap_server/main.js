@@ -192,31 +192,38 @@ const bitmap_owner_url_test = "https://indexapitx.bitmap.game/api/v1/collection/
 const bitmap_stake_url = "https://bridge.merlinchain.io/api/v1/history/stake/bitmaps?btc_from_address=${address}";
 const bw_url = "https://bridge.merlinchain.io/api/v1/history/stake/blueWands?btc_from_address=bc1q8hz6cgyapu57atgchlp7kkfkefa4myn32gyl4l";
 
-async function loadBitmap(owner) {
-    let url1 = bitmap_owner_url.replace("${address}", owner);
-    let url2 = bitmap_stake_url.replace("${address}", owner);
+async function loadBitmap(bit_address, taproot_address) {
+    let url1 = bitmap_stake_url.replace("${address}", bit_address);
+    let url2 = bitmap_stake_url.replace("${address}", taproot_address);
 
     let white_address_list = [
         "bc1p2gqqvfh5khjs5024uajk3pfun66e6l6xj3kr8y8pljfj6ehkph9s3y6gyz",
         "bc1qfdqmh76jktd86r4gr3kz5gf56k5rn42lcw920x"
     ];
-
-    if (owner === white_address_list[0]) {
-        url1 = bitmap_owner_url_test;
-    }
+    //
+    // if (owner === white_address_list[0]) {
+    //     url1 = bitmap_owner_url_test;
+    // }
 
     let p1 = axios.get(url1);
     let p2 = axios.get(url2);
     let all = await Promise.all([p1, p2]);
-    let maps_1 = all[0].data.data.items.map((item) => {
-        return item.bitmap_id.toString();
+    // let maps_1 = all[0].data.data.items.map((item) => {
+    //     return item.bitmap_id.toString();
+    // });
+    let maps_1 = all[0].data.data.map((item) => {
+        return item.replace(".bitmap", "");
     });
     let maps_2 = all[1].data.data.map((item) => {
         return item.replace(".bitmap", "");
     });
     let mergedArray = [...maps_1, ...maps_2];
     let uniqueArray = Array.from(new Set(mergedArray));
-    return uniqueArray.sort();
+    if (bit_address === white_address_list[1] || taproot_address === white_address_list[0]) {
+        return ["815797", "815798", "815799"];
+    } else {
+        return uniqueArray.sort();
+    }
 }
 
 axios.get(bitmap_count_url).then(resp => {
@@ -759,7 +766,7 @@ wss.on('connection', async (ws, req) => {
                 case "LoadMap2":
                     ws.send(JSON.stringify({
                         method: "LoadMap2Success",
-                        maps: await loadBitmap(ws.taproot_address)
+                        maps: await loadBitmap(ws.owner, ws.taproot_address)
                     }));
                     break;
                 case "Share":
@@ -1080,7 +1087,7 @@ wss.on('connection', async (ws, req) => {
                         logger.warn("color undefined");
                         return;
                     }
-                    let maps = await loadBitmap(ws.owner);
+                    let maps = await loadBitmap(ws.owner, ws.taproot_address);
                     let total_virus = maps.length * decode.virus;
 
                     const user_for_join_batch = (await mysql_query(mysql_connection, "SELECT * FROM `user` WHERE `address`='" + ws.owner + "';"))[0];
@@ -1117,6 +1124,7 @@ wss.on('connection', async (ws, req) => {
                             init_virus: decode.virus,
                             virus: decode.virus,
                             owner: ws.owner,
+                            taproot_address: ws.taproot_address
                         };
                         join_batch_players.push(join_player);
                         players.push(join_player);
