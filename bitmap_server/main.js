@@ -20,6 +20,7 @@ import {calculate_pool_by_color, calculate_proportion, sort_win_team} from "./re
 import {bitmap_errors} from "./bitmap_errors.js";
 import * as fs from "fs";
 import {evmAddressToMerlinAddress, pubKeyToBtcAddress, pubKeyToEVMAddress, pubKeyToTaprootAddress} from "./address.js";
+import {filter_action_log} from "./action_log.js";
 
 dotenv.config();
 
@@ -183,6 +184,7 @@ let turn = 0;
 let next_round = 0;
 let grid = null;
 let stop_time = 0;
+let action_logs = [];
 
 //////////////////////////////////////////////////////
 const bitmap_count_url = "https://indexapitx.bitmap.game/api/v1/collection/bitmap/count";
@@ -495,6 +497,7 @@ const doSettlement = async () => {
     });
 
     //clear
+    action_logs = [];
     dead_cells_all = [];
     players = [];
     turn = 0;
@@ -531,6 +534,7 @@ const checkStep = async () => {
         turn++;
         let payload = [];
         let dead_cells = [];
+        let turn_action_logs = [];
         for (let i = 0; i < players.length; i++) {
             let player = players[i];
             if (player.virus <= 0) {
@@ -542,6 +546,7 @@ const checkStep = async () => {
             let fight = false;
             if (grid[y][x] !== 0) {
                 fight = true
+
                 const origin_player_index = grid[y][x];
                 const origin_player = players[origin_player_index - 1];
                 if (origin_player.color !== player.color) {
@@ -554,6 +559,21 @@ const checkStep = async () => {
                         origin_player.virus -= damage;
                         player.loss += damage;
                         player.virus -= damage;
+
+
+                        let action_log = {
+                            create_time: now(),
+                            virus_loss: damage,
+                            defender_map_id: origin_player.bitmap,
+                            attacker_map_id: player.bitmap,
+                            attacker: player.owner,
+                            defender: origin_player.owner,
+                            attacker_virus: player.virus,
+                            defender_virus: origin_player.virus
+                        }
+
+                        action_logs.push(action_log);
+                        turn_action_logs.push(action_log);
 
                         if (origin_player.virus <= 0) {
                             let dead = {
@@ -576,6 +596,7 @@ const checkStep = async () => {
                             dead_cells.push(dead);
                             dead_cells_all.push(dead);
                         }
+
 
                         if (player.virus <= 0) {
                             continue;
@@ -609,7 +630,7 @@ const checkStep = async () => {
 
         const profit = calculate_virus_to_profit(total_virus);
         const total_bonus = Math.floor(Number(profit) * 0.88).toString()
-        const update_message = JSON.stringify({
+        const update_message = {
             method: "Update",
             payload: payload,
             dead_cells: dead_cells,
@@ -617,10 +638,14 @@ const checkStep = async () => {
             statistics: statistics(),
             total_bonus: total_bonus,
             jackpot: jackpot.toString(),
-        });
+            action_logs: []
+        };
+
+
         clients.forEach((client) => {
             if (client.readyState === WebSocket.OPEN) {
-                client.send(update_message);
+                update_message.action_logs = filter_action_log(turn_action_logs, client.owner);
+                client.send(JSON.stringify(update_message));
             }
         });
     } catch (e) {
@@ -872,7 +897,8 @@ wss.on('connection', async (ws, req) => {
                                     user: user,
                                     extracts: [],
                                     purchase: [],
-                                    has_login_gift: false
+                                    has_login_gift: true,
+                                    action_logs: [],
                                 }));
                                 await action_log(address, "register", user);
                                 await action_log(address, "login", user);
@@ -926,7 +952,8 @@ wss.on('connection', async (ws, req) => {
                                 user: user,
                                 extracts: extracts,
                                 purchase: purchase,
-                                has_login_gift: has_login_gift
+                                has_login_gift: has_login_gift,
+                                action_logs: filter_action_log(action_logs, address)
                             }));
                             await action_log(address, "login", user);
                         }
