@@ -308,6 +308,19 @@ export default function Home() {
     // const spinner = document.querySelector('.spinner');
 
     const script = document.createElement('script');
+
+    const googleScript = document.createElement('script');
+    googleScript.src = 'https://www.googletagmanager.com/gtag/js?id=G-87CMZBWYNC';
+    googleScript.onload = () => {
+      console.log('google script load success');
+      function gtag(...args: any[]) {
+        let dataLayer = (window as any).dataLayer || [];
+        dataLayer.push(args);
+      }
+      gtag('js', new Date());
+      gtag('config', 'G-87CMZBWYNC');
+    };
+    document.body.appendChild(googleScript);
     script.src = loaderUrl;
     script.onload = () => {
       console.log('script load success');

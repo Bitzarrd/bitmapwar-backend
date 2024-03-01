@@ -1144,7 +1144,7 @@ wss.on('connection', async (ws, req) => {
                             i: 0,
                             x: join_x,
                             y: join_y,
-                            bitmap: decode.map_id,
+                            bitmap: map_id,
                             color: decode.color,
                             land: 0,
                             loss: 0,
