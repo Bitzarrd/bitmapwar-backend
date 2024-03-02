@@ -539,11 +539,10 @@ const checkStep = async () => {
         for (let i = 0; i < players.length; i++) {
             let player = players[i];
             if (player.virus <= 0) {
+                //没有士兵了，不做任何操作
                 continue;
             }
             let {y, x} = runTurn(player, grid, circle);
-            let origin_player_virus = 0;
-
             let fight = false;
             //走到的地方有人
             if (grid[y][x] !== 0) {

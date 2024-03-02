@@ -67,7 +67,9 @@ export function isCoordinateInArray(grid, x, y) {
 }
 
 export function getCircleCoordinates(radius) {
-    const coordinates = [];
+    const coordinates = [
+        [ 0, 0 ],
+    ];
     let x = 0;
     let y = 0;
 
