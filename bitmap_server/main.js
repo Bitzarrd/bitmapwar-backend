@@ -551,60 +551,55 @@ const checkStep = async () => {
                 const origin_player_index = grid[y][x];
                 const origin_player = players[origin_player_index - 1];
                 //上一个玩家阵营不同
-                if (origin_player.color !== player.color) {
+                if (origin_player.color !== player.color && origin_player.virus > 0) {
+                    logger.info(`attack!! origin_color=${origin_player.color} now_color=${player.color}`)
+                    const damage = Math.min(player.virus, origin_player.virus);//伤害取两者之间的最小值
+                    origin_player.loss += damage;
+                    origin_player.virus -= damage;
+                    player.loss += damage;
+                    player.virus -= damage;
+                    //记录日志
+                    let action_log = {
+                        create_time: now(),
+                        virus_loss: damage,
+                        defender_map_id: origin_player.bitmap,
+                        attacker_map_id: player.bitmap,
+                        attacker: player.owner,
+                        defender: origin_player.owner,
+                        attacker_virus: player.virus,
+                        defender_virus: origin_player.virus
+                    }
+                    action_logs.push(action_log);
+                    turn_action_logs.push(action_log);
+                    //记录死亡动画
                     if (origin_player.virus <= 0) {
-                        //上一个玩家已经死了，不做任何操作
+                        let dead = {
+                            x: origin_player.x,
+                            y: origin_player.y,
+                            color: origin_player.color,
+                            player_index: origin_player_index
+                        };
+                        dead_cells.push(dead);
+                        dead_cells_all.push(dead);
+                    }
+                    if (player.virus <= 0) {
+                        let dead = {
+                            x: player.x,
+                            y: player.y,
+                            color: player.color,
+                            player_index: i,
+                        };
+                        dead_cells.push(dead);
+                        dead_cells_all.push(dead);
+                    }
+                    //如果是挑战者打输了
+                    if (player.virus <= 0) {
+                        player.land--;
+                        continue;
                     } else {
-                        logger.info(`attack!! origin_color=${origin_player.color} now_color=${player.color}`)
-                        const damage = Math.min(player.virus, origin_player.virus);//伤害取两者之间的最小值
-                        origin_player.loss += damage;
-                        origin_player.virus -= damage;
-                        player.loss += damage;
-                        player.virus -= damage;
-                        //记录日志
-                        let action_log = {
-                            create_time: now(),
-                            virus_loss: damage,
-                            defender_map_id: origin_player.bitmap,
-                            attacker_map_id: player.bitmap,
-                            attacker: player.owner,
-                            defender: origin_player.owner,
-                            attacker_virus: player.virus,
-                            defender_virus: origin_player.virus
-                        }
-                        action_logs.push(action_log);
-                        turn_action_logs.push(action_log);
-                        //记录死亡动画
-                        if (origin_player.virus <= 0) {
-                            let dead = {
-                                x: origin_player.x,
-                                y: origin_player.y,
-                                color: origin_player.color,
-                                player_index: origin_player_index
-                            };
-                            dead_cells.push(dead);
-                            dead_cells_all.push(dead);
-                        }
-                        if (player.virus <= 0) {
-                            let dead = {
-                                x: player.x,
-                                y: player.y,
-                                color: player.color,
-                                player_index: i,
-                            };
-                            dead_cells.push(dead);
-                            dead_cells_all.push(dead);
-                        }
-                        //如果是挑战者打输了
-                        if (player.virus <= 0) {
-                            player.land--;
-                            continue;
-                        }
                         origin_player.land--;
                     }
                 }
-                // players[origin_player_index - 1].land--;
-                // players[origin_player_index - 1].loss++;
             }
             grid[y][x] = i + 1;
             player.land++;
