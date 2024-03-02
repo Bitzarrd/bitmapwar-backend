@@ -516,6 +516,7 @@ const doSettlement = async () => {
         start_game();
     }, intervalBetweenMatches * 1000);
 }
+
 const checkStep = async () => {
 
     //检查是否到结算时间
@@ -544,22 +545,23 @@ const checkStep = async () => {
             let origin_player_virus = 0;
 
             let fight = false;
+            //走到的地方有人
             if (grid[y][x] !== 0) {
                 fight = true
-
+                //上一个玩家
                 const origin_player_index = grid[y][x];
                 const origin_player = players[origin_player_index - 1];
+                //上一个玩家阵营不同
                 if (origin_player.color !== player.color) {
                     if (origin_player.virus <= 0) {
-
+                        //上一个玩家已经死了，不做任何操作
                     } else {
                         logger.info(`attack!! origin_color=${origin_player.color} now_color=${player.color}`)
-                        const damage = Math.min(player.virus, origin_player.virus);
+                        const damage = Math.min(player.virus, origin_player.virus);//伤害取两者之间的最小值
                         origin_player.loss += damage;
                         origin_player.virus -= damage;
                         player.loss += damage;
                         player.virus -= damage;
-
 
                         let action_log = {
                             create_time: now(),
@@ -571,7 +573,6 @@ const checkStep = async () => {
                             attacker_virus: player.virus,
                             defender_virus: origin_player.virus
                         }
-
                         action_logs.push(action_log);
                         turn_action_logs.push(action_log);
 
@@ -601,8 +602,9 @@ const checkStep = async () => {
                         if (player.virus <= 0) {
                             continue;
                         }
+
+                        origin_player.land--;
                     }
-                    origin_player.land--;
                 }
                 // players[origin_player_index - 1].land--;
                 // players[origin_player_index - 1].loss++;
