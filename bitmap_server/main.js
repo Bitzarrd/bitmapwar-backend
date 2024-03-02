@@ -692,6 +692,38 @@ const doFight = (y, x, player, turn_action_logs, dead_cells) => {
     }
 }
 
+const findPlayerByOwnerAndMapId = (owner, map_id) => {
+    for (let i = 0; i < players.length; i++) {
+        if (players[i].owner === owner && players[i].bitmap === map_id) {
+            return players[i];
+        }
+    }
+    return null;
+}
+
+const doJoin = (ws, join_x, join_y, map_id, color, virus) => {
+    let join_player = findPlayerByOwnerAndMapId(ws.owner, map_id);
+    if (join_player !== null) {
+        logger.error("join_player is not null");
+        return join_player;
+    } else {
+        join_player = {
+            i: 0,
+            x: join_x,
+            y: join_y,
+            bitmap: map_id,
+            color: color,
+            land: 0,
+            loss: 0,
+            init_virus: virus,
+            virus: virus,
+            owner: ws.owner,
+            taproot_address: ws.taproot_address,
+        };
+        return join_player;
+    }
+}
+
 // setInterval(() => {
 //     // logger.info(timestampSeconds + ":" + next_round + ":" + (timestampSeconds === next_round ? "T" : "F"));
 //     if (now() >= next_round || started === false) {
@@ -964,32 +996,6 @@ wss.on('connection', async (ws, req) => {
                         logger.error(err);
                     }
 
-                    break;
-                case "JoinGame":
-                    // let x = getRandomInt(0, gridWidth);
-                    // let y = getRandomInt(0, gridHeight);
-                    // let color = colors[players.length % colors.length];
-                    // console.log(grid.length, grid[0].length, x, y, color);
-                    // grid[y][x] = color;
-                    // let player = {
-                    //     i: 0,
-                    //     x: x,
-                    //     y: y,
-                    //     color: color,
-                    //     land: 0,
-                    //     loss: 0,
-                    //     virus: 1,
-                    //     owner: ws.owner,
-                    // };
-                    // players.push(player)
-                    // clients.forEach((client) => {
-                    //     if (client.readyState === WebSocket.OPEN) {
-                    //         client.send(JSON.stringify({
-                    //             method: "JoinedGame",
-                    //             player: player,
-                    //         }));
-                    //     }
-                    // });
                     break;
                 case "JoinGame2":
                     if (typeof decode.map_id === 'undefined') {
