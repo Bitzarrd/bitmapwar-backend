@@ -26,3 +26,10 @@ BTC Connect takes advantage of the ERC-4337 design and L2 EVM-compatible chains 
 yarn
 npx lerna run build
 npx lerna run start
+
+
+https://gitee.com/jerryalrightlook/bitmap3003
+https://gitee.com/jerryalrightlook/bitmap3001
+git -C /www/wwwroot/bitmap3003 pull && cp -rf /www/wwwroot/bitmap3003/* /www/wwwroot/bitmap_dev_client/packages/sample/public/unity_webgl_player
+git -C /www/wwwroot/bitmap3001 pull && cp -rf /www/wwwroot/bitmap3001/* /www/wwwroot/particle-btc-connect-main/packages/sample/public/unity_webgl_player
+
