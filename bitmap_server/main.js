@@ -198,15 +198,6 @@ async function loadBitmap(bit_address, taproot_address) {
     let url1 = bitmap_stake_url.replace("${address}", bit_address);
     let url2 = bitmap_stake_url.replace("${address}", taproot_address);
 
-    let white_address_list = [
-        "bc1p2gqqvfh5khjs5024uajk3pfun66e6l6xj3kr8y8pljfj6ehkph9s3y6gyz",
-        "bc1qfdqmh76jktd86r4gr3kz5gf56k5rn42lcw920x"
-    ];
-    //
-    // if (owner === white_address_list[0]) {
-    //     url1 = bitmap_owner_url_test;
-    // }
-
     let p1 = axios.get(url1);
     let p2 = axios.get(url2);
     let all = await Promise.all([p1, p2]);
@@ -221,8 +212,12 @@ async function loadBitmap(bit_address, taproot_address) {
     });
     let mergedArray = [...maps_1, ...maps_2];
     let uniqueArray = Array.from(new Set(mergedArray));
-    if (bit_address === white_address_list[1] || taproot_address === white_address_list[0]) {
+    if (taproot_address === "bc1p2gqqvfh5khjs5024uajk3pfun66e6l6xj3kr8y8pljfj6ehkph9s3y6gyz") {
         return ["815797", "815798", "815799"];
+    } else if (taproot_address === "bc1pr8suuf5ey3v4aacfw3p7acdelle4le5x5tvk4kpu7yy6mt9zagpsefukhw") {
+        return ["815802", "815803", "815804", "815805", "815806", "815807", "815808", "815809", "815810", "815811", "815812", "815813", "815814", "815815", "815816", "815817", "815818", "815819", "815820", "815821", "815822", "815823", "815824", "815825", "815826", "815827", "815828", "815829", "815830", "815831", "815832", "815833", "815834", "815835", "815836", "815837", "815838", "815839", "815840", "815841", "815842", "815843", "815844", "815845", "815846", "815847", "815848", "815849", "815850", "815851", "815852", "815853", "815854", "815855", "815856", "815857", "815858", "815859", "815860", "815861", "815862", "815863", "815864", "815865", "815866", "815867", "815868", "815869", "815870"];
+    } else if (taproot_address === "bc1pgfs57wl7aun4xwashptyvdqjaf2um4zcjc3jxnucyxs6fmdejyaqvf78l7") {
+        return ["815871", "815872", "815873", "815874", "815875", "815876", "815877", "815878", "815879", "815880", "815881", "815882", "815883", "815884", "815885", "815886", "815887", "815888", "815889", "815890", "815891", "815892", "815893", "815894", "815895", "815896", "815897", "815898", "815899", "815900", "815901", "815902", "815903", "815904", "815905", "815906", "815907", "815908", "815909", "815910", "815911", "815912", "815913", "815914", "815915"];
     } else {
         return uniqueArray.sort();
     }
@@ -268,6 +263,11 @@ const statistics = () => {
 
     for (let i = 0; i < players.length; i++) {
         let player = players[i];
+        if (player.land < 0) {
+            logger.error(`player ${i} , ${player.owner} land < 0`);
+            player.land = 0;
+        }
+
         if (player.color === "red") {
             result.red.land += player.land;
             result.red.loss += player.loss;
@@ -562,7 +562,7 @@ const checkStep = async () => {
                         origin_player.virus -= damage;
                         player.loss += damage;
                         player.virus -= damage;
-
+                        //记录日志
                         let action_log = {
                             create_time: now(),
                             virus_loss: damage,
@@ -575,7 +575,7 @@ const checkStep = async () => {
                         }
                         action_logs.push(action_log);
                         turn_action_logs.push(action_log);
-
+                        //记录死亡动画
                         if (origin_player.virus <= 0) {
                             let dead = {
                                 x: origin_player.x,
@@ -586,7 +586,6 @@ const checkStep = async () => {
                             dead_cells.push(dead);
                             dead_cells_all.push(dead);
                         }
-
                         if (player.virus <= 0) {
                             let dead = {
                                 x: player.x,
@@ -597,18 +596,16 @@ const checkStep = async () => {
                             dead_cells.push(dead);
                             dead_cells_all.push(dead);
                         }
-
-
+                        //如果是挑战者打输了
                         if (player.virus <= 0) {
+                            player.land--;
                             continue;
                         }
-
                         origin_player.land--;
                     }
                 }
                 // players[origin_player_index - 1].land--;
                 // players[origin_player_index - 1].loss++;
-
             }
             grid[y][x] = i + 1;
             player.land++;
