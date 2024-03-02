@@ -834,7 +834,6 @@ wss.on('connection', async (ws, req) => {
                         return;
                     }
 
-
                     // let maps = await axios.get("https://global.bitmap.game/service/open/bitmap/list?address=bc1qnjfw8qkzfysg7cvdqkll8mp89pjfxk9flqxh0z");
 
                     const sql = "SELECT * FROM `user` WHERE `public_key`='" + public_key + "'";
@@ -945,13 +944,16 @@ wss.on('connection', async (ws, req) => {
                             let purchase = await mysql_query(mysql_connection, "SELECT * FROM `purchase` WHERE owner='" + merlin_address + "' ORDER BY id DESC;");
 
 
+                            const exist_color_login = get_color_by_user(ws.owner, players);
+
                             ws.send(JSON.stringify({
                                 method: "LoginSuccess",
                                 user: user,
                                 extracts: extracts,
                                 purchase: purchase,
                                 has_login_gift: has_login_gift,
-                                action_logs: filter_action_log(action_logs, address)
+                                action_logs: filter_action_log(action_logs, address),
+                                exist_color: exist_color_login,
                             }));
                             await action_log(address, "login", user);
                         }
@@ -1095,6 +1097,7 @@ wss.on('connection', async (ws, req) => {
                                 player: simple_player(join_player),
                                 user: user_for_join,
                                 jackpot: new_jackpot.toString(),
+                                statistics: statistics(),
                             }));
                         }
                     });
@@ -1112,6 +1115,22 @@ wss.on('connection', async (ws, req) => {
                         logger.warn("color undefined");
                         return;
                     }
+
+                    const exist_color_batch = get_color_by_user(ws.owner, players);
+                    logger.debug("get_color_by_user=>" + exist_color_batch);
+                    if (exist_color_batch != null) {
+                        if (exist_color_batch !== decode.color) {
+                            //投入不同的颜色
+                            logger.warn("color not match:" + decode.color + "=>" + exist_color_batch);
+                            ws.send(JSON.stringify({
+                                method: "ErrorMsg",
+                                error_code: 100004,
+                                error_message: bitmap_errors["100004"]
+                            }));
+                            return;
+                        }
+                    }
+
                     let maps = await loadBitmap(ws.owner, ws.taproot_address);
                     let total_virus = maps.length * decode.virus;
 
@@ -1161,6 +1180,7 @@ wss.on('connection', async (ws, req) => {
                                 method: "JoinedGameBatchSuccess",
                                 players: simple_players(join_batch_players),
                                 user: user_for_join_batch,
+                                statistics: statistics(),
                             }));
                         }
                     });
