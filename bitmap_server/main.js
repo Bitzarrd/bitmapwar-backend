@@ -695,17 +695,30 @@ const doFight = (y, x, player, turn_action_logs, dead_cells) => {
 const findPlayerByOwnerAndMapId = (owner, map_id) => {
     for (let i = 0; i < players.length; i++) {
         if (players[i].owner === owner && players[i].bitmap === map_id) {
-            return players[i];
+            return {
+                index: i,
+                player: players[i]
+            };
         }
     }
     return null;
 }
 
 const doJoin = (ws, join_x, join_y, map_id, color, virus) => {
-    let join_player = findPlayerByOwnerAndMapId(ws.owner, map_id);
-    if (join_player !== null) {
-        logger.error("join_player is not null");
-        return join_player;
+    let exist = findPlayerByOwnerAndMapId(ws.owner, map_id);
+    let join_player = null;
+    let i = 0;
+    if (exist !== null) {
+        logger.debug("join_player is not null");
+        join_player = exist.player;
+        i = exist.index;
+        join_player.virus += virus;
+        join_player.init_virus += virus;
+        logger.debug("join_player=" +JSON.stringify(join_player));
+        return {
+            index: i,
+            player: join_player
+        }
     } else {
         join_player = {
             i: 0,
@@ -720,8 +733,15 @@ const doJoin = (ws, join_x, join_y, map_id, color, virus) => {
             owner: ws.owner,
             taproot_address: ws.taproot_address,
         };
-        return join_player;
+        players.push(join_player)
+        const player_index = players.length;
+        return {
+            index: player_index,
+            player: join_player
+        }
     }
+
+
 }
 
 // setInterval(() => {
@@ -1043,14 +1063,14 @@ wss.on('connection', async (ws, req) => {
                     let join_x = decode.map_id % gridWidth;
                     logger.info(`JoinGame2 map_id=${decode.map_id} x=${join_x} y=${join_y}`);
 
-                    let join_cell = grid[join_y][join_x];
-                    if (join_cell !== 0) {
-                        let cell_player = players[join_cell - 1];
-                        if (cell_player && cell_player.bitmap === decode.map_id) {
-                            logger.warn(`cell already exist player:${cell_player.owner} => ${cell_player.bitmap}`)
-                            return;
-                        }
-                    }
+                    // let join_cell = grid[join_y][join_x];
+                    // if (join_cell !== 0) {
+                    //     let cell_player = players[join_cell - 1];
+                    //     if (cell_player && cell_player.bitmap === decode.map_id) {
+                    //         logger.warn(`cell already exist player:${cell_player.owner} => ${cell_player.bitmap}`)
+                    //         return;
+                    //     }
+                    // }
 
                     decode.virus = (Number)(decode.virus);
 
@@ -1077,23 +1097,9 @@ wss.on('connection', async (ws, req) => {
 
                     await mysql_connection.query("UPDATE `global` SET val='" + new_jackpot.toString() + "' WHERE `key`='jackpot';");
 
-                    let join_player = {
-                        i: 0,
-                        x: join_x,
-                        y: join_y,
-                        bitmap: decode.map_id,
-                        color: decode.color,
-                        land: 0,
-                        loss: 0,
-                        init_virus: decode.virus,
-                        virus: decode.virus,
-                        owner: ws.owner,
-                        taproot_address: ws.taproot_address,
-                        // conn: ws,
-                    };
-
-                    players.push(join_player)
-                    const player_index = players.length;
+                    let join_result = doJoin(ws, join_x, join_y, decode.map_id, decode.color, decode.virus);
+                    let join_player = join_result.player;
+                    let player_index = join_result.index;
 
                     grid[join_y][join_x] = player_index;
 
@@ -1164,21 +1170,10 @@ wss.on('connection', async (ws, req) => {
                         let join_y = Math.floor(map_id / gridWidth);
                         let join_x = map_id % gridWidth;
 
-                        let join_player = {
-                            i: 0,
-                            x: join_x,
-                            y: join_y,
-                            bitmap: map_id,
-                            color: decode.color,
-                            land: 0,
-                            loss: 0,
-                            init_virus: decode.virus,
-                            virus: decode.virus,
-                            owner: ws.owner,
-                            taproot_address: ws.taproot_address
-                        };
+                        let join_result = doJoin(ws, join_x, join_y, map_id, decode.color, decode.virus);
+                        let join_player = join_result.player;
+                        // let player_index = join_result.index;
                         join_batch_players.push(join_player);
-                        players.push(join_player);
                     }
 
                     clients.forEach((client) => {
