@@ -4,7 +4,7 @@ export function generate2DArray(width, height) {
     let array = new Array(height);
 
     for (let i = 0; i < height; i++) {
-        array[i] = new Uint8Array(width);
+        array[i] = new Uint16Array(width);
     }
 
     return array;
@@ -12,7 +12,7 @@ export function generate2DArray(width, height) {
 
 export function merge2DArray(array) {
     const totalLength = array.reduce((length, subArray) => length + subArray.length, 0);
-    const mergedArray = new Uint8Array(totalLength);
+    const mergedArray = new Uint16Array(totalLength);
     let offset = 0;
 
     for (const subArray of array) {
@@ -27,7 +27,7 @@ export function generate2DArrayFull(width, height) {
     let array = new Array(height);
 
     for (let i = 0; i < height; i++) {
-        array[i] = new Uint8Array(width);
+        array[i] = new Uint16Array(width);
 
         for (let j = 0; j < width; j++) {
             array[i][j] = Math.floor(Math.random() * 256); // 生成 0 到 255 之间的随机整数
@@ -68,7 +68,7 @@ export function isCoordinateInArray(grid, x, y) {
 
 export function getCircleCoordinates(radius) {
     const coordinates = [
-        [ 0, 0 ],
+        [0, 0],
     ];
     let x = 0;
     let y = 0;
@@ -233,6 +233,7 @@ export function compress4(grid) {
     return uint8ArrayToBase64(pako.gzip(me));
 }
 
+
 export function decompress2(str) {
     const lines = str.trim().split("\n");
     const grid = [];
@@ -281,6 +282,47 @@ export function decompress4(str, width, height) {
     }
     return grid;
 }
+
+export function compress5(grid) {
+    let uint16Array = merge2DArray(grid);
+    // 创建保存高位字节的 Uint8Array
+    const higher = new Uint8Array(uint16Array.length);
+// 创建保存低位字节的 Uint8Array
+    const lower = new Uint8Array(uint16Array.length);
+
+    for (let i = 0; i < uint16Array.length; i++) {
+        higher[i] = (uint16Array[i] >> 8) & 0xFF; // 右移8位获取高位字节
+        lower[i] = uint16Array[i] & 0xFF; // 获取低位字节
+    }
+    let higher_gzip = pako.gzip(higher)
+    let lower_gzip = pako.gzip(lower)
+    return [uint8ArrayToBase64(higher_gzip), uint8ArrayToBase64(lower_gzip)];
+}
+
+/**
+ * 数据解压
+ * @param higger_str 压缩后的字符串
+ * @param lower_str 压缩后的字符串
+ * @param width 行数
+ * @param height 列数
+ * @returns {uint[][]} 解压后的二维数组
+ */
+export function decompress5(higger_str, lower_str, width, height) {
+    let higher = base64ToUint8Array(higger_str)
+    let lower = base64ToUint8Array(lower_str)
+    const higher_ungzip = pako.ungzip(higher);
+    const lower_ungzip = pako.ungzip(lower);
+    let uint16Array = new Uint16Array(width * height);
+    for (let i = 0; i < uint16Array.length; i++) {
+        uint16Array[i] = (higher_ungzip[i] << 8) + lower_ungzip[i];
+    }
+    let grid = new Array(height);
+    for (let i = 0; i < height; i++) {
+        grid[i] = uint16Array.slice(i * width, (i + 1) * width);
+    }
+    return grid;
+}
+
 
 export function mapId2Pos(map_id) {
     let x = Math.floor(map_id / 1000);
