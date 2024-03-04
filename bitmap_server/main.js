@@ -714,7 +714,7 @@ const doJoin = (ws, join_x, join_y, map_id, color, virus) => {
         i = exist.index;
         join_player.virus += virus;
         join_player.init_virus += virus;
-        logger.debug("join_player=" +JSON.stringify(join_player));
+        logger.debug("join_player=" + JSON.stringify(join_player));
         return {
             index: i,
             player: join_player
@@ -1161,13 +1161,13 @@ wss.on('connection', async (ws, req) => {
                         return;
                     }
 
-                    user_for_join_batch.virus -= decode.virus;
+                    user_for_join_batch.virus -= total_virus;
 
                     await mysql_connection.query("UPDATE user SET virus=virus-" + total_virus + " WHERE address='" + ws.owner + "';");
 
                     let join_batch_players = [];
                     for (let i = 0; i < maps.length; i++) {
-                        let map_id = maps[i];
+                        let map_id = parseInt(maps[i]);
                         let join_y = Math.floor(map_id / gridWidth);
                         let join_x = map_id % gridWidth;
 
