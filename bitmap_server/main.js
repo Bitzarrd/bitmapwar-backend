@@ -1,11 +1,11 @@
-import {generate2DArray, runTurn, compress4, compress5} from 'bitmap_sdk';
+import {generate2DArray, runTurn, compress5} from 'bitmap_sdk';
 import WebSocket, {WebSocketServer} from 'ws';
 import winston from "winston";
 import dotenv from "dotenv";
 import axios from "axios";
 import mysql from "mysql";
 import {isPrime, isToday, now, simple_player, simple_players} from "./utils.js";
-import {gridWidth, colors, durationOfTheMatch, intervalBetweenMatches, circle, stepInterval} from "./defines.js";
+import {gridWidth, durationOfTheMatch, intervalBetweenMatches, circle, stepInterval} from "./defines.js";
 import {get_events} from "./get_events.js";
 import {make_signature} from "./signature.js";
 import {mysql_query} from "./mysql.js";
@@ -551,7 +551,7 @@ const checkStep = async () => {
                 const origin_player = players[origin_player_index - 1];
                 //上一个玩家阵营不同
                 if (origin_player.color !== player.color && origin_player.virus > 0) {
-                    let win = doFight(y, x, player, turn_action_logs, dead_cells);
+                    let win = doFight(y, x, player, turn_action_logs, dead_cells, i);
                     if (!win) {
                         continue;
                     }
@@ -636,7 +636,7 @@ const start_game = () => {
     })
 }
 
-const doFight = (y, x, player, turn_action_logs, dead_cells) => {
+const doFight = (y, x, player, turn_action_logs, dead_cells, i) => {
     //上一个玩家
     const origin_player_index = grid[y][x];
     const origin_player = players[origin_player_index - 1];
