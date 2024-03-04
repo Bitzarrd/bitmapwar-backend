@@ -10,6 +10,7 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@next/third-parties": "^14.1.1",
     "@nextui-org/react": "^2.2.9",
     "@particle-network/btc-connectkit": "^1.0.0-alpha.0",
     "ahooks": "^3.7.8",

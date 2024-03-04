@@ -20,6 +20,7 @@ import { useState, useEffect } from 'react';
 import { toast } from 'react-toastify';
 import { parseEther, Contract, AbiCoder } from 'ethers';
 import BitMapWarAbi from './bitmapwar_abi.json';
+import { GoogleAnalytics } from '@next/third-parties/google';
 
 export default function Home() {
   const { openConnectModal, disconnect } = useConnectModal();
@@ -309,18 +310,19 @@ export default function Home() {
 
     const script = document.createElement('script');
 
-    const googleScript = document.createElement('script');
-    googleScript.src = 'https://www.googletagmanager.com/gtag/js?id=G-87CMZBWYNC';
-    googleScript.onload = () => {
-      console.log('google script load success');
-      function gtag(...args: any[]) {
-        let dataLayer = (window as any).dataLayer || [];
-        dataLayer.push(args);
-      }
-      gtag('js', new Date());
-      gtag('config', 'G-87CMZBWYNC');
-    };
-    document.body.appendChild(googleScript);
+    // const googleScript = document.createElement('script');
+    // googleScript.src = 'https://www.googletagmanager.com/gtag/js?id=G-87CMZBWYNC';
+    // googleScript.onload = () => {
+    //   console.log('google script load success');
+    //   (window as any).dataLayer = (window as any).dataLayer || [];
+    //   function gtag(...args: any[]) {
+    //     (window as any).dataLayer.push(args);
+    //   }
+    //   gtag('js', new Date());
+    //   gtag('config', 'G-87CMZBWYNC');
+    // };
+    // document.body.appendChild(googleScript);
+
     script.src = loaderUrl;
     script.onload = () => {
       console.log('script load success');
@@ -345,6 +347,19 @@ export default function Home() {
     document.body.appendChild(script);
   }, []); // 传递一个空数组作为依赖，确保只在组件加载完成时执行一次
 
+  // const injectGA = () => {
+  //   if (typeof window == 'undefined') {
+  //     return;
+  //   }
+  //   (window as any).dataLayer = (window as any).dataLayer || [];
+  //   function gtag(...args: any[]) {
+  //     (window as any).dataLayer.push(args);
+  //   }
+  //   gtag('js', new Date());
+  //   gtag('config', 'G-87CMZBWYNC');
+  //   return <div>Google Analytics injected!</div>;
+  // };
+
   return (
     <div>
       <div id="unity-container" className="unity-desktop">
@@ -364,6 +379,9 @@ export default function Home() {
           <div className="spinner"></div>
         </div>
       </div>
+      {/*<script async src="https://www.googletagmanager.com/gtag/js?id=87CMZBWYNC" />*/}
+      {/*<script>{injectGA()}</script>*/}
+      <GoogleAnalytics gaId="G-87CMZBWYNC" />
     </div>
     // <div className="container mx-auto flex h-full flex-col items-center gap-6 overflow-auto py-10">
     //   <Image src={particleLogo} alt="" className=""></Image>

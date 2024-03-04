@@ -1101,6 +1101,7 @@ wss.on('connection', async (ws, req) => {
                     let join_player = join_result.player;
                     let player_index = join_result.index;
 
+
                     grid[join_y][join_x] = player_index;
 
                     clients.forEach((client) => {
