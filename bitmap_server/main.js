@@ -422,7 +422,7 @@ const doSettlement = async () => {
                 my_statistics: user_for_send.statistics,
                 statistics: statistics(),
                 user: user_for_settlement,
-                earning: user_for_send.profit.toString(),
+                earning: user.profit.toString(),
                 rank: Object.values(users)
             }));
         }
@@ -720,7 +720,7 @@ const doJoin = (ws, join_x, join_y, map_id, color, virus) => {
         join_player.init_virus += virus;
         logger.debug("join_player=" + JSON.stringify(join_player));
         return {
-            index: i,
+            index: i + 1,
             player: join_player
         }
     } else {
