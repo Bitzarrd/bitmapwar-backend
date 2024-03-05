@@ -409,18 +409,20 @@ const doSettlement = async () => {
         await mysql_connection.query("UPDATE `user` SET `total_profit`=" + user_for_settlement.total_profit + " WHERE `address`='" + owner + "';");
         await mysql_connection.query("UPDATE `user` SET land=" + user_for_settlement.land + " WHERE `address`='" + owner + "';")
 
-        user.land = user_for_settlement.land;
-        user.profit = user_for_settlement.profit;
-        user.total_profit = user_for_settlement.total_profit;
+
+        let user_for_send = JSON.parse(JSON.stringify(user));
+        user_for_send.land = user_for_settlement.land;
+        user_for_send.profit = user_for_settlement.profit;
+        user_for_send.total_profit = user_for_settlement.total_profit;
 
         if (conn) {
             conn.send(JSON.stringify({
                 method: "Settlement",
                 next_round: next_round,
-                my_statistics: user.statistics,
+                my_statistics: user_for_send.statistics,
                 statistics: statistics(),
                 user: user_for_settlement,
-                earning: user.profit.toString(),
+                earning: user_for_send.profit.toString(),
                 rank: Object.values(users)
             }));
         }
