@@ -1307,19 +1307,19 @@ wss.on('connection', async (ws, req) => {
                         logger.warn("amount undefined");
                         return;
                     }
+                    let wei = parseEther(decode.amount.toString());
+
                     let user = (await mysql_query(mysql_connection, "SELECT * FROM `user` WHERE `merlin_address` = '" + ws.merlin_address + "';"))[0];
                     if (user === undefined) {
                         logger.error(`user not found ${ws.merlin_address}`);
                         return;
                     }
                     let profit = BigInt(user.profit);
-                    let amount_n = BigInt(decode.amount);
+                    let amount_n = BigInt(wei.toString());
                     if (profit < amount_n) {
                         logger.warn("profit < amount_n")
                         return
                     }
-
-
 
                     let profit_n = profit - amount_n;
 
@@ -1330,14 +1330,13 @@ wss.on('connection', async (ws, req) => {
                     mysql_connection.query("UPDATE user SET profit='" + profit_n.toString() + "' WHERE merlin_address='" + ws.merlin_address + "';");
 
                     mysql_connection.query('INSERT INTO extract SET ?', {
-                        amount: decode.amount,
+                        amount: wei.toString(),
                         address: ws.merlin_address,
                         create_time: now(),
                     }, async (error, results, fields) => {
                         if (error) throw error;
                         console.log(results.insertId);
 
-                        let wei = parseEther(decode.amount.toString());
 
                         let signature = await make_signature(process.env.PRIVATE_KEY, wei.toString(), results.insertId, ws.merlin_address);
                         logger.info("signature:" + signature);
