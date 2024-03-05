@@ -21,6 +21,7 @@ import {bitmap_errors} from "./bitmap_errors.js";
 import * as fs from "fs";
 import {evmAddressToMerlinAddress, pubKeyToBtcAddress, pubKeyToEVMAddress, pubKeyToTaprootAddress} from "./address.js";
 import {filter_action_log} from "./action_log.js";
+import {parseEther} from "ethers";
 
 dotenv.config();
 
@@ -1319,6 +1320,7 @@ wss.on('connection', async (ws, req) => {
                     }
 
 
+
                     let profit_n = profit - amount_n;
 
 
@@ -1335,13 +1337,15 @@ wss.on('connection', async (ws, req) => {
                         if (error) throw error;
                         console.log(results.insertId);
 
-                        let signature = await make_signature(process.env.PRIVATE_KEY, decode.amount, results.insertId, ws.merlin_address);
+                        let wei = parseEther(decode.amount.toString());
+
+                        let signature = await make_signature(process.env.PRIVATE_KEY, wei.toString(), results.insertId, ws.merlin_address);
                         logger.info("signature:" + signature);
 
                         ws.send(JSON.stringify({
                             method: "ExtractProfitSuccess",
                             signature: signature,
-                            amount: decode.amount,
+                            amount: wei.toString(),
                             nonce: results.insertId,
                             create_time: now(),
                             user: user,
@@ -1401,7 +1405,7 @@ wss.on('connection', async (ws, req) => {
                     ws.send(JSON.stringify({
                         method: "GetLeaderBoardSuccess",
                         tab: decode.tab,
-                        my_self_rank: my_self_rank[0].rank,
+                        my_self_rank: my_self_rank[0].rank + 1,
                         users: leader_board_users
                     }));
                     break;
