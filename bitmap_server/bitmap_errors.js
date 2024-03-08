@@ -6,4 +6,5 @@ export const bitmap_errors = {
     100005: "Your account has been shared, please try tomorrow.",
     100006: "You don't have enough soldiers, please buy soldiers and try again.",
     100007: "All bitmaps have been placed into soldiers.",
+    100008: "Your wallet amount is not enough, purchasing soldiers failed.",
 };

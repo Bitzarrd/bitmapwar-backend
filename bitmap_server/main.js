@@ -506,6 +506,7 @@ const doSettlement = async () => {
     action_logs = [];
     dead_cells_all = [];
     players = [];
+    grid = generate2DArray(gridWidth, gridHeight);
     turn = 0;
 
     clients.forEach((client) => {
@@ -1192,8 +1193,9 @@ wss.on('connection', async (ws, req) => {
                         let join_x = map_id % gridWidth;
 
                         let join_result = doJoin(ws, join_x, join_y, map_id, decode.color, decode.virus);
-                        // let join_player = join_result.player;
+                        let join_player = join_result.player;
                         // let player_index = join_result.index;
+                        join_batch_players.push(join_player);
                     }
 
                     clients.forEach((client) => {
@@ -1287,10 +1289,11 @@ wss.on('connection', async (ws, req) => {
                                             const selectResult = await mysql_query(mysql_connection, select_sql);
                                             logger.info(selectResult);
                                             let user = selectResult[0];
+                                            let purchases = await mysql_query(mysql_connection, "SELECT * FROM `purchase` WHERE `owner`='" + to + "';");
                                             ws.send(JSON.stringify({
                                                 method: "PurchaseSuccess",
                                                 user: user,
-                                                //todo
+                                                purchases: purchases,
                                             }));
                                         } catch (selectErr) {
                                             logger.error(selectErr);
@@ -1380,11 +1383,13 @@ wss.on('connection', async (ws, req) => {
                     logger.info(update_extract_sql);
                     let update_extract_result = await mysql_connection.query(update_extract_sql);
                     logger.info(update_extract_result);
+                    let extracts = await mysql_query(mysql_connection, "SELECT * FROM `extract` WHERE `id` = " + decode.id + " ORDER BY create_time DESC;");
                     ws.send(JSON.stringify({
                         method: "UpdateExtractSuccess",
                         id: decode.id,
                         txid: decode.txid,
-                        status: status
+                        status: status,
+                        extracts:extracts,
                     }));
                     break;
                 case "GetLeaderBoard":
