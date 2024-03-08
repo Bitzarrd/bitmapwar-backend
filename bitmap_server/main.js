@@ -186,6 +186,7 @@ let next_round = 0;
 let grid = null;
 let stop_time = 0;
 let action_logs = [];
+let invincibility_maps = [];
 
 //////////////////////////////////////////////////////
 const bitmap_count_url = "https://indexapitx.bitmap.game/api/v1/collection/bitmap/count";
@@ -622,6 +623,7 @@ const start_game = () => {
         grid = generate2DArray(gridWidth, gridHeight);
         stop_time = now() + durationOfTheMatch;
 
+        invincibility_maps = ["815797", "815798", "815799"];
         // 将消息发送给所有客户端
         clients.forEach((client) => {
             if (client.readyState === WebSocket.OPEN) {
@@ -632,10 +634,22 @@ const start_game = () => {
                     turn: turn,
                     stop_time: stop_time,
                     players: simple_players(players),
-                    start_time: now()
+                    start_time: now(),
+                    invincibility_maps: invincibility_maps
                 }));
             }
         });
+
+        setTimeout(() => {
+            invincibility_maps = [];
+            clients.forEach((client) => {
+                if (client.readyState === WebSocket.OPEN) {
+                    client.send(JSON.stringify({
+                        method: "InvincibilityCompromised",
+                    }));
+                }
+            });
+        }, 60 * 1000);
 
         interval = setInterval(checkStep, stepInterval);
     })
@@ -813,7 +827,8 @@ wss.on('connection', async (ws, req) => {
             jackpot: jackpot.toString(),
             now_time: now(),
             virus_price: "1000000000000",
-            dead_cells: dead_cells_all
+            dead_cells: dead_cells_all,
+            invincibility_maps: invincibility_maps,
         }
     ));
 
