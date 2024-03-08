@@ -1,4 +1,5 @@
 import WebSocket from 'ws';
+import {parseEther} from "ethers";
 
 const TOP_1 = 15;
 const TOP_2 = 10;
@@ -228,8 +229,9 @@ export function get_all_init_virus(players) {
 }
 
 export function calculate_virus_to_profit(virus) {
-    //todo 金额待确定
-    return BigInt(virus) * BigInt(10000000000000);
+    // return BigInt(virus) * BigInt(10000000000000);
+    const virus_price = parseEther("0.00003").toString();
+    return BigInt(virus) * BigInt(virus_price);
 }
 
 export function get_color_by_owner(owner, players) {
