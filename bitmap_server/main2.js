@@ -183,7 +183,7 @@ let dead_cells_all = [];
 let interval = null;
 let turn = 0;
 let next_round = 0;
-let grid = null;
+let grid = generate2DArray(1000, 1000);
 let stop_time = 0;
 let action_logs = [];
 let invincibility_maps = [];
@@ -552,7 +552,7 @@ const checkStep = async () => {
         let turn_action_logs = [];
         for (let i = 0; i < players.length; i++) {
             let attacker = players[i];
-            let attacker_invincible = isInvincibilityMap(attacker.mapid);
+            let attacker_invincible = isInvincibilityMap(attacker.bitmap);
             if (attacker.virus <= 0) {
                 continue;  //没有士兵了，不做任何操作
             }
@@ -564,7 +564,7 @@ const checkStep = async () => {
                 //上一个玩家
                 const defender_index = grid[y][x];
                 const defender = players[defender_index - 1];
-                const defender_invincible = isInvincibilityMap(defender.mapid);
+                const defender_invincible = isInvincibilityMap(defender.bitmap);
                 //上一个玩家阵营不同
                 let need_fight = true;
                 if (!defender_invincible && !attacker_invincible) {
@@ -1315,7 +1315,7 @@ wss.on('connection', async (ws, req) => {
                                             const selectResult = await mysql_query(mysql_connection, select_sql);
                                             logger.info(selectResult);
                                             let user = selectResult[0];
-                                            let purchases = await mysql_query(mysql_connection, "SELECT * FROM `purchase` WHERE `owner`='" + to + "';");
+                                            let purchases = await mysql_query(mysql_connection, "SELECT * FROM `purchase` WHERE `owner`='" + to + "' ORDER BY create_time DESC;");
                                             ws.send(JSON.stringify({
                                                 method: "PurchaseSuccess",
                                                 user: user,
