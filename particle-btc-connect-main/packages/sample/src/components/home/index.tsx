@@ -200,6 +200,16 @@ export default function Home() {
       toast.error(error.message || 'sign message error');
     }
   };
+  (window as any).getBalance = async () => {
+    if (typeof smartAccount === 'undefined') {
+      return '0';
+    }
+    const balance = await smartAccount.provider.request({
+      method: 'eth_getBalance',
+      params: [await smartAccount.getAddress(), 'latest'],
+    });
+    return BigInt(balance).toString();
+  };
 
   // const onSendBitcoin = async () => {
   //   if (!address || !satoshis) {
