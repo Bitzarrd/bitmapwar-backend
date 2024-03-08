@@ -1287,14 +1287,18 @@ wss.on('connection', async (ws, req) => {
                     // console.log(tx)
 
                     if (!tx) {
-                        logger.error("tx not found")
+                        logger.error("tx not found:" + txid);
+                        ws.send(JSON.stringify({
+                            method: "ErrorMsg",
+                            error_code: 9999999,
+                            error_message: "tx not found:" + txid,
+                        }));
                         return;
                     }
                     logger.debug("logs" + tx.events.length)
                     for (let i = 0; i < tx.events.length; i++) {
                         let event = tx.events[i];
-                        let event_name = event.signature;
-                        switch (event_name) {
+                        switch (event.signature) {
                             case "Transfer(address,address,uint256)":
                                 let from = event.args[0];
                                 let to = event.args[1];
@@ -1333,6 +1337,13 @@ wss.on('connection', async (ws, req) => {
                                     });
 
                                 }
+                                break;
+                            default:
+                                ws.send(JSON.stringify({
+                                    method: "ErrorMsg",
+                                    error_code: 9999999,
+                                    error_message: "unknown event",
+                                }));
                                 break;
                         }
                     }

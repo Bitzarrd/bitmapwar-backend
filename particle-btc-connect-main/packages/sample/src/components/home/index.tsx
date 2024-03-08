@@ -112,7 +112,7 @@ export default function Home() {
       }
     };
     (window as any).purchase = async (virus: number) => {
-      const price = parseEther('0.000001') as bigint;
+      const price = parseEther('0.00003') as bigint;
       const fee = price * BigInt(virus);
       console.log('fee', fee.toString());
       if (typeof smartAccount !== 'undefined') {
