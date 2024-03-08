@@ -1192,9 +1192,8 @@ wss.on('connection', async (ws, req) => {
                         let join_x = map_id % gridWidth;
 
                         let join_result = doJoin(ws, join_x, join_y, map_id, decode.color, decode.virus);
-                        let join_player = join_result.player;
+                        // let join_player = join_result.player;
                         // let player_index = join_result.index;
-                        join_batch_players.push(join_player);
                     }
 
                     clients.forEach((client) => {

@@ -8,7 +8,7 @@ import {
     SOCKET_RECONNECT,
     SOCKET_RECONNECT_ERROR
 } from "./mutation-types"
-import {decompress2, decompress3,decompress4} from "bitmap_sdk";
+import {decompress2, decompress3, decompress4, decompress5} from "bitmap_sdk";
 import axios from "axios";
 // import * as abi from "./bitcraft_abi.json";
 import {ethers} from "ethers";
@@ -669,7 +669,7 @@ export const store = createStore({
                     state.turn = message.turn;
                     state.gridWidth = message.gridWidth;
                     state.gridHeight = message.gridHeight;
-                    state.grid = decompress4(message.grid, message.gridWidth, message.gridHeight);
+                    state.grid = decompress5(message.grid[0], message.grid[1], message.gridWidth, message.gridHeight);
                     state.players = message.players;
                     console.log("state.grid", state.grid);
                     state.lastRanking = message.last_rank;

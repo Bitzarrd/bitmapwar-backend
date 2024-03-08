@@ -198,9 +198,8 @@ const bw_url = "https://bridge.merlinchain.io/api/v1/history/stake/blueWands?btc
 
 //////////////////////////////////////////////////////
 
-function isInvincibilityMap(x, y) {
-    let map_id = (y * gridWidth + x).toString();
-    return invincibility_maps.includes(map_id);
+function isInvincibilityMap(map_id) {
+    return invincibility_maps.includes(map_id.toString());
 }
 
 async function loadBitmap(bit_address, taproot_address) {
@@ -551,6 +550,7 @@ const checkStep = async () => {
         let turn_action_logs = [];
         for (let i = 0; i < players.length; i++) {
             let attacker = players[i];
+            let attacker_invincible = isInvincibilityMap(attacker.mapid);
             if (attacker.virus <= 0) {
                 continue;  //没有士兵了，不做任何操作
             }
@@ -561,9 +561,21 @@ const checkStep = async () => {
                 isFight = true
                 //上一个玩家
                 const defender_index = grid[y][x];
-                const defender_player = players[defender_index - 1];
+                const defender = players[defender_index - 1];
+                const defender_invincible = isInvincibilityMap(defender.mapid);
                 //上一个玩家阵营不同
-                if (defender_player.color !== attacker.color && defender_player.virus > 0) {
+                let need_fight = true;
+                if (!defender_invincible && !attacker_invincible) {
+                    need_fight = true;
+                } else if (defender_invincible && attacker_invincible) {
+                    need_fight = true;
+                } else if (defender_invincible && !attacker_invincible) {
+                    need_fight = false;
+                } else if (!defender_invincible && attacker_invincible) {
+                    need_fight = false;
+                }
+
+                if (need_fight && defender.color !== attacker.color && defender.virus > 0) {
                     let win = doFight(y, x, attacker, turn_action_logs, dead_cells, i);
                     if (!win) {
                         continue;
@@ -1199,9 +1211,9 @@ wss.on('connection', async (ws, req) => {
                         let join_x = map_id % gridWidth;
 
                         let join_result = doJoin(ws, join_x, join_y, map_id, decode.color, decode.virus);
-                        let join_player = join_result.player;
+                        // let join_player = join_result.player;
                         // let player_index = join_result.index;
-                        join_batch_players.push(join_player);
+                        // join_batch_players.push(join_player);
                     }
 
                     clients.forEach((client) => {
