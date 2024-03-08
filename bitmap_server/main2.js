@@ -196,6 +196,13 @@ const bitmap_owner_url_test = "https://indexapitx.bitmap.game/api/v1/collection/
 const bitmap_stake_url = "https://bridge.merlinchain.io/api/v1/history/stake/bitmaps?btc_from_address=${address}";
 const bw_url = "https://bridge.merlinchain.io/api/v1/history/stake/blueWands?btc_from_address=bc1q8hz6cgyapu57atgchlp7kkfkefa4myn32gyl4l";
 
+//////////////////////////////////////////////////////
+
+function isInvincibilityMap(x, y) {
+    let map_id = (y * gridWidth + x).toString();
+    return invincibility_maps.includes(map_id);
+}
+
 async function loadBitmap(bit_address, taproot_address) {
     let url1 = bitmap_stake_url.replace("${address}", bit_address);
     let url2 = bitmap_stake_url.replace("${address}", taproot_address);
@@ -543,29 +550,29 @@ const checkStep = async () => {
         let dead_cells = [];
         let turn_action_logs = [];
         for (let i = 0; i < players.length; i++) {
-            let player = players[i];
-            if (player.virus <= 0) {
+            let attacker = players[i];
+            if (attacker.virus <= 0) {
                 continue;  //没有士兵了，不做任何操作
             }
-            let {y, x} = runTurn(player, grid, circle);
+            let {y, x} = runTurn(attacker, grid, circle);
             let isFight = false;
             //走到的地方有人
             if (grid[y][x] !== 0) {
                 isFight = true
                 //上一个玩家
-                const origin_player_index = grid[y][x];
-                const origin_player = players[origin_player_index - 1];
+                const defender_index = grid[y][x];
+                const defender_player = players[defender_index - 1];
                 //上一个玩家阵营不同
-                if (origin_player.color !== player.color && origin_player.virus > 0) {
-                    let win = doFight(y, x, player, turn_action_logs, dead_cells, i);
+                if (defender_player.color !== attacker.color && defender_player.virus > 0) {
+                    let win = doFight(y, x, attacker, turn_action_logs, dead_cells, i);
                     if (!win) {
                         continue;
                     }
                 }
             }
             grid[y][x] = i + 1;
-            player.land++;
-            payload.push({x: x, y: y, color: player.color, fight: isFight})
+            attacker.land++;
+            payload.push({x: x, y: y, color: attacker.color, fight: isFight})
         }
 
         let jackpot = await mysql_query(mysql_connection, "select val from `global` where `key`='jackpot';");
