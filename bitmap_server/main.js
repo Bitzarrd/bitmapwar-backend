@@ -1408,6 +1408,15 @@ wss.on('connection', async (ws, req) => {
                         users: leader_board_users
                     }));
                     break;
+                case "GetExtractPurchaseLog":
+                    let extract_log = await mysql_query(mysql_connection, "SELECT * FROM `extract` WHERE `address` = '" + ws.owner + "' ORDER BY `create_time` DESC LIMIT 100;");
+                    let purchase_log = await mysql_query(mysql_connection, "SELECT * FROM `purchase` WHERE `address` = '" + ws.owner + "' ORDER BY `create_time` DESC LIMIT 100;");
+                    ws.send(JSON.stringify({
+                        method: "GetExtractPurchaseLogSuccess",
+                        extract_log: extract_log,
+                        purchase_log: purchase_log
+                    }));
+                    break;
             }
         } catch (e) {
             console.error(e);
