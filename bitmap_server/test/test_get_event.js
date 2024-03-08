@@ -1,6 +1,6 @@
-import {ethers, Interface} from "ethers";
+import {ethers, FetchRequest, Interface} from "ethers";
 
-const txid = "0xae6009c87e0b763634a206402c62c5eef7f5735defba5e07b1f003e15f0eb49d";
+const txid = "0xd0d6e16cb025f0ff36978089fe5960a84598a3d40ca4a66b422c83d5910bc32d";
 const abi = [
     {
         "inputs": [],
@@ -497,6 +497,7 @@ const abi = [
         "type": "function"
     }
 ];
+
 
 // const rpc_url = "https://data-seed-prebsc-1-s1.binance.org:8545";
 const rpc_url = "https://testnet-rpc.merlinchain.io";

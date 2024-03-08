@@ -195,6 +195,7 @@ const bitmap_owner_url_test = "https://indexapitx.bitmap.game/api/v1/collection/
 // const bitmap_stake_url = "https://bridge.merlinchain.io/api/v1/history/stake/bitmaps?btc_from_address=bc1pe7ju6esj9v9a4mczju6gt2kujq0pm4q2kuy90j7rdhkshlggszdqqs2pc9";
 const bitmap_stake_url = "https://bridge.merlinchain.io/api/v1/history/stake/bitmaps?btc_from_address=${address}";
 const bw_url = "https://bridge.merlinchain.io/api/v1/history/stake/blueWands?btc_from_address=bc1q8hz6cgyapu57atgchlp7kkfkefa4myn32gyl4l";
+const virus_price = parseEther("0.00003").toString();
 
 //////////////////////////////////////////////////////
 
@@ -512,7 +513,7 @@ const doSettlement = async () => {
     action_logs = [];
     dead_cells_all = [];
     players = [];
-    grid = generate2DArray(gridWidth,gridHeight);
+    grid = generate2DArray(gridWidth, gridHeight);
     turn = 0;
 
     clients.forEach((client) => {
@@ -848,7 +849,7 @@ wss.on('connection', async (ws, req) => {
             total_bonus: total_bonus,
             jackpot: jackpot.toString(),
             now_time: now(),
-            virus_price: "1000000000000",
+            virus_price: virus_price,
             dead_cells: dead_cells_all,
             invincibility_maps: invincibility_maps,
         }
@@ -1297,7 +1298,7 @@ wss.on('connection', async (ws, req) => {
                             case "Transfer(address,address,uint256)":
                                 let from = event.args[0];
                                 let to = event.args[1];
-                                let amount = Number(event.args[2]);
+                                let amount = (Number)(BigInt(event.args[2]) / BigInt(virus_price));
                                 if (from === "0x0000000000000000000000000000000000000000") {
                                     const sql = "UPDATE `user` SET `virus` = `virus` + " + amount + " WHERE `merlin_address` = '" + to + "';";
                                     logger.info(sql);
@@ -1410,7 +1411,7 @@ wss.on('connection', async (ws, req) => {
                         id: decode.id,
                         txid: decode.txid,
                         status: status,
-                        extracts:extracts
+                        extracts: extracts
                     }));
                     break;
                 case "GetLeaderBoard":

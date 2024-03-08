@@ -21,6 +21,7 @@ export function simple_player(player) {
         init_virus: player.virus,
         virus: player.virus,
         owner: player.owner,
+        // invincibility: player.invincibility,
     }
 }
 

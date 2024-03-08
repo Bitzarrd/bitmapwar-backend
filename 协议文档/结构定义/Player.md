@@ -11,4 +11,5 @@ Player表示单个在场玩家的数据，每次投入士兵就会创建一个
 | x  | int  | 格子所在的行数  |
 | y  | int  | 格子所在的列数  |
 | owner  | string  | 钱包地址  |
+| invincibility | bool | 是否无敌  |
 

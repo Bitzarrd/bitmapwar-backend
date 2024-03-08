@@ -117,7 +117,7 @@ export default function Home() {
       console.log('fee', fee.toString());
       if (typeof smartAccount !== 'undefined') {
         const tx = {
-          to: '0x512ab02d40758c3D2Fe8d8833aB2f7A0dbeb8E62',
+          to: '0x5a784f7Ab9A85E7bF98653dC6152F13e438Ec08d',
           value: fee.toString(),
           data: '0x',
         };
@@ -133,7 +133,7 @@ export default function Home() {
     (window as any).extractProfit = async (amount: string, signature: string, nonce: number, to: string) => {
       console.log('BitMapWarAbi', BitMapWarAbi);
       if (typeof smartAccount !== 'undefined') {
-        const contract = new Contract('0x512ab02d40758c3D2Fe8d8833aB2f7A0dbeb8E62', BitMapWarAbi) as any;
+        const contract = new Contract('0x5a784f7Ab9A85E7bF98653dC6152F13e438Ec08d', BitMapWarAbi) as any;
         const transaction = await contract.withdrawETHWithSignature.populateTransaction(
           Number(amount),
           signature,
@@ -142,7 +142,7 @@ export default function Home() {
         );
         console.log('transaction', transaction);
         const tx = {
-          to: '0x512ab02d40758c3D2Fe8d8833aB2f7A0dbeb8E62',
+          to: '0x5a784f7Ab9A85E7bF98653dC6152F13e438Ec08d',
           data: transaction.data,
         };
         console.log('tx', tx);
