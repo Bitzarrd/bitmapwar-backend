@@ -68,7 +68,7 @@ mysql_connection.connect({}, async (err) => {
     const keepAliveQuery = 'SELECT 1';
 
     setInterval(() => {
-        mysql_connection.query(keepAliveQuery, (error, results, fields) => {
+        mysql_connection.query(keepAliveQuery, (error, results) => {
             if (error) {
                 console.error('执行保持连接查询时出错:', error);
                 //退出进程
@@ -173,10 +173,10 @@ let invincibility_maps = [];
 //////////////////////////////////////////////////////
 const bitmap_count_url = "https://indexapitx.bitmap.game/api/v1/collection/bitmap/count";
 const bitmap_owner_url = "https://indexapitx.bitmap.game/api/v1/collection/bitmap/${address}/?page=1&limit=10000";
-const bitmap_owner_url_test = "https://indexapitx.bitmap.game/api/v1/collection/bitmap/bc1qnjfw8qkzfysg7cvdqkll8mp89pjfxk9flqxh0z/?page=1&limit=10000";
+// const bitmap_owner_url_test = "https://indexapitx.bitmap.game/api/v1/collection/bitmap/bc1qnjfw8qkzfysg7cvdqkll8mp89pjfxk9flqxh0z/?page=1&limit=10000";
 // const bitmap_stake_url = "https://bridge.merlinchain.io/api/v1/history/stake/bitmaps?btc_from_address=bc1pe7ju6esj9v9a4mczju6gt2kujq0pm4q2kuy90j7rdhkshlggszdqqs2pc9";
 const bitmap_stake_url = "https://bridge.merlinchain.io/api/v1/history/stake/bitmaps?btc_from_address=${address}";
-const bw_url = "https://bridge.merlinchain.io/api/v1/history/stake/blueWands?btc_from_address=bc1q8hz6cgyapu57atgchlp7kkfkefa4myn32gyl4l";
+// const bw_url = "https://bridge.merlinchain.io/api/v1/history/stake/blueWands?btc_from_address=bc1q8hz6cgyapu57atgchlp7kkfkefa4myn32gyl4l";
 const virus_price = parseEther("0.00003").toString();
 
 //////////////////////////////////////////////////////
@@ -205,7 +205,7 @@ async function loadBitmap(bit_address, taproot_address) {
         });
         let mergedArray = [...maps_1, ...maps_2];
         let uniqueArray = Array.from(new Set(mergedArray));
-        if (taproot_address === "bc1p2gqqvfh5khjs5024uajk3pfun66e6l6xj3kr8y8pljfj6ehkph9s3y6gyz") {
+        if (taproot_address === 'bc1p2gqqvfh5khjs5024uajk3pfun66e6l6xj3kr8y8pljfj6ehkph9s3y6gyz') {
             return ["815797", "815798", "815799"];
         } else if (taproot_address === "bc1pr8suuf5ey3v4aacfw3p7acdelle4le5x5tvk4kpu7yy6mt9zagpsefukhw") {
             return ["815802", "815803", "815804", "815805", "815806", "815807", "815808", "815809", "815810", "815811", "815812", "815813", "815814", "815815", "815816", "815817", "815818", "815819", "815820", "815821", "815822", "815823", "815824", "815825", "815826", "815827", "815828", "815829", "815830", "815831", "815832", "815833", "815834", "815835", "815836", "815837", "815838", "815839", "815840", "815841", "815842", "815843", "815844", "815845", "815846", "815847", "815848", "815849", "815850", "815851", "815852", "815853", "815854", "815855", "815856", "815857", "815858", "815859", "815860", "815861", "815862", "815863", "815864", "815865", "815866", "815867", "815868", "815869", "815870"];
@@ -747,7 +747,7 @@ const findPlayerByOwnerAndMapId = (owner, map_id) => {
 
 const doJoin = (ws, join_x, join_y, map_id, color, virus) => {
     let exist = findPlayerByOwnerAndMapId(ws.owner, map_id);
-    let join_player = null;
+    let join_player;
     let i = 0;
     if (exist !== null) {
         logger.debug("join_player is not null");
@@ -1383,7 +1383,7 @@ wss.on('connection', async (ws, req) => {
                         amount: wei.toString(),
                         address: ws.merlin_address,
                         create_time: now(),
-                    }, async (error, results, fields) => {
+                    }, async (error, results) => {
                         if (error) throw error;
                         console.log(results.insertId);
 
