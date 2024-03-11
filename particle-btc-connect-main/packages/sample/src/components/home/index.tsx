@@ -200,8 +200,6 @@ export default function Home() {
   //   }
   // };
 
-
-
   // const onSendBitcoin = async () => {
   //   if (!address || !satoshis) {
   //     return;
