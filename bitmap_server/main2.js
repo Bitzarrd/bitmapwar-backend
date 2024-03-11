@@ -652,7 +652,7 @@ const start_game = () => {
         grid = generate2DArray(gridWidth, gridHeight);
         stop_time = now() + durationOfTheMatch;
 
-        invincibility_maps = ["815797", "815798", "815799", "815914"];
+        invincibility_maps = ["815797", "815798", "815799", "815914", "815871"];
         // 将消息发送给所有客户端
         clients.forEach((client) => {
             if (client.readyState === WebSocket.OPEN) {
