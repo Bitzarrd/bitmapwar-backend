@@ -500,6 +500,17 @@ const doSettlement = async () => {
         });
     }
 
+    // for (let owner of Object.keys(users)) {
+    //     let user = users[owner];
+    //     mysql_connection.query("INSERT INTO user_historical_benefit ?", {
+    //         create_time: now(),
+    //         owner: owner,
+    //         team: user.statistics.color,
+    //         init_virus: user.init_virus,
+    //         profit: user.profit,
+    //     })
+    // }
+
     let rank_for_save = Object.values(users);
     rank_for_save.sort((a, b) => {
         return (Number)(BigInt(b.profit) - BigInt(a.profit));
