@@ -66,16 +66,6 @@ export default function Home() {
       });
     };
     (window as any).disconnect = disconnect;
-    (window as any).getBalance = async () => {
-      if (typeof smartAccount !== 'undefined') {
-        const balance = await smartAccount.provider.request({
-          method: 'eth_getBalance',
-          params: [await smartAccount.getAddress(), 'latest'],
-        });
-        console.log('balance', balance);
-        return balance;
-      }
-    };
     (window as any).sendTx = async () => {
       if (typeof smartAccount !== 'undefined') {
         const to = await smartAccount.getAddress();
@@ -154,6 +144,28 @@ export default function Home() {
         return hash;
       }
     };
+    (window as any).onSignMessage = async () => {
+      if (!message) {
+        return;
+      }
+      try {
+        const sig = await signMessage(message);
+        toast.success(sig);
+        return sig;
+      } catch (error: any) {
+        toast.error(error.message || 'sign message error');
+      }
+    };
+    (window as any).getBalance = async () => {
+      if (typeof smartAccount === 'undefined') {
+        return '0';
+      }
+      const balance = await smartAccount.provider.request({
+        method: 'eth_getBalance',
+        params: [await smartAccount.getAddress(), 'latest'],
+      });
+      return BigInt(balance).toString();
+    };
   }
   //
   // const onGetNetwork = async () => {
@@ -188,28 +200,7 @@ export default function Home() {
   //   }
   // };
 
-  (window as any).onSignMessage = async () => {
-    if (!message) {
-      return;
-    }
-    try {
-      const sig = await signMessage(message);
-      toast.success(sig);
-      return sig;
-    } catch (error: any) {
-      toast.error(error.message || 'sign message error');
-    }
-  };
-  (window as any).getBalance = async () => {
-    if (typeof smartAccount === 'undefined') {
-      return '0';
-    }
-    const balance = await smartAccount.provider.request({
-      method: 'eth_getBalance',
-      params: [await smartAccount.getAddress(), 'latest'],
-    });
-    return BigInt(balance).toString();
-  };
+
 
   // const onSendBitcoin = async () => {
   //   if (!address || !satoshis) {
