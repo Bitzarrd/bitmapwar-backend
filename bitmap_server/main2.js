@@ -1475,6 +1475,13 @@ wss.on('connection', async (ws, req) => {
                         purchase_log: purchase_log
                     }));
                     break;
+                case "GetUserHistoricalBenefit":
+                    let user_historical_benefit = await mysql_query(mysql_connection, "SELECT * FROM `user_historical_benefit` WHERE `address` = '" + ws.owner + "' ORDER BY `create_time` DESC LIMIT 12;");
+                    ws.send(JSON.stringify({
+                        method: "GetUserHistoricalBenefitSuccess",
+                        benefits: user_historical_benefit
+                    }));
+                    break;
             }
         } catch (e) {
             console.error(e);
