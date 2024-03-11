@@ -55,9 +55,9 @@ const mutations = {
     SOCKET_RECONNECT_ERROR
 }
 
-// const websocket_url = process.env.NODE_ENV === "development" ? "ws://localhost:3000" : "wss://test.bitmapwar.com/api";
+const websocket_url = process.env.NODE_ENV === "development" ? "ws://localhost:3000" : "wss://test.bitmapwar.com/api";
 // const websocket_url =  "ws://34.225.3.60:3000";
-const websocket_url = "wss://test.bitmapwar.com/api";
+// const websocket_url = "wss://test.bitmapwar.com/api";
 console.log("websocket_url", websocket_url);
 app.use(VueNativeSock, websocket_url, {
 // app.use(VueNativeSock, 'ws://34.225.3.60:3000', {

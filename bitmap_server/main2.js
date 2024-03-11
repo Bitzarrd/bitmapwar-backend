@@ -58,7 +58,7 @@ mysql_connection.connect({}, async (err) => {
 
     const last_rounds = await mysql_query(mysql_connection, "SELECT * FROM `round` ORDER BY id DESC LIMIT 1;");
 
-    logger.info("last_rounds lenght:" + last_rounds.length);
+    logger.info("last_rounds length:" + last_rounds.length);
 
     if (last_rounds.length > 0) {
         logger.info("last_rounds:" + last_rounds[0].rank);
@@ -109,7 +109,7 @@ process.on('SIGUSR1', async () => {
 
     //close clients
     for (let client of clients) {
-        logger.info(`close client readyState=${client.readyState} addr=${client._socket.remoteAddress} owner=${client.owner}`);
+        logger.info(`close client readyState=${client.readyState} remoteAddress=${client._socket.remoteAddress} owner=${client.owner}`);
         await client.close();
     }
     wss.close();
@@ -140,25 +140,7 @@ function save_global_data_to_jsonfile() {
     });
 }
 
-function load_global_data_from_jsonfile_sync() {
-    //判断文件是否存在
-    if (!fs.existsSync('global_data.json')) {
-        return null;
-    }
-    let data = fs.readFileSync('global_data.json');
-    if (data && data.length > 0) {
-        return JSON.parse(data);
-    }
-    return null;
-}
 
-function delete_global_data_from_jsonfile() {
-    fs.unlink('global_data.json', (err) => {
-        if (err) {
-            logger.error("delete global_data.json error:" + err);
-        }
-    });
-}
 
 
 async function action_log(owner, action, data) {
@@ -594,7 +576,7 @@ const checkStep = async () => {
                     need_fight = false;
                 }
 
-                logger.debug(`collision: ${attacker.color}(${attacker.virus}) vs ${defender.color}(${defender.virus}) at (${x},${y}) need_fight:${need_fight} defender_invincible:${defender_invincible} attacker_invincible:${attacker_invincible} defender:${JSON.stringify(defender)} attacker:${JSON.stringify(attacker)}`)
+                // logger.debug(`collision: ${attacker.color}(${attacker.virus}) vs ${defender.color}(${defender.virus}) at (${x},${y}) need_fight:${need_fight} defender_invincible:${defender_invincible} attacker_invincible:${attacker_invincible} defender:${JSON.stringify(defender)} attacker:${JSON.stringify(attacker)}`)
 
                 if (need_fight && defender.color !== attacker.color && defender.virus > 0) {
                     let win = doFight(y, x, attacker, turn_action_logs, dead_cells, i);
@@ -989,7 +971,7 @@ wss.on('connection', async (ws, req) => {
                                     public_key: public_key
                                 };
 
-                                mysql_connection.query('INSERT INTO user SET ?', user);
+                                await mysql_connection.query('INSERT IGNORE INTO user SET ?', user);
 
                                 await mysql_connection.query("INSERT INTO gift SET ?", {
                                     owner: address,
@@ -1014,6 +996,7 @@ wss.on('connection', async (ws, req) => {
                                 await action_log(address, "login", user);
                             } catch (insertErr) {
                                 logger.error(insertErr);
+                                return;
                             }
                         } else {
 
@@ -1495,13 +1478,13 @@ wss.on('connection', async (ws, req) => {
                     break;
             }
         } catch (e) {
-            console.error(e);
+            logger.error(e);
         }
     });
 
     // 当连接关闭时触发
     ws.on('close', () => {
-        logger.info(`websocket connection close id=${ws.id} addr=${ws._socket.remoteAddress} port=${ws._socket.remotePort} owner=${ws.owner}`);
+        logger.info(`websocket connection close id=${ws.id} remoteAddress=${ws._socket.remoteAddress} port=${ws._socket.remotePort} owner=${ws.owner}`);
         // 从集合中删除离开的客户端
         clients.delete(ws);
     });
