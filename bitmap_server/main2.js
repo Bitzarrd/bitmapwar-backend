@@ -68,7 +68,7 @@ mysql_connection.connect({}, async (err) => {
     const keepAliveQuery = 'SELECT 1';
 
     setInterval(() => {
-        mysql_connection.query(keepAliveQuery, (error, results) => {
+        mysql_connection.query(keepAliveQuery, (error) => {
             if (error) {
                 console.error('执行保持连接查询时出错:', error);
                 //退出进程
@@ -139,8 +139,6 @@ function save_global_data_to_jsonfile() {
         });
     });
 }
-
-
 
 
 async function action_log(owner, action, data) {
