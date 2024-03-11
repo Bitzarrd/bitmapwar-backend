@@ -1422,13 +1422,13 @@ wss.on('connection', async (ws, req) => {
                     logger.info(update_extract_sql);
                     let update_extract_result = await mysql_connection.query(update_extract_sql);
                     logger.info(update_extract_result);
-                    let extracts = await mysql_query(mysql_connection, "SELECT * FROM `extract` WHERE `id` = " + decode.id + " ORDER BY create_time DESC;");
+                    let extract_logs = await mysql_query(mysql_connection, "SELECT * FROM `extract` WHERE `address` = '" + ws.owner + "' ORDER BY `create_time` DESC LIMIT 100;");
                     ws.send(JSON.stringify({
                         method: "UpdateExtractSuccess",
                         id: decode.id,
                         txid: decode.txid,
                         status: status,
-                        extracts: extracts
+                        extracts: extract_logs
                     }));
                     break;
                 case "GetLeaderBoard":
