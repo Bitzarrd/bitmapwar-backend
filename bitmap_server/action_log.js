@@ -9,7 +9,7 @@ export function filter_action_log(logs, owner) {
             result.push({
                 create_time: log.create_time,
                 virus_loss: log.virus_loss,
-                state: log.attacker_virus === log.defender_virus ? 0 : (log.defender_virus > log.attacker.attack_map_id ? 2 : 1),
+                state: log.attacker_virus === log.defender_virus ? 0 : (log.defender_virus > log.attacker.attacker_virus ? 2 : 1),
                 my_map_id: log.attacker_map_id,
                 enemy_map_id: log.defender_map_id,
             });
@@ -18,7 +18,7 @@ export function filter_action_log(logs, owner) {
             result.push({
                 create_time: log.create_time,
                 virus_loss: log.virus_loss,
-                state: log.attacker_virus === log.defender_virus ? 0 : (log.defender_virus > log.attacker.attack_map_id ? 1 : 2),
+                state: log.attacker_virus === log.defender_virus ? 0 : (log.defender_virus > log.attacker.attacker_virus ? 1 : 2),
                 my_map_id: log.defender_map_id,
                 enemy_map_id: log.attacker_map_id,
             });
