@@ -207,30 +207,36 @@ async function loadBitmap(bit_address, taproot_address) {
     let url1 = bitmap_stake_url.replace("${address}", bit_address);
     let url2 = bitmap_stake_url.replace("${address}", taproot_address);
 
-    let p1 = axios.get(url1);
-    let p2 = axios.get(url2);
-    let all = await Promise.all([p1, p2]);
-    // let maps_1 = all[0].data.data.items.map((item) => {
-    //     return item.bitmap_id.toString();
-    // });
-    let maps_1 = all[0].data.data.map((item) => {
-        return item.replace(".bitmap", "");
-    });
-    let maps_2 = all[1].data.data.map((item) => {
-        return item.replace(".bitmap", "");
-    });
-    let mergedArray = [...maps_1, ...maps_2];
-    let uniqueArray = Array.from(new Set(mergedArray));
-    if (taproot_address === "bc1p2gqqvfh5khjs5024uajk3pfun66e6l6xj3kr8y8pljfj6ehkph9s3y6gyz") {
-        return ["815797", "815798", "815799"];
-    } else if (taproot_address === "bc1pr8suuf5ey3v4aacfw3p7acdelle4le5x5tvk4kpu7yy6mt9zagpsefukhw") {
-        return ["815802", "815803", "815804", "815805", "815806", "815807", "815808", "815809", "815810", "815811", "815812", "815813", "815814", "815815", "815816", "815817", "815818", "815819", "815820", "815821", "815822", "815823", "815824", "815825", "815826", "815827", "815828", "815829", "815830", "815831", "815832", "815833", "815834", "815835", "815836", "815837", "815838", "815839", "815840", "815841", "815842", "815843", "815844", "815845", "815846", "815847", "815848", "815849", "815850", "815851", "815852", "815853", "815854", "815855", "815856", "815857", "815858", "815859", "815860", "815861", "815862", "815863", "815864", "815865", "815866", "815867", "815868", "815869", "815870"];
-    } else if (taproot_address === "bc1pgfs57wl7aun4xwashptyvdqjaf2um4zcjc3jxnucyxs6fmdejyaqvf78l7") {
-        return ["815871", "815872", "815873", "815874", "815875", "815876", "815877", "815878", "815879", "815880", "815881", "815882", "815883", "815884", "815885", "815886", "815887", "815888", "815889", "815890", "815891", "815892", "815893", "815894", "815895", "815896", "815897", "815898", "815899", "815900", "815901", "815902", "815903", "815904", "815905", "815906", "815907", "815908", "815909", "815910", "815911", "815912", "815913",];
-    } else if (taproot_address === "bc1p6v4tpmpaqqwtnzf5c4pc4szsq4d993ms6te9pwn0utmf8pxcynjs6st7al") {
-        return ["815914", "815915"];
-    } else {
-        return uniqueArray.sort();
+    try {
+
+        let p1 = axios.get(url1);
+        let p2 = axios.get(url2);
+        let all = await Promise.all([p1, p2]);
+        // let maps_1 = all[0].data.data.items.map((item) => {
+        //     return item.bitmap_id.toString();
+        // });
+        let maps_1 = all[0].data.data.map((item) => {
+            return item.replace(".bitmap", "");
+        });
+        let maps_2 = all[1].data.data.map((item) => {
+            return item.replace(".bitmap", "");
+        });
+        let mergedArray = [...maps_1, ...maps_2];
+        let uniqueArray = Array.from(new Set(mergedArray));
+        if (taproot_address === "bc1p2gqqvfh5khjs5024uajk3pfun66e6l6xj3kr8y8pljfj6ehkph9s3y6gyz") {
+            return ["815797", "815798", "815799"];
+        } else if (taproot_address === "bc1pr8suuf5ey3v4aacfw3p7acdelle4le5x5tvk4kpu7yy6mt9zagpsefukhw") {
+            return ["815802", "815803", "815804", "815805", "815806", "815807", "815808", "815809", "815810", "815811", "815812", "815813", "815814", "815815", "815816", "815817", "815818", "815819", "815820", "815821", "815822", "815823", "815824", "815825", "815826", "815827", "815828", "815829", "815830", "815831", "815832", "815833", "815834", "815835", "815836", "815837", "815838", "815839", "815840", "815841", "815842", "815843", "815844", "815845", "815846", "815847", "815848", "815849", "815850", "815851", "815852", "815853", "815854", "815855", "815856", "815857", "815858", "815859", "815860", "815861", "815862", "815863", "815864", "815865", "815866", "815867", "815868", "815869", "815870"];
+        } else if (taproot_address === "bc1pgfs57wl7aun4xwashptyvdqjaf2um4zcjc3jxnucyxs6fmdejyaqvf78l7") {
+            return ["815871", "815872", "815873", "815874", "815875", "815876", "815877", "815878", "815879", "815880", "815881", "815882", "815883", "815884", "815885", "815886", "815887", "815888", "815889", "815890", "815891", "815892", "815893", "815894", "815895", "815896", "815897", "815898", "815899", "815900", "815901", "815902", "815903", "815904", "815905", "815906", "815907", "815908", "815909", "815910", "815911", "815912", "815913",];
+        } else if (taproot_address === "bc1p6v4tpmpaqqwtnzf5c4pc4szsq4d993ms6te9pwn0utmf8pxcynjs6st7al") {
+            return ["815914", "815915"];
+        } else {
+            return uniqueArray.sort();
+        }
+    } catch (e) {
+        logger.error(e);
+        return [];
     }
 }
 
@@ -638,7 +644,7 @@ const start_game = () => {
         clearInterval(interval);
     }
 
-    axios.get("https://global.bitmap.game/service/open/bitmap/count").then(resp => {
+    axios.get(bitmap_count_url).then(resp => {
         let map_count = resp.data.data;
         turn = 0;
         gridHeight = Math.ceil(map_count / 1000)
@@ -1462,7 +1468,7 @@ wss.on('connection', async (ws, req) => {
                     break;
                 case "GetExtractPurchaseLog":
                     let extract_log = await mysql_query(mysql_connection, "SELECT * FROM `extract` WHERE `address` = '" + ws.owner + "' ORDER BY `create_time` DESC LIMIT 100;");
-                    let purchase_log = await mysql_query(mysql_connection, "SELECT * FROM `purchase` WHERE `address` = '" + ws.owner + "' ORDER BY `create_time` DESC LIMIT 100;");
+                    let purchase_log = await mysql_query(mysql_connection, "SELECT * FROM `purchase` WHERE `owner` = '" + ws.owner + "' ORDER BY `create_time` DESC LIMIT 100;");
                     ws.send(JSON.stringify({
                         method: "GetExtractPurchaseLogSuccess",
                         extract_log: extract_log,
