@@ -35,7 +35,7 @@ export let mysql_connection = mysql.createConnection({
     idleTimeoutMillis: 86400 * 100 // 设置连接在没有活动时断开
 });
 
-const myFormat = winston.format.printf(({level, message, label, timestamp}) => {
+const myFormat = winston.format.printf(({level, message, timestamp}) => {
     return `${timestamp} ${level}: ${message}`;
 });
 
