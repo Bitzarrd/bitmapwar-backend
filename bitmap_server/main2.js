@@ -756,6 +756,7 @@ const doFight = (y, x, player, turn_action_logs, dead_cells, i) => {
             attacker_virus: player.virus,
             defender_virus: origin_player.virus
         }
+        logger.debug(`doFight: ${player.color}(${player.virus}) vs ${origin_player.color}(${origin_player.virus}) at (${x},${y}) damage:${damage} origin_player:${JSON.stringify(origin_player)} player:${JSON.stringify(player)} action_log:${JSON.stringify(action_log)}`);
         action_logs.push(action_log);
         turn_action_logs.push(action_log);
         //记录死亡动画
