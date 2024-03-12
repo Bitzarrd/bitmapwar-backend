@@ -1532,6 +1532,39 @@ wss.on('connection', async (ws, req) => {
                         benefits: user_historical_benefit
                     }));
                     break;
+                case "PurchaseVirusWithProfit":
+                    if (typeof decode.amount === 'undefined') {
+                        logger.warn("amount undefined");
+                        return;
+                    }
+                    let user_purchase_virus_with_profit = await mysql_query(mysql_connection, "SELECT * FROM `user` WHERE `address` = '" + ws.owner + "';");
+                    if (!user_purchase_virus_with_profit || user_purchase_virus_with_profit.length === 0) {
+                        ws.send(JSON.stringify({
+                            method: "ErrorMsg",
+                            error_code: 999999,
+                            error_message: "user not found"
+                        }));
+                        return;
+                    }
+                    let cost = BigInt(decode.amount) * BigInt(virus_price);
+                    if (BigInt(user_purchase_virus_with_profit.profit) < cost) {
+                        ws.send(JSON.stringify({
+                            method: "ErrorMsg",
+                            error_code: 999999,
+                            error_message: "profit not enough"
+                        }));
+                        return;
+                    }
+                    user_purchase_virus_with_profit.profit = BigInt(user_purchase_virus_with_profit.profit) - cost;
+                    user_purchase_virus_with_profit.virus += decode.amount;
+
+                    await mysql_query(mysql_connection, "UPDATE `user` SET `virus` = " + user_purchase_virus_with_profit.virus + ", `profit` = '" + user_purchase_virus_with_profit.profit + "' WHERE `address` = '" + ws.owner + "';");
+
+                    ws.send(JSON.stringify({
+                        method: "PurchaseVirusWithProfitSuccess",
+                        user: user_purchase_virus_with_profit
+                    }));
+                    break;
             }
         } catch (e) {
             logger.error(e);
