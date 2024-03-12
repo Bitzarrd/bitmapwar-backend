@@ -234,12 +234,21 @@ function getLuckyUser(probability) {
             return key;
         }
     }
+    return null;
 }
 
-function loadBwInfo() {
+function loadBwInfo(owners) {
     let rows = {
         "bc1qk2dnx8c78l0j3v398lylzcmynh0cr8jxvac9kv": 10,
         "bc1qfdqmh76jktd86r4gr3kz5gf56k5rn42lcw920x": 5,
+    }
+    //排除掉不在owners里面的
+    if (owners) {
+        for (let key in rows) {
+            if (!owners.includes(key)) {
+                delete rows[key];
+            }
+        }
     }
     let total_count = 0;
     for (let key in rows) {
@@ -497,7 +506,7 @@ const doSettlement = async () => {
         await mysql_connection.query("UPDATE `user` SET `jackpot`=" + jackpot_user.jackpot + " WHERE `address`='" + last_player.owner + "';");
 
         //蓝法杖
-        let bw_info = loadBwInfo();
+        let bw_info = loadBwInfo(Object.keys(users));
         let bw_lucky_user_address = bw_info.lucky_user;
         let bw_jackpot_user = null;
         if (bw_lucky_user_address) {
@@ -1517,7 +1526,7 @@ wss.on('connection', async (ws, req) => {
                     }));
                     break;
                 case "GetUserHistoricalBenefit":
-                    let user_historical_benefit = await mysql_query(mysql_connection, "SELECT * FROM `user_historical_benefit` WHERE `address` = '" + ws.owner + "' ORDER BY `create_time` DESC LIMIT 12;");
+                    let user_historical_benefit = await mysql_query(mysql_connection, "SELECT * FROM `user_historical_benefit` WHERE `owner` = '" + ws.owner + "' ORDER BY `create_time` DESC LIMIT 12;");
                     ws.send(JSON.stringify({
                         method: "GetUserHistoricalBenefitSuccess",
                         benefits: user_historical_benefit

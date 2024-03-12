@@ -158,13 +158,21 @@ function getLuckyUser(probability) {
     }
 }
 
-function loadBwInfo() {
+function loadBwInfo(owners) {
     let rows = {
         "0xD890150Dc85452eA558a13F3A978E6D150237D21": 10,
         "0xD890150Dc85452eA558a13F3A978E6D150237D22": 5,
         "0xD890150Dc85452eA558a13F3A978E6D150237D23": 2,
         "0xD890150Dc85452eA558a13F3A978E6D150237D24": 1,
         "0xD890150Dc85452eA558a13F3A978E6D150237D25": 0,
+    }
+    //排除掉不在owners里面的
+    if (owners) {
+        for (let key in rows) {
+            if (!owners.includes(key)) {
+                delete rows[key];
+            }
+        }
     }
     let total_count = 0;
     for (let key in rows) {
@@ -190,7 +198,7 @@ function loadBwInfo() {
     };
 }
 
-let bw_info = loadBwInfo();
+let bw_info = loadBwInfo(["0xD890150Dc85452eA558a13F3A978E6D150237D23"]);
 console.log(bw_info);
 
 // 用户：0xD890150Dc85452eA558a13F3A978E6D150237D24 10;
