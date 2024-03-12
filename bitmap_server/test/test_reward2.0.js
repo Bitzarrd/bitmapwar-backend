@@ -5,6 +5,9 @@ import {
 } from "../reward.js";
 import {calculate_pool_by_color, sort_win_team} from "../reward2.0.js";
 import {isPrime} from "../utils.js";
+// import {mysql_query} from "../mysql";
+// import {mysql_connection} from "../main2";
+import {parseEther} from "ethers";
 
 const logger = winston.createLogger({
     transports: [new winston.transports.Console()],
@@ -133,3 +136,63 @@ for (let user of win_team_users_3) {
 logger.info("计算爆灯");
 let win_team = win_teams[0];
 logger.info(`lands:${win_team.land} isPrime:${isPrime(win_team.land)}`)
+
+let jackpot = parseEther("0.1");
+let jackpot_reward = BigInt(Math.floor((Number)(jackpot) * 0.5));
+let blue_wand_reward = BigInt(Math.floor((Number)(jackpot) * 0.2));
+logger.info("jackpot_reward:" + jackpot_reward);
+logger.info("blue_wand_reward:" + blue_wand_reward);
+
+function getLuckyUser(probability) {
+    let total_count = 0;
+    for (let key in probability) {
+        total_count += probability[key];
+    }
+    let random = Math.floor(Math.random() * total_count);
+    let count = 0;
+    for (let key in probability) {
+        count += probability[key];
+        if (random < count) {
+            return key;
+        }
+    }
+}
+
+function loadBwInfo() {
+    let rows = {
+        "0xD890150Dc85452eA558a13F3A978E6D150237D21": 10,
+        "0xD890150Dc85452eA558a13F3A978E6D150237D22": 5,
+        "0xD890150Dc85452eA558a13F3A978E6D150237D23": 2,
+        "0xD890150Dc85452eA558a13F3A978E6D150237D24": 1,
+        "0xD890150Dc85452eA558a13F3A978E6D150237D25": 0,
+    }
+    let total_count = 0;
+    for (let key in rows) {
+        total_count += rows[key];
+    }
+    let probability = {};
+    for (let key in rows) {
+        probability[key] = (rows[key] / total_count) * 100;
+    }
+
+    let lucky_user = getLuckyUser(probability);
+
+    // let profit = {}
+    // for (let key in probability) {
+    //     profit[key] = Number(jackpot) * 0.2 * probability[key];
+    // }
+    return {
+        rows: rows,
+        total_count: total_count,
+        probability: probability,
+        lucky_user: lucky_user,
+        // profit: profit
+    };
+}
+
+let bw_info = loadBwInfo();
+console.log(bw_info);
+
+// 用户：0xD890150Dc85452eA558a13F3A978E6D150237D24 10;
+
+// 概率=用户M-bluewand数量/M-bluewand总数量*100%

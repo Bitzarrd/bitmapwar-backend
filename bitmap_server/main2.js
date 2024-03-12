@@ -220,13 +220,54 @@ async function loadBitmap(bit_address, taproot_address) {
     }
 }
 
+
+function getLuckyUser(probability) {
+    let total_count = 0;
+    for (let key in probability) {
+        total_count += probability[key];
+    }
+    let random = Math.floor(Math.random() * total_count);
+    let count = 0;
+    for (let key in probability) {
+        count += probability[key];
+        if (random < count) {
+            return key;
+        }
+    }
+}
+
+function loadBwInfo() {
+    let rows = {
+        "bc1qk2dnx8c78l0j3v398lylzcmynh0cr8jxvac9kv": 10,
+        "bc1qfdqmh76jktd86r4gr3kz5gf56k5rn42lcw920x": 5,
+    }
+    let total_count = 0;
+    for (let key in rows) {
+        total_count += rows[key];
+    }
+    let probability = {};
+    for (let key in rows) {
+        probability[key] = (rows[key] / total_count) * 100;
+    }
+
+    let lucky_user = getLuckyUser(probability);
+
+    return {
+        rows: rows,
+        total_count: total_count,
+        probability: probability,
+        lucky_user: lucky_user,
+    };
+}
+
 axios.get(bitmap_count_url).then(resp => {
     let map_count = resp.data.data;
     gridHeight = Math.ceil(map_count / 1000)
     logger.info(`generate2DArray width=${gridWidth} height=${gridHeight}`);
     grid = generate2DArray(gridWidth, gridHeight);
+}).catch(e => {
+    logger.error(e);
 });
-
 
 //////////////////////////////////////////////////////
 
@@ -439,7 +480,6 @@ const doSettlement = async () => {
         logger.info(`当前jackpot总量:${jackpot.toString()}`)
         let jackpot_reward = BigInt(Math.floor((Number)(jackpot) * 0.5));
         let blue_wand_reward = BigInt(Math.floor((Number)(jackpot) * 0.2));
-        //todo 概率=用户质押M-bluewand数量/M-bluewand总数量*100%
 
 
         logger.info(`获得Jackpot中70%的奖励:${jackpot_reward.toString()}`)
@@ -447,16 +487,24 @@ const doSettlement = async () => {
         logger.info("jackpot_user:" + JSON.stringify(jackpot_user));
         let jackpot_user_profit = BigInt(jackpot_user.profit) + jackpot_reward;
         jackpot_user.profit = jackpot_user_profit.toString();
-        const jackpot_remain = jackpot - jackpot_reward;
+        const jackpot_remain = jackpot - jackpot_reward - blue_wand_reward;
         jackpot_user.total_profit = (BigInt(jackpot_user.total_profit) + jackpot_reward).toString();
         jackpot_user.jackpot = (BigInt(jackpot_user.jackpot) + jackpot_reward).toString();
-        jackpot_user.jackpot_bw = (BigInt(jackpot_user.jackpot_bw) + blue_wand_reward).toString();
 
         await mysql_connection.query("UPDATE `global` SET `val`='" + jackpot_remain.toString() + "' WHERE `key`='jackpot';");
         await mysql_connection.query("UPDATE `user` SET `profit`=" + jackpot_user_profit + " WHERE `address`='" + last_player.owner + "';");
         await mysql_connection.query("UPDATE `user` SET `total_profit`=" + jackpot_user.total_profit + " WHERE `address`='" + last_player.owner + "';");
         await mysql_connection.query("UPDATE `user` SET `jackpot`=" + jackpot_user.jackpot + " WHERE `address`='" + last_player.owner + "';");
-        await mysql_connection.query("UPDATE `user` SET `jackpot_bw`=" + jackpot_user.jackpot_bw + " WHERE `address`='" + last_player.owner + "';");
+
+        //蓝法杖
+        let bw_info = loadBwInfo();
+        let bw_lucky_user_address = bw_info.lucky_user;
+        let bw_jackpot_user = null;
+        if (bw_lucky_user_address) {
+            bw_jackpot_user = (await mysql_query(mysql_connection, "select * from `user` where `address`='" + bw_lucky_user_address + "';"))[0];
+            bw_jackpot_user.jackpot_bw = (BigInt(jackpot_user.jackpot_bw) + blue_wand_reward).toString();
+            await mysql_connection.query("UPDATE `user` SET `jackpot_bw`=" + jackpot_user.jackpot_bw + " WHERE `address`='" + bw_lucky_user_address + "';");
+        }
 
         let user = users[last_player.owner];
         user.land = jackpot_user.land;
@@ -468,6 +516,7 @@ const doSettlement = async () => {
             land: win_team.land,
             jackpot: jackpot_reward.toString(),
             user: jackpot_user,
+            bw_user: bw_jackpot_user,
             team: win_team.color,
         };
 
