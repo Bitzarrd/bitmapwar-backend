@@ -1,5 +1,9 @@
 import {now} from "./utils.js";
 
+const TIE = 0;
+const WIN = 1;
+const LOSE = 2;
+
 export function filter_action_log(logs, owner) {
     let result = [];
     for (let i = 0; i < logs.length; i++) {
@@ -9,7 +13,7 @@ export function filter_action_log(logs, owner) {
             result.push({
                 create_time: log.create_time,
                 virus_loss: log.virus_loss,
-                state: log.attacker_virus === log.defender_virus ? 0 : (log.defender_virus > log.attacker.attacker_virus ? 2 : 1),
+                state: log.attacker_virus === log.defender_virus ? TIE : (log.defender_virus > log.attacker.attacker_virus ? LOSE : WIN),
                 my_map_id: log.attacker_map_id,
                 enemy_map_id: log.defender_map_id,
             });
@@ -18,7 +22,7 @@ export function filter_action_log(logs, owner) {
             result.push({
                 create_time: log.create_time,
                 virus_loss: log.virus_loss,
-                state: log.attacker_virus === log.defender_virus ? 0 : (log.defender_virus > log.attacker.attacker_virus ? 1 : 2),
+                state: log.attacker_virus === log.defender_virus ? TIE : (log.defender_virus > log.attacker.attacker_virus ? WIN : LOSE),
                 my_map_id: log.defender_map_id,
                 enemy_map_id: log.attacker_map_id,
             });
