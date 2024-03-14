@@ -756,7 +756,7 @@ const doFight = (y, x, player, turn_action_logs, dead_cells, i) => {
             attacker_virus: player.virus,
             defender_virus: origin_player.virus
         }
-        logger.debug(`doFight: ${player.color}(${player.virus}) vs ${origin_player.color}(${origin_player.virus}) at (${x},${y}) damage:${damage} origin_player:${JSON.stringify(origin_player)} player:${JSON.stringify(player)} action_log:${JSON.stringify(action_log)}`);
+        // logger.debug(`doFight: ${player.color}(${player.virus}) vs ${origin_player.color}(${origin_player.virus}) at (${x},${y}) damage:${damage} origin_player:${JSON.stringify(origin_player)} player:${JSON.stringify(player)} action_log:${JSON.stringify(action_log)}`);
         action_logs.push(action_log);
         turn_action_logs.push(action_log);
         //记录死亡动画
@@ -1547,6 +1547,7 @@ wss.on('connection', async (ws, req) => {
                         }));
                         return;
                     }
+                    user_purchase_virus_with_profit = user_purchase_virus_with_profit[0];
                     let cost = BigInt(decode.amount) * BigInt(virus_price);
                     if (BigInt(user_purchase_virus_with_profit.profit) < cost) {
                         ws.send(JSON.stringify({
@@ -1556,7 +1557,7 @@ wss.on('connection', async (ws, req) => {
                         }));
                         return;
                     }
-                    user_purchase_virus_with_profit.profit = BigInt(user_purchase_virus_with_profit.profit) - cost;
+                    user_purchase_virus_with_profit.profit = (BigInt(user_purchase_virus_with_profit.profit) - cost).toString();
                     user_purchase_virus_with_profit.virus += decode.amount;
 
                     await mysql_query(mysql_connection, "UPDATE `user` SET `virus` = " + user_purchase_virus_with_profit.virus + ", `profit` = '" + user_purchase_virus_with_profit.profit + "' WHERE `address` = '" + ws.owner + "';");
@@ -1569,6 +1570,7 @@ wss.on('connection', async (ws, req) => {
             }
         } catch (e) {
             logger.error(e);
+            logger.error(e.stack);
         }
     });
 
