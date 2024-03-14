@@ -128,7 +128,7 @@ for (let user of win_team_users_2) {
 }
 
 logger.info("对第三名的队伍进行发奖：");
-calculate_pool_by_color(win_team_users_3, win_teams[1].color, 8);
+calculate_pool_by_color(win_team_users_3, win_teams[2].color, 8);
 for (let user of win_team_users_3) {
     logger.info("用户：" + user.owner + " 名次：" + user.rank + " 颜色：" + user.statistics.color + " 领地：" + user.statistics.land + " 病毒：" + user.statistics.virus + " 损失：" + user.statistics.loss + " 奖励：" + user.reward_2 + "%");
 }
