@@ -38,6 +38,11 @@ export function sort_win_team(players) {
     return rank;
 }
 
+/**
+ * 计算奖金红色
+ * @param users
+ * @param proportion 奖金比例
+ */
 export function calculate_pool_red(users, proportion) {
     let total_init_virus = get_total_init_virus(users);
     for (let owner of Object.keys(users)) {
@@ -57,6 +62,11 @@ export function get_total_bitmap(users) {
     return bitmaps;
 }
 
+/**
+ * 计算奖金绿色
+ * @param users
+ * @param proportion
+ */
 export function calculate_pool_green(users, proportion) {
     let total_bitmaps = get_total_bitmap(users);
     for (let owner of Object.keys(users)) {
@@ -94,19 +104,32 @@ export function calculate_pool_blue(users, proportion) {
     }
 }
 
-// 紫：
-// 基础奖金=奖金/人数
-// 获奖系数=1 - (玩家序号 - 1) / 100
-// 奖金=基础奖金* 获奖系数）
+
+/**
+ * 计算紫色奖金基础
+ * 基础奖金=奖金/人数
+ * @param users
+ * @param proportion
+ * @returns {number}
+ */
 export function calculate_pool_purple_base(users, proportion) {
     return proportion / users.length;
 }
 
+/**
+ * 计算紫色奖金
+ * @param users
+ * @param proportion
+ */
 export function calculate_pool_purple(users, proportion) {
     let base = calculate_pool_purple_base(users, proportion);
+    let i = 0;
     for (let owner of Object.keys(users)) {
+        i++;
         let user = users[owner];
-        let coefficient = (1 - (user.i - 1) / 100);
+        //获奖系数=1 - (玩家序号 - 1) / 100
+        let coefficient = (1 - (i - 1) / 100);
+        //奖金=基础奖金* 获奖系数
         user.reward_2 = base * coefficient;
     }
 }
