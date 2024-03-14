@@ -431,7 +431,7 @@ const doSettlement = async () => {
         let user = users[owner];
         let reward = user.reward_1 + user.reward_2 + user.reward_3;
         if (reward >= 0) {
-            let profit = all_reward_profit * BigInt(Math.floor(reward)) / BigInt(100);
+            let profit = all_reward_profit * BigInt(Math.floor(reward * 10000)) / BigInt(1000000);
             logger.info("用户：" + owner + " 奖励金额：" + profit.toString() + " 奖励比例：" + reward + "%");
             user.profit = profit.toString();
         }
