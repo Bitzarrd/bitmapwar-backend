@@ -176,6 +176,8 @@ const bitmap_owner_url = "https://indexapitx.bitmap.game/api/v1/collection/bitma
 const bitmap_stake_url = "https://bridge.merlinchain.io/api/v1/history/stake/bitmaps?btc_from_address=${address}";
 // const bw_url = "https://bridge.merlinchain.io/api/v1/history/stake/blueWands?btc_from_address=bc1q8hz6cgyapu57atgchlp7kkfkefa4myn32gyl4l";
 const virus_price = parseEther("0.00003").toString();
+const gift_for_login = 1000;
+const gift_for_share = 1000;
 
 //////////////////////////////////////////////////////
 
@@ -968,10 +970,10 @@ wss.on('connection', async (ws, req) => {
                     mysql_connection.query("INSERT INTO gift SET ?", {
                         owner: ws.owner,
                         create_time: now(),
-                        amount: 500,
+                        amount: gift_for_share,
                         type: "share"
                     })
-                    await mysql_connection.query("UPDATE user SET virus=virus+500 WHERE address='" + ws.owner + "';");
+                    await mysql_connection.query("UPDATE user SET virus=virus+" + gift_for_share + " WHERE address='" + ws.owner + "';");
                     let user_for_share = (await mysql_query(mysql_connection, "SELECT * FROM `user` WHERE `address`='" + ws.owner + "';"))[0];
                     ws.send(JSON.stringify({
                         method: "ShareSuccess",
@@ -1022,7 +1024,7 @@ wss.on('connection', async (ws, req) => {
                                 let user = {
                                     address: address,
                                     profit: "0",
-                                    virus: 500,
+                                    virus: gift_for_login,
                                     merlin_address: merlin_address,
                                     taproot_address: taproot_address,
                                     public_key: public_key
@@ -1033,7 +1035,7 @@ wss.on('connection', async (ws, req) => {
                                 await mysql_connection.query("INSERT INTO gift SET ?", {
                                     owner: address,
                                     create_time: now(),
-                                    amount: 500,
+                                    amount: gift_for_login,
                                     type: "login"
                                 });
 
@@ -1084,10 +1086,10 @@ wss.on('connection', async (ws, req) => {
                                 await mysql_connection.query("INSERT INTO gift SET ?", {
                                     owner: address,
                                     create_time: now(),
-                                    amount: 500,
+                                    amount: gift_for_login,
                                     type: "login"
                                 });
-                                await mysql_connection.query("UPDATE user SET virus=virus+500 WHERE address='" + address + "';");
+                                await mysql_connection.query("UPDATE user SET virus=virus+" + gift_for_login + " WHERE address='" + address + "';");
                             }
 
 
