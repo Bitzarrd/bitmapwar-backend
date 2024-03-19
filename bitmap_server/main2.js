@@ -22,6 +22,7 @@ import * as fs from "fs";
 import {evmAddressToMerlinAddress, pubKeyToBtcAddress, pubKeyToEVMAddress, pubKeyToTaprootAddress} from "./address.js";
 import {filter_action_log} from "./action_log.js";
 import {parseEther} from "ethers";
+import {v4 as uuidv4} from 'uuid';
 
 dotenv.config();
 
@@ -108,15 +109,29 @@ process.on('SIGUSR1', async () => {
     // 在这里执行自定义操作
 
     //close clients
-    for (let client of clients) {
-        logger.info(`close client readyState=${client.readyState} remoteAddress=${client._socket.remoteAddress} owner=${client.owner}`);
-        await client.close();
+    try {
+        wss.close();
+        for (let client of clients) {
+            logger.info(`close client readyState=${client.readyState} remoteAddress=${client._socket.remoteAddress} owner=${client.owner}`);
+            await client.close();
+        }
+    } catch (e) {
+        logger.error(e);
     }
-    wss.close();
 
     //保存全局数据
     if (players.length > 0) {
-        await save_global_data_to_jsonfile();
+        for (let player of players) {
+            try {
+                // await mysql_query(mysql_connection, "UPDATE `user` SET virus = += ? WHERE address = ?", [player.init_virus, player.owner]);
+                const sql = "UPDATE `user` SET virus = virus + " + player.init_virus + " WHERE address = '" + player.owner + "'";
+                await mysql_query(mysql_connection, sql);
+                logger.debug(sql);
+                // await save_global_data_to_jsonfile();
+            } catch (e) {
+                logger.error(e);
+            }
+        }
     }
 
     process.exit(0);
@@ -1564,9 +1579,31 @@ wss.on('connection', async (ws, req) => {
 
                     await mysql_query(mysql_connection, "UPDATE `user` SET `virus` = " + user_purchase_virus_with_profit.virus + ", `profit` = '" + user_purchase_virus_with_profit.profit + "' WHERE `address` = '" + ws.owner + "';");
 
+
+                    //     CREATE TABLE `purchase` (
+                    //     `id` int(11) NOT NULL AUTO_INCREMENT,
+                    //     `txid` varchar(255) NOT NULL,
+                    //     `fee` varchar(255) NOT NULL,
+                    //     `create_time` int(11) NOT NULL,
+                    //     `owner` varchar(255) NOT NULL,
+                    //     `virus` int(11) NOT NULL,
+                    //     PRIMARY KEY (`id`)
+                    // ) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4;
+
+                    await mysql_connection.query("INSERT INTO purchase SET ?", {
+                        txid: uuidv4(),
+                        fee: cost.toString(),
+                        create_time: now(),
+                        owner: ws.merlin_address,
+                        virus: decode.amount
+                    });
+
+                    let purchases_log = await mysql_query(mysql_connection, "SELECT * FROM `purchase` WHERE `owner`='" + ws.merlin_address + "' ORDER BY create_time DESC;");
+
                     ws.send(JSON.stringify({
                         method: "PurchaseVirusWithProfitSuccess",
-                        user: user_purchase_virus_with_profit
+                        user: user_purchase_virus_with_profit,
+                        purchases: purchases_log
                     }));
                     break;
             }
