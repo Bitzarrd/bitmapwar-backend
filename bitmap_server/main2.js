@@ -879,7 +879,7 @@ wss.on('connection', async (ws, req) => {
         ip = req.headers['x-forwarded-for'].split(',')[0].trim();
     }
 
-    logger.info("new connection received: " + ip);
+    logger.info(`websocket connection connected id=${ws.id} remoteAddress=${ws._socket.remoteAddress} port=${ws._socket.remotePort} owner=${ws.owner}`);
 
     ws.on('ping', () => {
         logger.debug("ping received")

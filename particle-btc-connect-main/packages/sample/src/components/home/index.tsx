@@ -279,22 +279,11 @@ export default function Home() {
 
   //============================================Unity相关=======================================================
 
-  const hideFullScreenButton = '';
-  const buildUrl = 'unity_webgl_player/Build';
-  const loaderUrl = buildUrl + '/web.loader.js';
-  const config = {
-    dataUrl: buildUrl + '/web.data',
-    frameworkUrl: buildUrl + '/web.framework.js',
-    codeUrl: buildUrl + '/web.wasm',
-    streamingAssetsUrl: 'StreamingAssets',
-    companyName: 'DefaultCompany',
-    productName: 'Bitmap',
-    productVersion: '0.1',
-  };
-
   interface createUnityInstanceFunction {
     (canvas: HTMLElement, config: any, onProgress: (progress: number) => void): Promise<any>;
   }
+
+  const [gitRev, setGitRev] = useState('');
 
   useEffect(() => {
     // 在组件加载完成后自动执行的函数
@@ -322,28 +311,52 @@ export default function Home() {
     // };
     // document.body.appendChild(googleScript);
 
-    script.src = loaderUrl;
-    script.onload = () => {
-      console.log('script load success');
-      loadingCover.style.display = 'flex';
-      const createUnityInstanceFn: createUnityInstanceFunction = (window as any).createUnityInstance;
-      createUnityInstanceFn(canvas, config, (progress) => {
-        console.log('progress:', progress);
-        // progressBarEmpty.style.display = '';
-        // progressBarFull.style.width = `${100 * progress}%`;
-      })
-        .then((unityInstance) => {
-          loadingCover.style.display = 'none';
-          console.log('unityInstance', unityInstance);
-          // unityInstance.SetFullscreen(1);//这个函数会报错
-          (canvas as HTMLElement).style.width = '100vw';
-          (canvas as HTMLElement).style.height = '100vh';
+    const gitRevisionScript = document.createElement('script');
+    gitRevisionScript.src = 'unity_webgl_player/rev.js';
+    gitRevisionScript.onload = () => {
+      const gitReva = (window as any).gitRev;
+      setGitRev(gitReva);
+      console.log('git revision script load success:' + gitReva);
+
+      const hideFullScreenButton = '';
+      const buildUrl = '/api/' + gitReva;
+      // const buildUrl = '/unity_webgl_player/6d4e2b9';
+      const loaderUrl = buildUrl + '/web.loader.js';
+      const config = {
+        dataUrl: buildUrl + '/web.data',
+        frameworkUrl: buildUrl + '/web.framework.js',
+        codeUrl: buildUrl + '/web.wasm',
+        streamingAssetsUrl: 'StreamingAssets',
+        companyName: 'DefaultCompany',
+        productName: 'Bitmap',
+        productVersion: '0.1',
+      };
+
+      script.src = loaderUrl;
+      script.onload = () => {
+        // return;
+        console.log('script load success');
+        loadingCover.style.display = 'flex';
+        const createUnityInstanceFn: createUnityInstanceFunction = (window as any).createUnityInstance;
+        createUnityInstanceFn(canvas, config, (progress) => {
+          console.log('progress:', progress);
+          // progressBarEmpty.style.display = '';
+          // progressBarFull.style.width = `${100 * progress}%`;
         })
-        .catch((message) => {
-          console.error(message);
-        });
+          .then((unityInstance) => {
+            loadingCover.style.display = 'none';
+            console.log('unityInstance', unityInstance);
+            // unityInstance.SetFullscreen(1);//这个函数会报错
+            (canvas as HTMLElement).style.width = '100vw';
+            (canvas as HTMLElement).style.height = '100vh';
+          })
+          .catch((message) => {
+            console.error(message);
+          });
+      };
+      document.body.appendChild(script);
     };
-    document.body.appendChild(script);
+    document.body.appendChild(gitRevisionScript);
   }, []); // 传递一个空数组作为依赖，确保只在组件加载完成时执行一次
 
   // const injectGA = () => {
@@ -371,6 +384,8 @@ export default function Home() {
           </div>
           <div className="loading-text" style={{ color: 'white' }}>
             Entering BitmapWar Explorer...
+            <br />
+            git revision: {gitRev}
           </div>
           {/*<div id="unity-progress-bar-empty" style={{ display: 'none' }}>*/}
           {/*  <div id="unity-progress-bar-full"></div>*/}

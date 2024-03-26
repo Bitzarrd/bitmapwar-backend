@@ -33,3 +33,8 @@ https://gitee.com/jerryalrightlook/bitmap3001
 git -C /www/wwwroot/bitmap3003 pull && cp -rf /www/wwwroot/bitmap3003/* /www/wwwroot/bitmap_dev_client/packages/sample/public/unity_webgl_player
 git -C /www/wwwroot/bitmap3001 pull && cp -rf /www/wwwroot/bitmap3001/* /www/wwwroot/particle-btc-connect-main/packages/sample/public/unity_webgl_player
 
+
+
+cd /www/wwwroot/bitmap3003 && git pull && mkdir -p "/www/wwwroot/bitmap_dev_client/packages/sample/public/$(git rev-parse --short HEAD)" && cp -rf /www/wwwroot/bitmap3003/Build/* "/www/wwwroot/bitmap_dev_client/packages/sample/public/$(git rev-parse --short HEAD)"
+
+cd /www/wwwroot/bitmap3003 && git pull && mkdir -p "/www/wwwroot/bitmap_dev_client/packages/sample/public/Build/" && cp -rf /www/wwwroot/bitmap3003/Build/* "/www/wwwroot/bitmap_dev_client/packages/sample/public/Build/$(git rev-parse --short HEAD)" && echo "export const gitRev= \"$(git rev-parse --short HEAD)\";" > "/www/wwwroot/bitmap_dev_client/packages/sample/public/rev.js"
