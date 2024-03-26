@@ -23,6 +23,7 @@ import {evmAddressToMerlinAddress, pubKeyToBtcAddress, pubKeyToEVMAddress, pubKe
 import {filter_action_log} from "./action_log.js";
 import {parseEther} from "ethers";
 import {v4 as uuidv4} from 'uuid';
+import {getLast3User} from "./reward3.0.js";
 
 dotenv.config();
 
@@ -507,8 +508,9 @@ const doSettlement = async () => {
     let win_team = win_teams[0];
     logger.info(`lands:${win_team.land} 是否质数:${isPrime(win_team.land)}`)
     //本轮游戏中最后一个投入士兵的账号（与阵营无关）
-    let last_player = players[players.length - 1];
-    logger.info(`本轮游戏中最后一个投入士兵的账号:${last_player.owner}`)
+    // let last_player = players[players.length - 1];
+    let last_3_users = getLast3User(players);
+    logger.info(`本轮游戏中最后三个投入士兵的账号:${JSON.stringify(last_3_users)}`);
     if (isPrime(win_team.land)) {
         //获得Jackpot中70%的奖励
         let jackpot = await mysql_query(mysql_connection, "select val from `global` where `key`='jackpot';");
@@ -518,19 +520,33 @@ const doSettlement = async () => {
         let blue_wand_reward = BigInt(Math.floor((Number)(jackpot) * 0.2));
 
 
-        logger.info(`获得Jackpot中70%的奖励:${jackpot_reward.toString()}`)
-        let jackpot_user = (await mysql_query(mysql_connection, "select * from `user` where `address`='" + last_player.owner + "';"))[0];
-        logger.info("jackpot_user:" + JSON.stringify(jackpot_user));
-        let jackpot_user_profit = BigInt(jackpot_user.profit) + jackpot_reward;
-        jackpot_user.profit = jackpot_user_profit.toString();
-        const jackpot_remain = jackpot - jackpot_reward - blue_wand_reward;
-        jackpot_user.total_profit = (BigInt(jackpot_user.total_profit) + jackpot_reward).toString();
-        jackpot_user.jackpot = (BigInt(jackpot_user.jackpot) + jackpot_reward).toString();
+        // logger.info(`获得Jackpot中70%的奖励:${jackpot_reward.toString()}`)
+        // let jackpot_user = (await mysql_query(mysql_connection, "select * from `user` where `address`='" + last_player.owner + "';"))[0];
+        // logger.info("jackpot_user:" + JSON.stringify(jackpot_user));
+        // let jackpot_user_profit = BigInt(jackpot_user.profit) + jackpot_reward;
+        // jackpot_user.profit = jackpot_user_profit.toString();
+        // const jackpot_remain = jackpot - jackpot_reward - blue_wand_reward;
+        // jackpot_user.total_profit = (BigInt(jackpot_user.total_profit) + jackpot_reward).toString();
+        // jackpot_user.jackpot = (BigInt(jackpot_user.jackpot) + jackpot_reward).toString();
+        //
+        // await mysql_connection.query("UPDATE `global` SET `val`='" + jackpot_remain.toString() + "' WHERE `key`='jackpot';");
+        // await mysql_connection.query("UPDATE `user` SET `profit`=" + jackpot_user_profit + " WHERE `address`='" + last_player.owner + "';");
+        // await mysql_connection.query("UPDATE `user` SET `total_profit`=" + jackpot_user.total_profit + " WHERE `address`='" + last_player.owner + "';");
+        // await mysql_connection.query("UPDATE `user` SET `jackpot`=" + jackpot_user.jackpot + " WHERE `address`='" + last_player.owner + "';");
 
-        await mysql_connection.query("UPDATE `global` SET `val`='" + jackpot_remain.toString() + "' WHERE `key`='jackpot';");
-        await mysql_connection.query("UPDATE `user` SET `profit`=" + jackpot_user_profit + " WHERE `address`='" + last_player.owner + "';");
-        await mysql_connection.query("UPDATE `user` SET `total_profit`=" + jackpot_user.total_profit + " WHERE `address`='" + last_player.owner + "';");
-        await mysql_connection.query("UPDATE `user` SET `jackpot`=" + jackpot_user.jackpot + " WHERE `address`='" + last_player.owner + "';");
+        for(let user of last_3_users){
+            let jackpot_user = (await mysql_query(mysql_connection, "select * from `user` where `address`='" + user.owner + "';"))[0];
+            let jackpot_user_profit = BigInt(jackpot_user.profit) + jackpot_reward;
+            jackpot_user.profit = jackpot_user_profit.toString();
+            const jackpot_remain = (jackpot - jackpot_reward - blue_wand_reward) / BigInt(last_3_users.length);
+            jackpot_user.total_profit = (BigInt(jackpot_user.total_profit) + jackpot_reward).toString();
+            jackpot_user.jackpot = (BigInt(jackpot_user.jackpot) + jackpot_reward).toString();
+            await mysql_connection.query("UPDATE `global` SET `val`='" + jackpot_remain.toString() + "' WHERE `key`='jackpot';");
+            await mysql_connection.query("UPDATE `user` SET `profit`=" + jackpot_user_profit + " WHERE `address`='" + user.owner + "';");
+            await mysql_connection.query("UPDATE `user` SET `total_profit`=" + jackpot_user.total_profit + " WHERE `address`='" + user.owner + "';");
+            await mysql_connection.query("UPDATE `user` SET `jackpot`=" + jackpot_user.jackpot + " WHERE `address`='" + user.owner + "';");
+            logger.info(`获得Jackpot中70%的奖励:${jackpot_reward.toString()} user:${JSON.stringify(jackpot_user)}`);
+        }
 
         //蓝法杖
         let bw_info = loadBwInfo(Object.keys(users));
@@ -538,20 +554,20 @@ const doSettlement = async () => {
         let bw_jackpot_user = null;
         if (bw_lucky_user_address) {
             bw_jackpot_user = (await mysql_query(mysql_connection, "select * from `user` where `address`='" + bw_lucky_user_address + "';"))[0];
-            bw_jackpot_user.jackpot_bw = (BigInt(jackpot_user.jackpot_bw) + blue_wand_reward).toString();
-            await mysql_connection.query("UPDATE `user` SET `jackpot_bw`=" + jackpot_user.jackpot_bw + " WHERE `address`='" + bw_lucky_user_address + "';");
+            bw_jackpot_user.jackpot_bw = (BigInt(bw_jackpot_user.jackpot_bw) + blue_wand_reward).toString();
+            await mysql_connection.query("UPDATE `user` SET `jackpot_bw`=" + bw_jackpot_user.jackpot_bw + " WHERE `address`='" + bw_lucky_user_address + "';");
         }
 
-        let user = users[last_player.owner];
-        user.land = jackpot_user.land;
-        user.profit = jackpot_user.profit;
-        user.total_profit = jackpot_user.total_profit;
+        // let user = users[last_player.owner];
+        // user.land = jackpot_user.land;
+        // user.profit = jackpot_user.profit;
+        // user.total_profit = jackpot_user.total_profit;
 
         let jackpot_message = {
             method: "JackpotLightUp",
             land: win_team.land,
             jackpot: jackpot_reward.toString(),
-            user: jackpot_user,
+            users: last_3_users,
             bw_user: bw_jackpot_user,
             team: win_team.color,
         };
