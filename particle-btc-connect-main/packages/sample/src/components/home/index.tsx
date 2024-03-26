@@ -312,14 +312,14 @@ export default function Home() {
     // document.body.appendChild(googleScript);
 
     const gitRevisionScript = document.createElement('script');
-    gitRevisionScript.src = 'unity_webgl_player/rev.js';
+    gitRevisionScript.src = 'static/rev.js';
     gitRevisionScript.onload = () => {
       const gitReva = (window as any).gitRev;
       setGitRev(gitReva);
       console.log('git revision script load success:' + gitReva);
 
       const hideFullScreenButton = '';
-      const buildUrl = '/api/' + gitReva;
+      const buildUrl = '/static/' + gitReva;
       // const buildUrl = '/unity_webgl_player/6d4e2b9';
       const loaderUrl = buildUrl + '/web.loader.js';
       const config = {
