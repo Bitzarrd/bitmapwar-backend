@@ -2,9 +2,14 @@ import {get_users} from "./reward.js";
 
 export function getLast3User(players) {
     let users = get_users(players);
-    if (users.length < 3) {
-        return users;
+    let res = [];
+    for (let owner of Object.keys(users)) {
+        res.push(users[owner]);
     }
-    return users.slice(-3);
+    if (res.length > 3) {
+        return res.slice(0, 3);
+    }
+
+    return res;
 }
 
