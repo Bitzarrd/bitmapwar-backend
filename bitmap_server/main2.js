@@ -518,7 +518,7 @@ const doSettlement = async () => {
         logger.info(`当前jackpot总量:${jackpot.toString()}`)
         let jackpot_reward = BigInt(Math.floor((Number)(jackpot) * 0.5));
         let blue_wand_reward = BigInt(Math.floor((Number)(jackpot) * 0.2));
-
+        logger.info(`获得Jackpot中50%的奖励:${jackpot_reward.toString()}`)
 
         // logger.info(`获得Jackpot中70%的奖励:${jackpot_reward.toString()}`)
         // let jackpot_user = (await mysql_query(mysql_connection, "select * from `user` where `address`='" + last_player.owner + "';"))[0];
@@ -546,7 +546,7 @@ const doSettlement = async () => {
             await mysql_connection.query("UPDATE `user` SET `profit`=" + jackpot_user_profit + " WHERE `address`='" + user.owner + "';");
             await mysql_connection.query("UPDATE `user` SET `total_profit`=" + jackpot_user.total_profit + " WHERE `address`='" + user.owner + "';");
             await mysql_connection.query("UPDATE `user` SET `jackpot`=" + jackpot_user.jackpot + " WHERE `address`='" + user.owner + "';");
-            logger.info(`获得Jackpot中70%的奖励:${my_jackpot_reward.toString()} user:${JSON.stringify(jackpot_user)}`);
+            logger.info(`奖励:${my_jackpot_reward.toString()} user:${JSON.stringify(jackpot_user)}`);
         }
 
         //蓝法杖
