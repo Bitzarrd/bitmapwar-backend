@@ -312,7 +312,8 @@ export default function Home() {
     // document.body.appendChild(googleScript);
 
     const gitRevisionScript = document.createElement('script');
-    gitRevisionScript.src = 'static/rev.js';
+    const now_timestamp = new Date().getTime();
+    gitRevisionScript.src = 'static/rev.js?' + now_timestamp.toString();
     gitRevisionScript.onload = () => {
       const gitReva = (window as any).gitRev;
       setGitRev(gitReva);
