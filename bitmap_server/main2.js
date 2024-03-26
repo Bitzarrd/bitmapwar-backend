@@ -183,6 +183,13 @@ let stop_time = 0;
 let action_logs = [];
 let invincibility_maps = [];
 let join_logs = [];
+let messages = {
+    global: [],
+    red: [],
+    blue: [],
+    purple: [],
+    green: [],
+};
 
 //////////////////////////////////////////////////////
 const bitmap_count_url = "https://indexapitx.bitmap.game/api/v1/collection/bitmap/count";
@@ -1072,6 +1079,8 @@ wss.on('connection', async (ws, req) => {
                                     purchase: [],
                                     has_login_gift: true,
                                     action_logs: [],
+                                    message_global: messages.global,
+                                    message_team: messages.team,
                                 }));
                                 await action_log(address, "register", user);
                                 await action_log(address, "login", user);
@@ -1123,6 +1132,20 @@ wss.on('connection', async (ws, req) => {
 
                             const exist_color_login = get_color_by_user(ws.owner, players);
 
+                            let message_team = [];
+                            if (exist_color_login === 'red') {
+                                message_team = messages.red;
+                            }
+                            if (exist_color_login === 'blue') {
+                                message_team = messages.blue;
+                            }
+                            if (exist_color_login === 'green') {
+                                message_team = messages.green;
+                            }
+                            if (exist_color_login === 'purple') {
+                                message_team = messages.purple;
+                            }
+
                             ws.send(JSON.stringify({
                                 method: "LoginSuccess",
                                 user: user,
@@ -1131,6 +1154,8 @@ wss.on('connection', async (ws, req) => {
                                 has_login_gift: has_login_gift,
                                 action_logs: filter_action_log(action_logs, address),
                                 exist_color: exist_color_login,
+                                message_global: messages.global,
+                                message_team: message_team,
                             }));
                             await action_log(address, "login", user);
                         }
@@ -1623,6 +1648,96 @@ wss.on('connection', async (ws, req) => {
                         user: user_purchase_virus_with_profit,
                         purchases: purchases_log
                     }));
+                    break;
+                case "SendChatMessage":
+                    if (typeof decode.color === 'undefined') {
+                        logger.warn("color undefined");
+                        return;
+                    }
+                    if (typeof decode.content === 'undefined') {
+                        logger.warn("content undefined");
+                        return;
+                    }
+                    const message = {
+                        color: decode.color,
+                        content: decode.content,
+                        from: ws.taproot_address,
+                    };
+
+                    const my_color = get_color_by_user(ws.owner, players);
+
+                    if (decode.color === 'global') {
+                        //保留最后10条消息
+                        if (messages.global.length >= 10) {
+                            messages.global.shift();
+                        }
+                        messages.global.push(message);
+
+                        // 广播消息
+                        clients.forEach(client => {
+                            client.send(JSON.stringify({
+                                method: "BroadcastChatMessage",
+                                message: message
+                            }));
+                        });
+                    } else if (decode.color === 'team' && my_color === 'red') {
+                        //保留最后10条消息
+                        if (messages.red.length >= 10) {
+                            messages.red.shift();
+                        }
+                        messages.red.push(message);
+                        clients.forEach(client => {
+                            if (get_color_by_user(client.owner, players) === 'red') {
+                                client.send(JSON.stringify({
+                                    method: "BroadcastChatMessage",
+                                    message: message
+                                }));
+                            }
+                        });
+                    } else if (decode.color === 'team' && my_color === 'blue') {
+                        //保留最后10条消息
+                        if (messages.blue.length >= 10) {
+                            messages.blue.shift();
+                        }
+                        messages.blue.push(message);
+                        clients.forEach(client => {
+                            if (get_color_by_user(client.owner, players) === 'red') {
+                                client.send(JSON.stringify({
+                                    method: "BroadcastChatMessage",
+                                    message: message
+                                }));
+                            }
+                        });
+                    } else if (decode.color === 'team' && my_color === 'green') {
+                        //保留最后10条消息
+                        if (messages.green.length >= 10) {
+                            messages.green.shift();
+                        }
+                        messages.green.push(message);
+                        clients.forEach(client => {
+                            if (get_color_by_user(client.owner, players) === 'red') {
+                                client.send(JSON.stringify({
+                                    method: "BroadcastChatMessage",
+                                    message: message
+                                }));
+                            }
+                        });
+                    } else if (decode.color === 'team' && my_color === 'purple') {
+                        //保留最后10条消息
+                        if (messages.purple.length >= 10) {
+                            messages.purple.shift();
+                        }
+                        messages.purple.push(message);
+                        clients.forEach(client => {
+                            if (get_color_by_user(client.owner, players) === 'red') {
+                                client.send(JSON.stringify({
+                                    method: "BroadcastChatMessage",
+                                    message: message
+                                }));
+                            }
+                        });
+                    }
+
                     break;
             }
         } catch (e) {
