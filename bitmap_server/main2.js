@@ -534,18 +534,19 @@ const doSettlement = async () => {
         // await mysql_connection.query("UPDATE `user` SET `total_profit`=" + jackpot_user.total_profit + " WHERE `address`='" + last_player.owner + "';");
         // await mysql_connection.query("UPDATE `user` SET `jackpot`=" + jackpot_user.jackpot + " WHERE `address`='" + last_player.owner + "';");
 
-        for(let user of last_3_users){
+        for (let user of last_3_users) {
             let jackpot_user = (await mysql_query(mysql_connection, "select * from `user` where `address`='" + user.owner + "';"))[0];
-            let jackpot_user_profit = BigInt(jackpot_user.profit) + jackpot_reward;
+            let my_jackpot_reward = jackpot_reward / BigInt(last_3_users.length);
+            let jackpot_user_profit = BigInt(jackpot_user.profit) + my_jackpot_reward;
             jackpot_user.profit = jackpot_user_profit.toString();
-            const jackpot_remain = (jackpot - jackpot_reward - blue_wand_reward) / BigInt(last_3_users.length);
-            jackpot_user.total_profit = (BigInt(jackpot_user.total_profit) + jackpot_reward).toString();
-            jackpot_user.jackpot = (BigInt(jackpot_user.jackpot) + jackpot_reward).toString();
+            const jackpot_remain = (jackpot - jackpot_reward - blue_wand_reward);
+            jackpot_user.total_profit = (BigInt(jackpot_user.total_profit) + my_jackpot_reward).toString();
+            jackpot_user.jackpot = (BigInt(jackpot_user.jackpot) + my_jackpot_reward).toString();
             await mysql_connection.query("UPDATE `global` SET `val`='" + jackpot_remain.toString() + "' WHERE `key`='jackpot';");
             await mysql_connection.query("UPDATE `user` SET `profit`=" + jackpot_user_profit + " WHERE `address`='" + user.owner + "';");
             await mysql_connection.query("UPDATE `user` SET `total_profit`=" + jackpot_user.total_profit + " WHERE `address`='" + user.owner + "';");
             await mysql_connection.query("UPDATE `user` SET `jackpot`=" + jackpot_user.jackpot + " WHERE `address`='" + user.owner + "';");
-            logger.info(`获得Jackpot中70%的奖励:${jackpot_reward.toString()} user:${JSON.stringify(jackpot_user)}`);
+            logger.info(`获得Jackpot中70%的奖励:${my_jackpot_reward.toString()} user:${JSON.stringify(jackpot_user)}`);
         }
 
         //蓝法杖
