@@ -1675,13 +1675,16 @@ wss.on('connection', async (ws, req) => {
                         logger.warn("content undefined");
                         return;
                     }
+
+                    const my_color = get_color_by_user(ws.owner, players);
+                    logger.debug("my_color:" + my_color + " owner:" + ws.owner);
+
                     const message = {
-                        color: decode.color,
+                        color: decode.color === 'global' ? 'global' : my_color,
                         content: decode.content,
                         from: ws.taproot_address,
                     };
 
-                    const my_color = get_color_by_user(ws.owner, players);
 
                     if (decode.color === 'global') {
                         //保留最后10条消息
@@ -1709,6 +1712,9 @@ wss.on('connection', async (ws, req) => {
                                     method: "BroadcastChatMessage",
                                     message: message
                                 }));
+                                logger.debug("red:" + client.owner)
+                            } else {
+                                logger.debug("not red:" + client.owner)
                             }
                         });
                     } else if (decode.color === 'team' && my_color === 'blue') {
@@ -1718,7 +1724,7 @@ wss.on('connection', async (ws, req) => {
                         }
                         messages.blue.push(message);
                         clients.forEach(client => {
-                            if (get_color_by_user(client.owner, players) === 'red') {
+                            if (get_color_by_user(client.owner, players) === 'blue') {
                                 client.send(JSON.stringify({
                                     method: "BroadcastChatMessage",
                                     message: message
@@ -1732,7 +1738,7 @@ wss.on('connection', async (ws, req) => {
                         }
                         messages.green.push(message);
                         clients.forEach(client => {
-                            if (get_color_by_user(client.owner, players) === 'red') {
+                            if (get_color_by_user(client.owner, players) === 'green') {
                                 client.send(JSON.stringify({
                                     method: "BroadcastChatMessage",
                                     message: message
@@ -1746,13 +1752,15 @@ wss.on('connection', async (ws, req) => {
                         }
                         messages.purple.push(message);
                         clients.forEach(client => {
-                            if (get_color_by_user(client.owner, players) === 'red') {
+                            if (get_color_by_user(client.owner, players) === 'purple') {
                                 client.send(JSON.stringify({
                                     method: "BroadcastChatMessage",
                                     message: message
                                 }));
                             }
                         });
+                    } else {
+                        logger.error("wrong team" + my_color);
                     }
 
                     break;
