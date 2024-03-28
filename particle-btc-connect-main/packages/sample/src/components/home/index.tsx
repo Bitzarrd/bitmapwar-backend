@@ -124,12 +124,7 @@ export default function Home() {
       console.log('BitMapWarAbi', BitMapWarAbi);
       if (typeof smartAccount !== 'undefined') {
         const contract = new Contract('0x5a784f7Ab9A85E7bF98653dC6152F13e438Ec08d', BitMapWarAbi) as any;
-        const transaction = await contract.withdrawETHWithSignature.populateTransaction(
-          Number(amount),
-          signature,
-          nonce,
-          to
-        );
+        const transaction = await contract.withdrawETHWithSignature.populateTransaction(amount, signature, nonce, to);
         console.log('transaction', transaction);
         const tx = {
           to: '0x5a784f7Ab9A85E7bF98653dC6152F13e438Ec08d',
@@ -291,8 +286,8 @@ export default function Home() {
     const container = document.querySelector('#unity-container') as HTMLElement;
     const canvas = document.querySelector('#unity-canvas') as HTMLElement;
     const loadingCover = document.querySelector('#loading-cover') as HTMLElement;
-    // const progressBarEmpty = document.querySelector('#unity-progress-bar-empty') as HTMLElement;
-    // const progressBarFull = document.querySelector('#unity-progress-bar-full') as HTMLElement;
+    const progressBarEmpty = document.querySelector('#unity-progress-bar-empty') as HTMLElement;
+    const progressBarFull = document.querySelector('#unity-progress-bar-full') as HTMLElement;
     // const fullscreenButton = document.querySelector('#unity-fullscreen-button') as HTMLElement;
     // const spinner = document.querySelector('.spinner');
 
@@ -312,8 +307,8 @@ export default function Home() {
     // document.body.appendChild(googleScript);
 
     const gitRevisionScript = document.createElement('script');
-    const now_timestamp = new Date().getTime();
-    gitRevisionScript.src = 'static/rev.js?' + now_timestamp.toString();
+    const nowTimestamp = new Date().getTime();
+    gitRevisionScript.src = 'static/rev.js?' + nowTimestamp.toString();
     gitRevisionScript.onload = () => {
       const gitReva = (window as any).gitRev;
       setGitRev(gitReva);
@@ -341,8 +336,8 @@ export default function Home() {
         const createUnityInstanceFn: createUnityInstanceFunction = (window as any).createUnityInstance;
         createUnityInstanceFn(canvas, config, (progress) => {
           console.log('progress:', progress);
-          // progressBarEmpty.style.display = '';
-          // progressBarFull.style.width = `${100 * progress}%`;
+          progressBarEmpty.style.display = 'block';
+          progressBarFull.style.width = `${100 * progress}%`;
         })
           .then((unityInstance) => {
             loadingCover.style.display = 'none';
@@ -388,9 +383,9 @@ export default function Home() {
             <br />
             git revision: {gitRev}
           </div>
-          {/*<div id="unity-progress-bar-empty" style={{ display: 'none' }}>*/}
-          {/*  <div id="unity-progress-bar-full"></div>*/}
-          {/*</div>*/}
+          <div id="unity-progress-bar-empty" style={{ display: 'none' }}>
+            <div id="unity-progress-bar-full"></div>
+          </div>
           <div className="spinner"></div>
         </div>
       </div>
