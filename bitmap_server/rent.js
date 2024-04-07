@@ -93,6 +93,47 @@ export async function updateRental(mysql_connection, bitmap_obj) {
 
 }
 
+// ### 租赁费用
+// 租赁费用分为积分、btc、profit余额
+// 积分定义：游戏行为获得（购买士兵），积分通过租赁地块扣除
+// btc购买：调梅林钱包租赁
+// profit余额：账号收益余额购买
+// 7天              能量 500                btc 0.0004            profit 0.0004
+// 15天            能量 800                btc 0.0006            profit 0.0006
+// 30天            能量 1200              btc 0.001              profit 0.001
+
+function getRentPrice(days) {
+    let energy = 0;
+    let btc = 0;
+    let profit = 0;
+
+    switch (days) {
+        case 7:
+            energy = 500;
+            btc = 0.0004;
+            profit = 0.0004;
+            break;
+        case 15:
+            energy = 800;
+            btc = 0.0006;
+            profit = 0.0006;
+            break;
+        case 30:
+            energy = 1200;
+            btc = 0.001;
+            profit = 0.001;
+            break;
+        default:
+            throw new Error("Invalid days");
+    }
+
+    return {
+        energy: energy,
+        btc: btc,
+        profit: profit
+    };
+}
+
 async function test() {
     await checkRent(113111);
 }
