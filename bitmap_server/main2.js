@@ -24,6 +24,7 @@ import {filter_action_log} from "./action_log.js";
 import {parseEther} from "ethers";
 import {v4 as uuidv4} from 'uuid';
 import {getLast3User} from "./reward3.0.js";
+import {checkRent, getRental, getRentPrice, updateRental} from "./rent.js";
 
 dotenv.config();
 
@@ -1763,6 +1764,75 @@ wss.on('connection', async (ws, req) => {
                         logger.error("wrong team" + my_color);
                     }
 
+                    break;
+                case "QueryBitmapAvailableForRent":
+                    if (typeof decode.map_id === 'undefined') {
+                        logger.warn("map_id undefined");
+                        return;
+                    }
+                    ws.send(JSON.stringify({
+                        method: "QueryBitmapAvailableForRentResponse",
+                        available: await checkRent(decode.map_id)
+                    }));
+                    break;
+                case "RentBitmap":
+                    if (typeof decode.day === 'undefined') {
+                        logger.warn("day undefined");
+                        return;
+                    }
+                    if (typeof decode.map_id === 'undefined') {
+                        logger.warn("map_id undefined");
+                        return;
+                    }
+                    if (typeof decode.type === 'undefined') {
+                        logger.warn("type undefined");
+                        return;
+                    }
+                    if (typeof ws.owner === 'undefined') {
+                        logger.warn("owner undefined");
+                        return;
+                    }
+                    const rental_config = getRentPrice(decode.day);
+                    const user_for_rental = await mysql_query(mysql_connection, "SELECT * FROM `user` WHERE `address`='" + ws.owner + "';");
+                    let rental = await getRental(mysql_connection, decode.map_id);
+                    if (now() < rental.timeout) {
+                        ws.send(JSON.stringify({
+                            method: "ErrorMsg",
+                            error_code: 100010,
+                            error_message: bitmap_errors["100010"]
+                        }));
+                        return;
+                    }
+                    rental.days = decode.day;
+                    rental.owner = ws.owner;
+                    rental.type = decode.type;
+                    rental.timeout = now() + decode.day * 24 * 60 * 60;
+                    if (decode.type === 'profit') {
+                        if (BigInt(user_for_rental.profit) < BigInt(rental_config.profit)) {
+                            ws.send(JSON.stringify({
+                                method: "ErrorMsg",
+                                error_code: 100009,
+                                error_message: bitmap_errors["100009"]
+                            }));
+                            return;
+                        }
+
+                        rental.total_profit = (BigInt(rental.total_profit) + BigInt(rental_config.profit)).toString();
+                    } else if (decode.type === 'energy') {
+                        if (user_for_rental.energy < rental_config.energy) {
+                            ws.send(JSON.stringify({
+                                method: "ErrorMsg",
+                                error_code: 100009,
+                                error_message: bitmap_errors["100009"]
+                            }));
+                            return;
+                        }
+                        rental.total_energy += rental_config.energy;
+                    }
+                    await updateRental(mysql_connection, rental);
+                    ws.send(JSON.stringify({
+
+                    }));
                     break;
             }
         } catch (e) {

@@ -7,4 +7,6 @@ export const bitmap_errors = {
     100006: "You don't have enough soldiers, please buy soldiers and try again.",
     100007: "All bitmaps have been placed into soldiers.",
     100008: "Your wallet amount is not enough, purchasing soldiers failed.",
+    100009: "Lease failed, your energy or amount is insufficient.",
+    100010: "The Bitmap you want to rent is already in use. Please replace it with another Bitmap.",
 };
