@@ -139,6 +139,25 @@ export default function Home() {
         return hash;
       }
     };
+    (window as any).buyGoods = async (goodsId: number) => {
+      console.log('buyGoods', goodsId);
+      if (typeof smartAccount !== 'undefined') {
+        const contract = new Contract('0x5a784f7Ab9A85E7bF98653dC6152F13e438Ec08d', BitMapWarAbi) as any;
+        const transaction = await contract.buyGoods.populateTransaction(goodsId);
+        console.log('transaction', transaction);
+        const tx = {
+          to: '0x5a784f7Ab9A85E7bF98653dC6152F13e438Ec08d',
+          data: transaction.data,
+        };
+        console.log('tx', tx);
+        const feeQuotes = await smartAccount.getFeeQuotes(tx);
+        console.log('feeQuotes', feeQuotes);
+        const { userOp, userOpHash } = feeQuotes.verifyingPaymasterNative;
+        const hash = await smartAccount.sendUserOperation({ userOp, userOpHash });
+        console.log('hash', hash);
+        return hash;
+      }
+    };
     (window as any).onSignMessage = async () => {
       if (!message) {
         return;
