@@ -8,7 +8,7 @@ import {isPrime, isToday, now, simple_player, simple_players} from "./utils.js";
 import {gridWidth, durationOfTheMatch, intervalBetweenMatches, circle, stepInterval} from "./defines.js";
 import {get_events} from "./get_events.js";
 import {make_signature} from "./signature.js";
-import {mysql_query} from "./mysql.js";
+import {mysql_query, mysql_query_with_args} from "./mysql.js";
 import {
     calculate_virus_to_profit,
     get_all_init_virus,
@@ -1439,7 +1439,8 @@ wss.on('connection', async (ws, req) => {
                                 let to = event.args[1];
                                 let amount = (Number)(BigInt(event.args[2]) / BigInt(virus_price));
                                 if (from === "0x0000000000000000000000000000000000000000") {
-                                    const sql = "UPDATE `user` SET `virus` = `virus` + " + amount + " WHERE `merlin_address` = '" + to + "';";
+                                    // const sql = "UPDATE `user` SET `virus` = `virus` + " + amount + " , `energy` = `energy` +" + amount + " WHERE `merlin_address` = '" + to + "';";
+                                    const sql = `UPDATE \`user\` SET \`virus\` = \`virus\` + ${amount}, \`energy\` = \`energy\` + ${amount} WHERE \`merlin_address\` = '${to}';`;
                                     logger.info(sql);
                                     try {
                                         const result = await mysql_connection.query(sql);
@@ -1637,8 +1638,14 @@ wss.on('connection', async (ws, req) => {
                     }
                     user_purchase_virus_with_profit.profit = (BigInt(user_purchase_virus_with_profit.profit) - cost).toString();
                     user_purchase_virus_with_profit.virus += decode.amount;
+                    user_purchase_virus_with_profit.energy += decode.amount;
 
-                    await mysql_query(mysql_connection, "UPDATE `user` SET `virus` = " + user_purchase_virus_with_profit.virus + ", `profit` = '" + user_purchase_virus_with_profit.profit + "' WHERE `address` = '" + ws.owner + "';");
+                    await mysql_query_with_args(mysql_connection, "UPDATE `user` SET `virus` = ?, `energy` = ?, `profit` = ? WHERE `address` = ?;", [
+                        user_purchase_virus_with_profit.virus,
+                        user_purchase_virus_with_profit.energy,
+                        user_purchase_virus_with_profit.profit,
+                        ws.owner
+                    ]);
 
 
                     //     CREATE TABLE `purchase` (
@@ -1830,9 +1837,33 @@ wss.on('connection', async (ws, req) => {
                         rental.total_energy += rental_config.energy;
                     }
                     await updateRental(mysql_connection, rental);
-                    ws.send(JSON.stringify({
-
-                    }));
+                    ws.send(JSON.stringify({}));
+                    break;
+                case "BuyGoodsForRentMap":
+                    if (typeof decode.txid === 'undefined') {
+                        logger.warn("txid undefined");
+                        return;
+                    }
+                    const rent_txid = decode.txid;
+                    const rent_tx = await get_events(rent_txid);
+                    console.log("rent_tx", rent_tx)
+                    if (!rent_tx) {
+                        logger.error("tx not found:" + rent_txid);
+                        ws.send(JSON.stringify({
+                            method: "ErrorMsg",
+                            error_code: 9999999,
+                            error_message: "tx not found:" + rent_txid,
+                        }));
+                        return;
+                    }
+                    logger.debug("logs" + rent_tx.events.length)
+                    for (let i = 0; i < rent_tx.events.length; i++) {
+                        let event = rent_tx.events[i];
+                        switch (event.signature) {
+                            case "Transfer(address,address,uint256)":
+                                break;
+                        }
+                    }
                     break;
             }
         } catch (e) {

@@ -13,3 +13,16 @@ export function mysql_query(mysql_connection, sql) {
         });
     });
 }
+
+
+export function mysql_query_with_args(mysql_connection, sql, args) {
+    return new Promise((resolve, reject) => {
+        mysql_connection.query(sql, args, function (err, result, fields) {
+            if (err) {
+                reject(err);
+            } else {
+                resolve(result);
+            }
+        });
+    });
+}
