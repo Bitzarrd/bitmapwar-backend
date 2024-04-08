@@ -147,7 +147,7 @@ export default function Home() {
         const transaction = await contract.rentMap.populateTransaction(mapId, day);
         console.log('transaction', transaction);
         let price = parseEther('0') as bigint;
-        switch (day){
+        switch (day) {
           case 7:
             price = parseEther('0.0004') as bigint;
             break;
