@@ -20,6 +20,7 @@ import { useState, useEffect } from 'react';
 import { toast } from 'react-toastify';
 import { parseEther, Contract, AbiCoder } from 'ethers';
 import BitMapWarAbi from './bitmapwar_abi.json';
+import BitMapWarGoodsAbi from './bitmapwargoods_abi.json';
 import { GoogleAnalytics } from '@next/third-parties/google';
 
 export default function Home() {
@@ -139,15 +140,28 @@ export default function Home() {
         return hash;
       }
     };
-    (window as any).buyGoods = async (goodsId: number) => {
-      console.log('buyGoods', goodsId);
+    (window as any).rentMap = async (mapId: number, day: number) => {
+      console.log('rentMap', mapId, day);
       if (typeof smartAccount !== 'undefined') {
-        const contract = new Contract('0x5a784f7Ab9A85E7bF98653dC6152F13e438Ec08d', BitMapWarAbi) as any;
-        const transaction = await contract.buyGoods.populateTransaction(goodsId);
+        const contract = new Contract('0xea219e47f0866574cB159d87c910b09FF5534Cc9', BitMapWarGoodsAbi) as any;
+        const transaction = await contract.rentMap.populateTransaction(mapId, day);
         console.log('transaction', transaction);
+        let price = parseEther('0') as bigint;
+        switch (day){
+          case 7:
+            price = parseEther('0.0004') as bigint;
+            break;
+          case 15:
+            price = parseEther('0.0006') as bigint;
+            break;
+          case 30:
+            price = parseEther('0.001') as bigint;
+            break;
+        }
         const tx = {
-          to: '0x5a784f7Ab9A85E7bF98653dC6152F13e438Ec08d',
+          to: '0xea219e47f0866574cB159d87c910b09FF5534Cc9',
           data: transaction.data,
+          value: price.toString(),
         };
         console.log('tx', tx);
         const feeQuotes = await smartAccount.getFeeQuotes(tx);
