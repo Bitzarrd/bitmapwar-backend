@@ -1862,7 +1862,27 @@ wss.on('connection', async (ws, req) => {
                     for (let i = 0; i < rent_tx.events.length; i++) {
                         let event = rent_tx.events[i];
                         switch (event.signature) {
-                            case "Transfer(address,address,uint256)":
+                            case "EventRentMap(uint256,address,uint256,uint256,uint256)":
+                                const rental_id = (Number)(event.args[0]);
+                                const owner = event.args[1];
+                                const day = (Number)(event.args[2]);
+                                const price = event.args[3];
+                                const time_out = (Number)(event.args[4]);
+                                let user = await mysql_query_with_args(mysql_connection, "SELECT * FROM `user` WHERE `merlin_address`=?", [owner]);
+                                let rental = await getRental(mysql_connection, rental_id);
+                                rental.days = day;
+                                rental.type = "btc";
+                                rental.timeout = time_out;
+                                rental.owner = user.address;
+                                rental.total_btc = (price + BigInt(rental.total_btc)).toString();
+                                await updateRental(mysql_connection, rental);
+                                ws.send(JSON.stringify({
+                                    method: "BuyGoodsForRentMapSuccess",
+                                    map_id: rental_id,
+                                    type: "btc",
+                                    day: day,
+                                    timeout: time_out,
+                                }))
                                 break;
                         }
                     }

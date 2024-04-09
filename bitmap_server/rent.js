@@ -51,6 +51,19 @@ export async function getRental(mysql_connection, bitmap_id) {
             });
         });
 
+        if (result == null) {
+            return {
+                bitmap_id: bitmap_id,
+                days: 0,
+                timeout: 0,
+                owner: null,
+                total_profit: "0",
+                total_btc: "0",
+                total_energy: 0,
+                type: "btc"
+            };
+        }
+
         return result;
     } catch (err) {
         throw err;
@@ -110,7 +123,7 @@ export async function insertRental(mysql_connection, bitmap_id, days, timeout, o
 }
 
 export async function updateRental(mysql_connection, bitmap_obj) {
-    const sql = "UPDATE rental SET days = ?, timeout = ?, owner = ?, total_profit = ?, total_btc = ?, total_energy = ?, type = ? WHERE bitmap_id = ?";
+    const sql = "REPLACE INTO rental SET days = ?, timeout = ?, owner = ?, total_profit = ?, total_btc = ?, total_energy = ?, type = ? WHERE bitmap_id = ?";
 
     try {
         await new Promise((resolve, reject) => {
