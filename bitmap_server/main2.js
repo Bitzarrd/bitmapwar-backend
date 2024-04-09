@@ -24,7 +24,7 @@ import {filter_action_log} from "./action_log.js";
 import {parseEther} from "ethers";
 import {v4 as uuidv4} from 'uuid';
 import {getLast3User} from "./reward3.0.js";
-import {checkRent, getRental, getRentPrice, updateRental} from "./rent.js";
+import {checkRent, getAvailableRental, getRental, getRentPrice, updateRental} from "./rent.js";
 
 dotenv.config();
 
@@ -1099,6 +1099,7 @@ wss.on('connection', async (ws, req) => {
                                     action_logs: [],
                                     message_global: messages.global,
                                     message_team: messages.team,
+                                    rentals: []
                                 }));
                                 await action_log(address, "register", user);
                                 await action_log(address, "login", user);
@@ -1174,6 +1175,7 @@ wss.on('connection', async (ws, req) => {
                                 exist_color: exist_color_login,
                                 message_global: messages.global,
                                 message_team: message_team,
+                                rentals: await getAvailableRental(mysql_connection, ws.owner),
                             }));
                             await action_log(address, "login", user);
                         }

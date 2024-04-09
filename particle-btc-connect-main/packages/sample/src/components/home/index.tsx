@@ -143,7 +143,7 @@ export default function Home() {
     (window as any).rentMap = async (mapId: number, day: number) => {
       console.log('rentMap', mapId, day);
       if (typeof smartAccount !== 'undefined') {
-        const contract = new Contract('0xea219e47f0866574cB159d87c910b09FF5534Cc9', BitMapWarGoodsAbi) as any;
+        const contract = new Contract('0xCafdfFf9b69817F43ef98b4DB13CBB72993dEFE8', BitMapWarGoodsAbi) as any;
         const transaction = await contract.rentMap.populateTransaction(mapId, day);
         console.log('transaction', transaction);
         let price = parseEther('0') as bigint;
@@ -159,7 +159,7 @@ export default function Home() {
             break;
         }
         const tx = {
-          to: '0xea219e47f0866574cB159d87c910b09FF5534Cc9',
+          to: '0xCafdfFf9b69817F43ef98b4DB13CBB72993dEFE8',
           data: transaction.data,
           value: price.toString(),
         };

@@ -57,6 +57,27 @@ export async function getRental(mysql_connection, bitmap_id) {
     }
 }
 
+export async function getAvailableRental(mysql_connection, owner) {
+    const now_timestamp = Math.floor(Date.now() / 1000);
+    const sql = "SELECT * FROM rental WHERE owner = ? AND timeout > ?";
+
+    try {
+        const result = await new Promise((resolve, reject) => {
+            mysql_connection.query(sql, [owner, now_timestamp], function (err, result, fields) {
+                if (err) {
+                    reject(err);
+                } else {
+                    resolve(result);
+                }
+            });
+        });
+
+        return result;
+    } catch (err) {
+        throw err;
+    }
+}
+
 export function newRental(bitmap_id, days, timeout, owner, total_profit, total_btc, total_energy, type) {
     return {
         bitmap_id: bitmap_id,
