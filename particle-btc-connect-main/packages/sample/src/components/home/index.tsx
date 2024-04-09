@@ -20,7 +20,6 @@ import { useState, useEffect } from 'react';
 import { toast } from 'react-toastify';
 import { parseEther, Contract, AbiCoder } from 'ethers';
 import BitMapWarAbi from './bitmapwar_abi.json';
-import BitMapWarGoodsAbi from './bitmapwargoods_abi.json';
 import { GoogleAnalytics } from '@next/third-parties/google';
 
 export default function Home() {
@@ -107,10 +106,13 @@ export default function Home() {
       const fee = price * BigInt(virus);
       console.log('fee', fee.toString());
       if (typeof smartAccount !== 'undefined') {
+        const contract = new Contract('0xff450eD594b5C6954caC777666C2f6F0c1De75bD', BitMapWarAbi) as any;
+        const transaction = await contract.buySoldier.populateTransaction();
+        console.log('transaction', transaction);
         const tx = {
-          to: '0x5a784f7Ab9A85E7bF98653dC6152F13e438Ec08d',
+          to: '0xff450eD594b5C6954caC777666C2f6F0c1De75bD',
+          data: transaction.data,
           value: fee.toString(),
-          data: '0x',
         };
         console.log('tx', tx);
         const feeQuotes = await smartAccount.getFeeQuotes(tx);
@@ -124,11 +126,11 @@ export default function Home() {
     (window as any).extractProfit = async (amount: string, signature: string, nonce: number, to: string) => {
       console.log('BitMapWarAbi', BitMapWarAbi);
       if (typeof smartAccount !== 'undefined') {
-        const contract = new Contract('0x5a784f7Ab9A85E7bF98653dC6152F13e438Ec08d', BitMapWarAbi) as any;
+        const contract = new Contract('0xff450eD594b5C6954caC777666C2f6F0c1De75bD', BitMapWarAbi) as any;
         const transaction = await contract.withdrawETHWithSignature.populateTransaction(amount, signature, nonce, to);
         console.log('transaction', transaction);
         const tx = {
-          to: '0x5a784f7Ab9A85E7bF98653dC6152F13e438Ec08d',
+          to: '0xff450eD594b5C6954caC777666C2f6F0c1De75bD',
           data: transaction.data,
         };
         console.log('tx', tx);
@@ -143,7 +145,7 @@ export default function Home() {
     (window as any).rentMap = async (mapId: number, day: number) => {
       console.log('rentMap', mapId, day);
       if (typeof smartAccount !== 'undefined') {
-        const contract = new Contract('0xCafdfFf9b69817F43ef98b4DB13CBB72993dEFE8', BitMapWarGoodsAbi) as any;
+        const contract = new Contract('0xff450eD594b5C6954caC777666C2f6F0c1De75bD', BitMapWarAbi) as any;
         const transaction = await contract.rentMap.populateTransaction(mapId, day);
         console.log('transaction', transaction);
         let price = parseEther('0') as bigint;
@@ -159,7 +161,7 @@ export default function Home() {
             break;
         }
         const tx = {
-          to: '0xCafdfFf9b69817F43ef98b4DB13CBB72993dEFE8',
+          to: '0xff450eD594b5C6954caC777666C2f6F0c1De75bD',
           data: transaction.data,
           value: price.toString(),
         };

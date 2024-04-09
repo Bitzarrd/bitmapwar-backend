@@ -1,6 +1,6 @@
 import {ethers, FetchRequest, Interface, parseEther} from "ethers";
 
-const txid = "0xa26ef76cb88248dced377d8ca57da3ac06472cf13a190697a56f6af87daf7e29";
+const txid = "0xac6b4e965a1d6706d37c1090dc7e6d62a9c3baf9e1430b23c443d27a0f504daa";
 const abi = [
     {
         "inputs": [],
