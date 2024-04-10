@@ -1781,7 +1781,8 @@ wss.on('connection', async (ws, req) => {
                     }
                     ws.send(JSON.stringify({
                         method: "QueryBitmapAvailableForRentResponse",
-                        available: await checkRent(decode.map_id)
+                        available: await checkRent(decode.map_id),
+                        map_id: decode.map_id,
                     }));
                     break;
                 case "RentBitmap":
