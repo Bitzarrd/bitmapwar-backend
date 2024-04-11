@@ -24,18 +24,6 @@ export async function checkRent(bitmap_id) {
     }
 }
 
-// CREATE TABLE `rental` (
-//     `bitmap_id` int(11) NOT NULL,
-//     `days` int(11) NOT NULL DEFAULT '7',
-//     `timeout` int(11) NOT NULL DEFAULT '0',
-//     `owner` varchar(255) NOT NULL,
-//     `total_profit` varchar(255) NOT NULL DEFAULT '0',
-//     `total_btc` varchar(255) NOT NULL DEFAULT '0',
-//     `total_energy` varchar(255) NOT NULL DEFAULT '0',
-//     `type` varchar(255) NOT NULL DEFAULT 'energy',
-//     PRIMARY KEY (`bitmap_id`),
-//     KEY `rent_for_owner` (`owner`)
-// ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 export async function getRental(mysql_connection, bitmap_id) {
     const sql = "SELECT * FROM rental WHERE bitmap_id = ?";
@@ -71,7 +59,7 @@ export async function getRental(mysql_connection, bitmap_id) {
 }
 
 export async function getRentalByIds(mysql_connection, bitmap_ids) {
-    if(bitmap_ids.length=== 0) {
+    if (bitmap_ids.length === 0) {
         return [];
     }
     //bitmap_ids 转为int array
@@ -151,12 +139,26 @@ export async function insertRental(mysql_connection, bitmap_id, days, timeout, o
     }
 }
 
+// CREATE TABLE `rental` (
+//     `bitmap_id` int(11) NOT NULL,
+//     `days` int(11) NOT NULL DEFAULT '7',
+//     `timeout` int(11) NOT NULL DEFAULT '0',
+//     `owner` varchar(255) NOT NULL,
+//     `total_profit` varchar(255) NOT NULL DEFAULT '0',
+//     `total_btc` varchar(255) NOT NULL DEFAULT '0',
+//     `total_energy` varchar(255) NOT NULL DEFAULT '0',
+//     `type` varchar(255) NOT NULL DEFAULT 'energy',
+//     PRIMARY KEY (`bitmap_id`),
+//     KEY `rent_for_owner` (`owner`)
+// ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+
 export async function updateRental(mysql_connection, bitmap_obj) {
-    const sql = "REPLACE INTO rental SET days = ?, timeout = ?, owner = ?, total_profit = ?, total_btc = ?, total_energy = ?, type = ? WHERE bitmap_id = ?";
+    const sql = "REPLACE INTO rental(`bitmap_id`,`days`,`timeout`,`owner`,`total_profit`,`total_btc`,`total_energy`,`type`) VALUES(?,?,?,?,?,?,?,?)";
 
     try {
         await new Promise((resolve, reject) => {
-            mysql_connection.query(sql, [bitmap_obj.days, bitmap_obj.timeout, bitmap_obj.owner, bitmap_obj.total_profit, bitmap_obj.total_btc, bitmap_obj.total_energy, bitmap_obj.type, bitmap_obj.bitmap_id], function (err, result, fields) {
+            mysql_connection.query(sql, [bitmap_obj.bitmap_id, bitmap_obj.days, bitmap_obj.timeout, bitmap_obj.owner, bitmap_obj.total_profit, bitmap_obj.total_btc, bitmap_obj.total_energy, bitmap_obj.type], function (err, result, fields) {
                 if (err) {
                     reject(err);
                 } else {
