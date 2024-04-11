@@ -14,14 +14,27 @@ export async function checkRent(bitmap_id) {
         const url = 'https://indexapitx.bitmap.game/api/v1/collection/bitmap/detail?id=' + bitmap_id;
         let response = await axios.get(url);
         if (response.data.data[0].address === deposit_address) {
-            return true;
-        } else {
             return false;
+        } else {
+            return true;
         }
     } catch (e) {
         console.error(e);
         return false;
     }
+}
+
+export async function checkRent2(mysql_connection, bitmap_id) {
+    let ava = await checkRent(bitmap_id);
+    if (ava === false) {
+        return false;
+    }
+    let rental  = await getRental(mysql_connection, bitmap_id);
+    let now = Math.floor(new Date().getTime() / 1000);
+    if (rental.timeout < now) {
+        return false;
+    }
+    return true;
 }
 
 
@@ -251,7 +264,9 @@ export function getRentPrice(days) {
 }
 
 async function test() {
-    await checkRent(113111);
+    let a = await checkRent(12321);
+    console.log(a);
 }
 
-// test();
+test();
+

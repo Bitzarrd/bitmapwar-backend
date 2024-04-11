@@ -24,7 +24,15 @@ import {filter_action_log} from "./action_log.js";
 import {parseEther} from "ethers";
 import {v4 as uuidv4} from 'uuid';
 import {getLast3User} from "./reward3.0.js";
-import {checkRent, getAvailableRental, getRental, getRentalByIds, getRentPrice, updateRental} from "./rent.js";
+import {
+    checkRent,
+    checkRent2,
+    getAvailableRental,
+    getRental,
+    getRentalByIds,
+    getRentPrice,
+    updateRental
+} from "./rent.js";
 
 dotenv.config();
 
@@ -1793,7 +1801,7 @@ wss.on('connection', async (ws, req) => {
                     }
                     ws.send(JSON.stringify({
                         method: "QueryBitmapAvailableForRentResponse",
-                        available: await checkRent(decode.map_id),
+                        available: await checkRent2(mysql_connection, decode.map_id),
                         map_id: decode.map_id,
                     }));
                     break;

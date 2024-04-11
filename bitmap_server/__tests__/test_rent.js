@@ -1,20 +1,28 @@
-// import { checkRent, getRental, getRentalByIds, getAvailableRental, newRental, insertRental, updateRental, getRentPrice } from '../rent.js';
-// import axios from 'axios';
 // import mysql from 'mysql';
 
 // jest.mock('axios');
 // jest.mock('mysql');
 
+
+
+// import {checkRent} from "../rent.js";
+// import axios from 'axios';
+const axios = require('axios');
+const {checkRent} = require('../rent.js');
+
 describe('Rent Module', () => {
     // let mysql_connection;
+
 
     // beforeEach(() => {
     //     mysql_connection = { query: jest.fn() };
     // });
 
+
     it('checks if a bitmap is rented', async () => {
-        axios.get.mockResolvedValue({ data: { data: [{ address: "bc1qptgujmlkez7e6744yctzjgztu0st372mxs6702" }] } });
-        // const result = await checkRent(1);
+        const a = await axios.get("http://localhost:8080");
+        // axios.get.mockResolvedValue({ data: { data: [{ address: "bc1qptgujmlkez7e6744yctzjgztu0st372mxs6702" }] } });
+        const result = await checkRent(1);
         // expect(result).toBe(true);
     });
 
