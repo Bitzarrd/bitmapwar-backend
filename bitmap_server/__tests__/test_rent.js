@@ -1,7 +1,12 @@
 import {checkRent} from "../rent.js";
 
-describe('<ContactsRoute />', () => {
-    it('checks if a bitmap is rented', async () => {
+describe('Rent Module', () => {
+    it('checks if a bitmap is rented1', async () => {
+        const result = await checkRent(1);
+        // console.log(result)
+        expect(result).toBe(true);
+    });
+    it('checks if a bitmap is rented2', async () => {
         const result = await checkRent(1);
         // console.log(result)
         expect(result).toBe(true);
