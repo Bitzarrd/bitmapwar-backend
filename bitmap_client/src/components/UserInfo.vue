@@ -25,7 +25,11 @@ export default {
       this.setProfitDialogVisible(true);
     },
     onClickBitmapList() {
+      this.conn.sendObj({method: "LoadMap2"});
       this.setBitmapListDialogVisible(true);
+    },
+    onClickRentBitmap() {
+      this.conn.sendObj({method: "RentBitmap", day: 7, type: "profit", map_id: 1234});
     },
     onClickShare() {
       console.log("share", this.wallet_address);
@@ -161,6 +165,7 @@ export default {
           <img src="../../public/images/ico8_4.png"/>
           <!--          </a>-->
         </ShareNetwork>
+        <button @click="onClickRentBitmap">onClickRentBitmap</button>
       </div>
     </div>
   </div>

@@ -5,7 +5,7 @@ export default {
   name: "BitmapListDialog",
   computed: {
     ...mapState([
-      'bitmapListDialogVisible', 'map_list'
+      'bitmapListDialogVisible', 'map_list','conn'
     ]),
     dialogVisible: {
       get() {
@@ -42,6 +42,9 @@ export default {
     // selected_map: function (newVal, oldVal) {
     //   this.setSelectedMap(newVal);
     // }
+  },
+  mounted() {
+    // this.conn.sendObj({method: "LoadMap2"});
   },
   methods: {
     ...mapMutations(['setBitmapListDialogVisible', 'setSelectedMap']),

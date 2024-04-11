@@ -51,7 +51,7 @@ export async function getRental(mysql_connection, bitmap_id) {
             });
         });
 
-        if (result == null) {
+        if (result.length === 0) {
             return {
                 bitmap_id: bitmap_id,
                 days: 0,
@@ -64,15 +64,23 @@ export async function getRental(mysql_connection, bitmap_id) {
             };
         }
 
-        return result;
+        return result[0];
     } catch (err) {
         throw err;
     }
 }
 
 export async function getRentalByIds(mysql_connection, bitmap_ids) {
-    const sql = "SELECT * FROM rental WHERE bitmap_id IN ? AND timeout < ?"
+    if(bitmap_ids.length=== 0) {
+        return [];
+    }
+    //bitmap_ids 转为int array
+    bitmap_ids = bitmap_ids.map(Number);
+
+    const sql = "SELECT * FROM rental WHERE bitmap_id IN (?) AND timeout < ?";
     const now_timestamp = Math.floor(Date.now() / 1000);
+
+    console.log(sql, bitmap_ids, now_timestamp);
 
     try {
         const result = await new Promise((resolve, reject) => {

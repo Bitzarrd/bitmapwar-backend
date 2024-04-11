@@ -240,6 +240,8 @@ async function loadBitmap(bit_address, taproot_address) {
             return ["815914", "815915"];
         } else if (taproot_address === "bc1pv8y3pluuyy2ejv0quf7drmfrsdkym97epssv0dqj79eu9v8u29gqddh2e8") {
             return ["815913", "815912",];
+        } else if (taproot_address === "bc1pn5tk39qqvjpl37y6tuz5ry5rwesde93cuttnuk57q5tzefyl20tq8cxw67") {
+            return ["815916"];
         } else {
             return uniqueArray.sort();
         }
@@ -990,9 +992,9 @@ wss.on('connection', async (ws, req) => {
                 case "LoadMap2":
 
                     let my_maps = await loadBitmap(ws.owner, ws.taproot_address);
-                    let rentals = await getRentalByIds(my_maps);
-                    for (let i = 0; i < rentals.length; i++) {
-                        let rental = rentals[i];
+                    let occupied = await getRentalByIds(mysql_connection, my_maps);
+                    for (let i = 0; i < occupied.length; i++) {
+                        let rental = occupied[i];
                         //my_maps排除存在于rentals中的
                         my_maps = my_maps.filter((item) => {
                             return (Number)(item.id) !== rental.map_id;
@@ -1002,6 +1004,7 @@ wss.on('connection', async (ws, req) => {
                         method: "LoadMap2Success",
                         maps: my_maps,
                         rentals: await getAvailableRental(mysql_connection, ws.owner),
+                        occupied: occupied
                     }));
                     break;
                 case "Share":
@@ -1813,9 +1816,31 @@ wss.on('connection', async (ws, req) => {
                         logger.warn("owner undefined");
                         return;
                     }
-                    const rental_config = getRentPrice(decode.day);
-                    const user_for_rental = await mysql_query(mysql_connection, "SELECT * FROM `user` WHERE `address`='" + ws.owner + "';");
+                    const rental_config = getRentPrice((Number)(decode.day));
+                    if (rental_config == null) {
+                        logger.error("rental_config is null:" + ws.owner);
+                        return;
+                    }
+                    const user_for_rental = (await mysql_query_with_args(mysql_connection, "SELECT * FROM `user` WHERE `address`= ?;", [ws.owner]))[0];
+                    if (user_for_rental == null) {
+                        logger.error("user_for_rental is null:" + ws.owner);
+                        return;
+                    }
                     let rental = await getRental(mysql_connection, decode.map_id);
+                    if (rental == null) {
+                        logger.error("rental is null:" + ws.owner);
+                        rental = {
+                            bitmap_id: decode.bitmap_id,
+                            days: 0,
+                            timeout: 0,
+                            owner: null,
+                            total_profit: "0",
+                            total_btc: "0",
+                            total_energy: 0,
+                            type: "btc"
+                        };
+                        // return;
+                    }
                     if (now() < rental.timeout) {
                         ws.send(JSON.stringify({
                             method: "ErrorMsg",
@@ -1851,7 +1876,13 @@ wss.on('connection', async (ws, req) => {
                         rental.total_energy += rental_config.energy;
                     }
                     await updateRental(mysql_connection, rental);
-                    ws.send(JSON.stringify({}));
+                    ws.send(JSON.stringify({
+                        method: "RentBitmapSuccess",
+                        map_id: rental.map_id,
+                        type: decode.type,
+                        day: decode.day,
+                        timeout: rental.timeout,
+                    }));
                     break;
                 case "BuyGoodsForRentMap":
                     if (typeof decode.txid === 'undefined') {

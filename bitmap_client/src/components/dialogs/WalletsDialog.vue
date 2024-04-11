@@ -31,7 +31,7 @@ export default {
       await this.connectUnisat();
       await this.getBitMapList()
       // await this.login(this.wallet_address);
-      await this.login("0245e4eaf2ed3b3be91d65e4e668c279a9a081d7be8f8755c5269f7bf6766d4d27");
+      await this.login("03a526dfcc66a2419eee1666139c75f926d90bff6efb08a444d4242fa9b3851349");
       this.setWalletsDialogVisible(false)
     },
     async onClickConnMetamask() {
