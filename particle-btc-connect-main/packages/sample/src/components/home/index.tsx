@@ -169,6 +169,7 @@ export default function Home() {
         const feeQuotes = await smartAccount.getFeeQuotes(tx);
         console.log('feeQuotes', feeQuotes);
         const { userOp, userOpHash } = feeQuotes.verifyingPaymasterNative;
+        console.log('userOp', userOp);
         const hash = await smartAccount.sendUserOperation({ userOp, userOpHash });
         console.log('hash', hash);
         return hash;

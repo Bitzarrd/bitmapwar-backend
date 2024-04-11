@@ -1026,8 +1026,6 @@ wss.on('connection', async (ws, req) => {
                             return;
                         }
                     }
-
-
                     mysql_connection.query("INSERT INTO gift SET ?", {
                         owner: ws.owner,
                         create_time: now(),

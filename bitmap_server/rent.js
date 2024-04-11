@@ -58,6 +58,12 @@ export async function getRental(mysql_connection, bitmap_id) {
     }
 }
 
+/**
+ * 获取多个地块的租赁信息
+ * @param mysql_connection
+ * @param bitmap_ids
+ * @returns {Promise<unknown>}
+ */
 export async function getRentalByIds(mysql_connection, bitmap_ids) {
     if (bitmap_ids.length === 0) {
         return [];
@@ -87,6 +93,12 @@ export async function getRentalByIds(mysql_connection, bitmap_ids) {
     }
 }
 
+/**
+ * 获取某个用户的所有租赁信息
+ * @param mysql_connection
+ * @param owner
+ * @returns {Promise<unknown>}
+ */
 export async function getAvailableRental(mysql_connection, owner) {
     const now_timestamp = Math.floor(Date.now() / 1000);
     const sql = "SELECT * FROM rental WHERE owner = ? AND timeout > ?";
@@ -108,6 +120,18 @@ export async function getAvailableRental(mysql_connection, owner) {
     }
 }
 
+/**
+ * 获取某个用户的所有租赁信息
+ * @param bitmap_id
+ * @param days
+ * @param timeout
+ * @param owner
+ * @param total_profit
+ * @param total_btc
+ * @param total_energy
+ * @param type
+ * @returns {{owner, total_energy, bitmap_id, days, total_profit, total_btc, type, timeout}}
+ */
 export function newRental(bitmap_id, days, timeout, owner, total_profit, total_btc, total_energy, type) {
     return {
         bitmap_id: bitmap_id,
@@ -121,6 +145,19 @@ export function newRental(bitmap_id, days, timeout, owner, total_profit, total_b
     };
 }
 
+/**
+ * 插入租赁信息
+ * @param mysql_connection mysql连接
+ * @param bitmap_id
+ * @param days
+ * @param timeout
+ * @param owner
+ * @param total_profit
+ * @param total_btc
+ * @param total_energy
+ * @param type
+ * @returns {Promise<void>}
+ */
 export async function insertRental(mysql_connection, bitmap_id, days, timeout, owner, total_profit, total_btc, total_energy, type) {
     const sql = "INSERT INTO rental (bitmap_id, days, timeout, owner, total_profit, total_btc, total_energy, type) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
 
