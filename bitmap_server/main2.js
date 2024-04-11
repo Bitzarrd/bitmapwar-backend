@@ -1895,7 +1895,8 @@ wss.on('connection', async (ws, req) => {
                     }
                     const rent_txid = decode.txid;
                     const rent_tx = await get_events(rent_txid);
-                    console.log("rent_tx", rent_tx)
+                    // console.log("rent_tx", rent_tx)
+                    logger.debug("rent_tx" + rent_tx);
                     if (!rent_tx) {
                         logger.error("tx not found:" + rent_txid);
                         ws.send(JSON.stringify({
