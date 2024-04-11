@@ -5,7 +5,7 @@
   "type": "module",
   "main": "main.js",
   "scripts": {
-    "test": "jest"
+    "test": " yarn node --experimental-vm-modules $(yarn bin jest) "
   },
   "dependencies": {
     "@ethereumjs/util": "^9.0.2",

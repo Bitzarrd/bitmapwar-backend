@@ -1,6 +1,7 @@
 //当地址为 bc1qptgujmlkez7e6744yctzjgztu0st372mxs6702 的时候说明被质押了!
 import axios from "axios";
 import {parseEther} from "ethers";
+// import {mysql_connection} from "./main.js";
 
 const deposit_address = "bc1qptgujmlkez7e6744yctzjgztu0st372mxs6702";
 
@@ -29,12 +30,15 @@ export async function checkRent2(mysql_connection, bitmap_id) {
     if (ava === false) {
         return false;
     }
-    let rental  = await getRental(mysql_connection, bitmap_id);
+    let rental = await getRental(mysql_connection, bitmap_id);
     let now = Math.floor(new Date().getTime() / 1000);
-    if (rental.timeout < now) {
-        return false;
+    if (rental.timeout === 0) {
+        return true;
     }
-    return true;
+    if (rental.timeout < now) {
+        return true;
+    }
+    return false;
 }
 
 
@@ -262,11 +266,13 @@ export function getRentPrice(days) {
         profit: profit
     };
 }
+//
+// async function test() {
+//     let map_id = 123214;
+//     let a = await checkRent(map_id);
+//     let b = await checkRent2(mysql_connection, map_id);
+//     console.log(a, b);
+// }
 
-async function test() {
-    let a = await checkRent(12321);
-    console.log(a);
-}
-
-test();
+// test();
 

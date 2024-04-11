@@ -1341,6 +1341,11 @@ wss.on('connection', async (ws, req) => {
                     }
 
                     let maps = await loadBitmap(ws.owner, ws.taproot_address);
+                    let rental_for_join = await getAvailableRental(mysql_connection, ws.owner);
+                    for (let i = 0; i < rental_for_join.length; i++) {
+                        maps.push(rental_for_join[i].bitmap_id.toString());
+                    }
+
                     let total_virus = maps.length * decode.virus;
 
                     const user_for_join_batch = (await mysql_query(mysql_connection, "SELECT * FROM `user` WHERE `address`='" + ws.owner + "';"))[0];
@@ -1882,6 +1887,7 @@ wss.on('connection', async (ws, req) => {
                             return;
                         }
                         rental.total_energy += rental_config.energy;
+                        user_for_rental.energy -= rental_config.energy;
                         await mysql_query(mysql_connection, "UPDATE `user` SET `energy` = `energy` - " + rental_config.energy + " WHERE `address` = '" + ws.owner + "';");
                     }
                     await updateRental(mysql_connection, rental);

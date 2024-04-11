@@ -31,6 +31,11 @@ export default {
     onClickRentBitmap() {
       this.conn.sendObj({method: "RentBitmap", day: 7, type: "profit", map_id: 1234});
     },
+    JoinGameBatch(){
+      this.conn.sendObj({method: "JoinGameBatch", virus: 1, color: "red", map_id: 1234});
+
+    },
+
     onClickShare() {
       console.log("share", this.wallet_address);
       this.conn.sendObj({
@@ -166,6 +171,7 @@ export default {
           <!--          </a>-->
         </ShareNetwork>
         <button @click="onClickRentBitmap">onClickRentBitmap</button>
+        <button @click="JoinGameBatch">JoinGameBatch</button>
       </div>
     </div>
   </div>
