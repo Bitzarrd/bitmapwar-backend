@@ -24,7 +24,7 @@ import {filter_action_log} from "./action_log.js";
 import {parseEther} from "ethers";
 import {v4 as uuidv4} from 'uuid';
 import {getLast3User} from "./reward3.0.js";
-import {checkRent, getAvailableRental, getRental, getRentPrice, updateRental} from "./rent.js";
+import {checkRent, getAvailableRental, getRental, getRentalByIds, getRentPrice, updateRental} from "./rent.js";
 
 dotenv.config();
 
@@ -988,9 +988,20 @@ wss.on('connection', async (ws, req) => {
                     })
                     break;
                 case "LoadMap2":
+
+                    let my_maps = await loadBitmap(ws.owner, ws.taproot_address);
+                    let rentals = await getRentalByIds(my_maps);
+                    for (let i = 0; i < rentals.length; i++) {
+                        let rental = rentals[i];
+                        //my_maps排除存在于rentals中的
+                        my_maps = my_maps.filter((item) => {
+                            return (Number)(item.id) !== rental.map_id;
+                        });
+                    }
                     ws.send(JSON.stringify({
                         method: "LoadMap2Success",
-                        maps: await loadBitmap(ws.owner, ws.taproot_address)
+                        maps: my_maps,
+                        rentals: await getAvailableRental(mysql_connection, ws.owner),
                     }));
                     break;
                 case "Share":
