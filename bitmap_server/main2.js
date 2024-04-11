@@ -1864,6 +1864,8 @@ wss.on('connection', async (ws, req) => {
                         }
 
                         rental.total_profit = (BigInt(rental.total_profit) + BigInt(rental_config.profit)).toString();
+                        user_for_rental.profit = (BigInt(user_for_rental.profit) - BigInt(rental_config.profit)).toString();
+                        await mysql_query(mysql_connection, "UPDATE `user` SET `profit` = " + user_for_rental.profit + " WHERE `address` = '" + ws.owner + "';");
                     } else if (decode.type === 'energy') {
                         if (user_for_rental.energy < rental_config.energy) {
                             ws.send(JSON.stringify({
@@ -1874,6 +1876,7 @@ wss.on('connection', async (ws, req) => {
                             return;
                         }
                         rental.total_energy += rental_config.energy;
+                        await mysql_query(mysql_connection, "UPDATE `user` SET `energy` = `energy` - " + rental_config.energy + " WHERE `address` = '" + ws.owner + "';");
                     }
                     await updateRental(mysql_connection, rental);
                     ws.send(JSON.stringify({
@@ -1882,6 +1885,7 @@ wss.on('connection', async (ws, req) => {
                         type: decode.type,
                         day: decode.day,
                         timeout: rental.timeout,
+                        user: user_for_rental
                     }));
                     break;
                 case "BuyGoodsForRentMap":
