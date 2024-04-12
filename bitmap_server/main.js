@@ -1907,6 +1907,8 @@ wss.on('connection', async (ws, req) => {
                     }
                     const rent_txid = decode.txid;
                     const rent_tx = await get_events(rent_txid);
+
+
                     // console.log("rent_tx", rent_tx)
                     logger.debug("rent_tx" + rent_tx);
                     if (!rent_tx) {
@@ -1928,13 +1930,24 @@ wss.on('connection', async (ws, req) => {
                                 const day = (Number)(event.args[2]);
                                 const price = event.args[3];
                                 const time_out = (Number)(event.args[4]);
-                                let user = await mysql_query_with_args(mysql_connection, "SELECT * FROM `user` WHERE `merlin_address`=?", [owner]);
+                                let user = (await mysql_query_with_args(mysql_connection, "SELECT * FROM `user` WHERE `merlin_address`=?", [owner]))[0];
                                 let rental = await getRental(mysql_connection, rental_id);
                                 rental.days = day;
                                 rental.type = "btc";
                                 rental.timeout = time_out;
                                 rental.owner = user.address;
                                 rental.total_btc = (price + BigInt(rental.total_btc)).toString();
+
+                                mysql_connection.query("INSERT INTO `rent_tx` SET ? ", {
+                                    txid: rent_txid,
+                                    owner: owner,
+                                    fee: rent_tx.tx.value,
+                                    day: day,
+                                    timeout: time_out,
+                                    price: price.toString(),
+                                    create_time: now(),
+                                });
+
                                 await updateRental(mysql_connection, rental);
                                 ws.send(JSON.stringify({
                                     method: "BuyGoodsForRentMapSuccess",

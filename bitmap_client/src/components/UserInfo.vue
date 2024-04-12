@@ -31,9 +31,16 @@ export default {
     onClickRentBitmap() {
       this.conn.sendObj({method: "RentBitmap", day: 7, type: "profit", map_id: 1234});
     },
-    JoinGameBatch(){
+    JoinGameBatch() {
       this.conn.sendObj({method: "JoinGameBatch", virus: 1, color: "red", map_id: 1234});
 
+    },
+    BuyGoodsForRentMap() {
+      this.conn.sendObj({
+        "map_id": 33333,
+        "txid": "0x473f026eda02b6d3a4bb22edfc033a45afad9f5d0cb11bdee76e21ea54631958",
+        "method": "BuyGoodsForRentMap"
+      });
     },
 
     onClickShare() {
@@ -172,6 +179,7 @@ export default {
         </ShareNetwork>
         <button @click="onClickRentBitmap">onClickRentBitmap</button>
         <button @click="JoinGameBatch">JoinGameBatch</button>
+        <button @click="BuyGoodsForRentMap">BuyGoodsForRentMap</button>
       </div>
     </div>
   </div>
