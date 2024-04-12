@@ -1863,7 +1863,7 @@ wss.on('connection', async (ws, req) => {
                     rental.days = decode.day;
                     rental.owner = ws.owner;
                     rental.type = decode.type;
-                    rental.timeout = now() + decode.day * 24 * 60 * 60;
+                    rental.timeout = now() + rental_config.duration;
                     if (decode.type === 'profit') {
                         if (BigInt(user_for_rental.profit) < BigInt(rental_config.profit)) {
                             ws.send(JSON.stringify({

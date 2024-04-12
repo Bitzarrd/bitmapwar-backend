@@ -239,22 +239,25 @@ export function getRentPrice(days) {
     let energy = 0;
     let btc = 0;
     let profit = 0;
-
+    let duration = 0;
     switch (days) {
         case 7:
             energy = 500;
             btc = parseEther('0.0004').toString();
             profit = parseEther('0.0004').toString();
+            duration = 7 * 24 * 60 * 60;
             break;
         case 15:
             energy = 800;
             btc = parseEther('0.0006').toString();
             profit = parseEther('0.0006').toString();
+            duration = 15 * 24 * 60 * 60;
             break;
         case 30:
             energy = 1200;
             btc = parseEther('0.001').toString();
             profit = parseEther('0.001').toString();
+            duration = 30 * 24 * 60 * 60;
             break;
         default:
             throw new Error("Invalid days");
@@ -263,9 +266,11 @@ export function getRentPrice(days) {
     return {
         energy: energy,
         btc: btc,
-        profit: profit
+        profit: profit,
+        duration: duration
     };
 }
+
 //
 // async function test() {
 //     let map_id = 123214;
