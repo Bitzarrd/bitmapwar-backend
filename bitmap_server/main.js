@@ -211,6 +211,7 @@ const bitmap_stake_url = "https://bridge.merlinchain.io/api/v1/history/stake/bit
 const virus_price = parseEther("0.00003").toString();
 const gift_for_login = 1000;
 const gift_for_share = 1000;
+const gift_for_login_energy = 500;
 
 //////////////////////////////////////////////////////
 
@@ -1094,7 +1095,8 @@ wss.on('connection', async (ws, req) => {
                                     virus: gift_for_login,
                                     merlin_address: merlin_address,
                                     taproot_address: taproot_address,
-                                    public_key: public_key
+                                    public_key: public_key,
+                                    energy: gift_for_login_energy,
                                 };
 
                                 await mysql_connection.query('INSERT IGNORE INTO user SET ?', user);
@@ -1153,13 +1155,16 @@ wss.on('connection', async (ws, req) => {
                             }
 
                             if (!has_login_gift) {
+                                user.virus += gift_for_login;
+                                user.energy += gift_for_login_energy;
                                 await mysql_connection.query("INSERT INTO gift SET ?", {
                                     owner: address,
                                     create_time: now(),
                                     amount: gift_for_login,
                                     type: "login"
                                 });
-                                await mysql_connection.query("UPDATE user SET virus=virus+" + gift_for_login + " WHERE address='" + address + "';");
+                                await mysql_query_with_args(mysql_connection,"UPDATE user set virus=? , energy=? WHERE address=?",[user.virus,user.energy,address]);
+                                // await mysql_connection.query("UPDATE user SET virus=virus+" + gift_for_login + "energy=energy+" + gift_for_login_energy + " WHERE address='" + address + "';");
                             }
 
 
