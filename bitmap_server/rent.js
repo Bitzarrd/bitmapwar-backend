@@ -245,7 +245,7 @@ export function getRentPrice(days) {
             energy = 500;
             btc = parseEther('0.0004').toString();
             profit = parseEther('0.0004').toString();
-            duration = 10 * 60// 7 * 24 * 60 * 60;
+            duration =  7 * 24 * 60 * 60;
             break;
         case 15:
             energy = 800;

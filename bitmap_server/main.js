@@ -668,7 +668,11 @@ const checkStep = async () => {
             if (attacker.virus <= 0) {
                 continue;  //没有士兵了，不做任何操作
             }
-            let {y, x} = runTurn(attacker, grid, circle);
+            let pos = runTurn(attacker, grid, circle);
+            if(pos==null){
+                continue;
+            }
+            let {y, x} = pos;
             let isFight = false;
             //走到的地方有人
             if (grid[y][x] !== 0) {
