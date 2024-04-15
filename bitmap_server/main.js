@@ -1163,16 +1163,10 @@ wss.on('connection', async (ws, req) => {
                                     amount: gift_for_login,
                                     type: "login"
                                 });
-                                await mysql_query_with_args(mysql_connection,"UPDATE user set virus=? , energy=? WHERE address=?",[user.virus,user.energy,address]);
-                                // await mysql_connection.query("UPDATE user SET virus=virus+" + gift_for_login + "energy=energy+" + gift_for_login_energy + " WHERE address='" + address + "';");
+                                await mysql_query_with_args(mysql_connection, "UPDATE user set virus=? , energy=? WHERE address=?", [user.virus, user.energy, address]);
                             }
-
-
-                            let extracts_sql = "SELECT * FROM `extract` WHERE address='" + merlin_address + "' ORDER BY id DESC;";
-                            logger.info(extracts_sql);
-                            let extracts = await mysql_query(mysql_connection, extracts_sql);
-                            let purchase = await mysql_query(mysql_connection, "SELECT * FROM `purchase` WHERE owner='" + merlin_address + "' ORDER BY id DESC;");
-
+                            let extracts = await mysql_query_with_args(mysql_connection, "SELECT * FROM `extract` WHERE address=? ORDER BY id DESC;", [merlin_address]);
+                            let purchase = await mysql_query_with_args(mysql_connection, "SELECT * FROM `purchase` WHERE owner=? ORDER BY id DESC;", [merlin_address]);
 
                             const exist_color_login = get_color_by_user(ws.owner, players);
 
