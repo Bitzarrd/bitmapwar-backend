@@ -1,10 +1,10 @@
 syntax = "proto3";
 
 enum Color {
-  RED = 0;
-  BLUE = 2;
-  GREEN = 1;
-  PURPLE = 3;
+  red = 0;
+  blue = 2;
+  green = 1;
+  purple = 3;
 }
 
 message User {
