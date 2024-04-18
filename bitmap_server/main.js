@@ -669,7 +669,7 @@ const checkStep = async () => {
                 continue;  //没有士兵了，不做任何操作
             }
             let pos = runTurn(attacker, grid, circle);
-            if(pos==null){
+            if (pos == null) {
                 continue;
             }
             let {y, x} = pos;
@@ -704,7 +704,9 @@ const checkStep = async () => {
             }
             grid[y][x] = i + 1;
             attacker.land++;
-            payload.push({x: x, y: y, color: attacker.color, fight: isFight})
+            // for (let j = 0; j < 30000; j++) {
+                payload.push({x: x, y: y, color: attacker.color, fight: isFight});
+            // }
         }
 
         let jackpot = await mysql_query(mysql_connection, "select val from `global` where `key`='jackpot';");

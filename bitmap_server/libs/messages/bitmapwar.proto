@@ -1,0 +1,67 @@
+syntax = "proto3";
+
+enum Color {
+  RED = 0;
+  BLUE = 2;
+  GREEN = 1;
+  PURPLE = 3;
+}
+
+message User {
+  string address = 1;
+  string merlin_address = 2;
+  string taproot_address = 3;
+  string public_key = 4;
+  string profit = 5;
+  string jackpot = 6;
+  string jackpot_bw = 7;
+  int32 virus = 8;
+  int32 land = 9;
+  string total_profit = 10;
+  int32 total_purchase_virus = 11;
+  int32 points = 12;
+  int32 energy = 13;
+}
+
+message Cell {
+  int32 x = 1;
+  int32 y = 2;
+  Color color = 3;
+  bool fight = 4;
+}
+
+message DeadCenterCell {
+  int32 x = 1;
+  int32 y = 2;
+  int32 player_index = 3;
+  Color color = 4;
+}
+
+message ActionLog {
+  int64 create_time = 1;
+  int32 virus_loss = 2;
+  int32 state = 3;
+  string my_map_id = 4;
+  string enemy_map_id = 5;
+}
+
+message Statistics {
+  repeated TeamStatistics team_statistics = 1;
+}
+
+message TeamStatistics {
+  string team = 1;
+  int32 virus = 2;
+  int32 loss = 3;
+  int32 land = 4;
+}
+
+message SoldierMovementUpdate {
+  repeated Cell payload = 1;
+  int32 turn = 2;
+  Statistics statistics = 3;
+  string total_bonus = 4;
+  string jackpot = 5;
+  repeated DeadCenterCell dead_cells = 6;
+  repeated ActionLog action_logs = 7;
+}
