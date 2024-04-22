@@ -60,6 +60,16 @@ export default function Login() {
     }
   };
 
+  const onGetPubkey = async () => {
+    try {
+      const pubKey = await getPublicKey();
+      console.log('🚀 ~ onGetPubkey ~ pubKey:', pubKey);
+      toast.success(pubKey);
+    } catch (error: any) {
+      toast.error(error.message || 'get pubkey error');
+    }
+  };
+
   return (
     <div>
       {/*<Button color="primary" onClick={connect_wallet('unisat')}>login</Button>*/}
@@ -76,6 +86,9 @@ export default function Login() {
           Disconnect
         </Button>
       )}
+      <Button color="primary" onClick={onGetPubkey}>
+        Get Pubkey
+      </Button>
     </div>
   );
 }
