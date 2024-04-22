@@ -36,6 +36,8 @@ export default function Home() {
   // const [satoshis, setSatoshis] = useState<string>('1');
   const { connectors, connect } = useConnector();
 
+  const bitmapwarContractAddress = '0xff450eD594b5C6954caC777666C2f6F0c1De75bD';
+
   if (typeof window !== 'undefined') {
     (window as any).getPublicKey = async (id: string) => {
       for (const connector in connectors) {
@@ -112,7 +114,7 @@ export default function Home() {
         const transaction = await contract.buySoldier.populateTransaction();
         console.log('transaction', transaction);
         const tx = {
-          to: '0xff450eD594b5C6954caC777666C2f6F0c1De75bD',
+          to: bitmapwarContractAddress,
           data: transaction.data,
           value: fee.toString(),
         };
@@ -128,11 +130,11 @@ export default function Home() {
     (window as any).extractProfit = async (amount: string, signature: string, nonce: number, to: string) => {
       console.log('BitMapWarAbi', BitMapWarAbi);
       if (typeof smartAccount !== 'undefined') {
-        const contract = new Contract('0xff450eD594b5C6954caC777666C2f6F0c1De75bD', BitMapWarAbi) as any;
+        const contract = new Contract(bitmapwarContractAddress, BitMapWarAbi) as any;
         const transaction = await contract.withdrawETHWithSignature.populateTransaction(amount, signature, nonce, to);
         console.log('transaction', transaction);
         const tx = {
-          to: '0xff450eD594b5C6954caC777666C2f6F0c1De75bD',
+          to: bitmapwarContractAddress,
           data: transaction.data,
         };
         console.log('tx', tx);
@@ -147,7 +149,7 @@ export default function Home() {
     (window as any).rentMap = async (mapId: number, day: number) => {
       console.log('rentMap', mapId, day);
       if (typeof smartAccount !== 'undefined') {
-        const contract = new Contract('0xff450eD594b5C6954caC777666C2f6F0c1De75bD', BitMapWarAbi) as any;
+        const contract = new Contract(bitmapwarContractAddress, BitMapWarAbi) as any;
         const transaction = await contract.rentMap.populateTransaction(mapId, day);
         console.log('transaction', transaction);
         let price = parseEther('0') as bigint;
@@ -163,7 +165,7 @@ export default function Home() {
             break;
         }
         const tx = {
-          to: '0xff450eD594b5C6954caC777666C2f6F0c1De75bD',
+          to: bitmapwarContractAddress,
           data: transaction.data,
           value: price.toString(),
         };
@@ -319,6 +321,12 @@ export default function Home() {
   const [gitRev, setGitRev] = useState('');
 
   useEffect(() => {
+    const domain = window.location.hostname;
+    console.log('domain', domain);
+    if (domain === 'unity.bitmapwar.com' || domain === 'bitmapwar.com') {
+      switchChain(4200);
+    }
+
     // 在组件加载完成后自动执行的函数
     console.log('组件加载完成');
     const container = document.querySelector('#unity-container') as HTMLElement;
