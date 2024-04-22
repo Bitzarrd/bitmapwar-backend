@@ -5,7 +5,16 @@ import dotenv from "dotenv";
 import axios from "axios";
 import mysql from "mysql";
 import {isPrime, isToday, now, simple_player, simple_players} from "./utils.js";
-import {gridWidth, durationOfTheMatch, intervalBetweenMatches, circle, stepInterval} from "./defines.js";
+import {
+    gridWidth,
+    durationOfTheMatch,
+    intervalBetweenMatches,
+    circle,
+    stepInterval,
+    gift_for_login,
+    gift_for_login_energy,
+    gift_for_share
+} from "./defines.js";
 import {get_events} from "./get_events.js";
 import {make_signature} from "./signature.js";
 import {mysql_query, mysql_query_with_args} from "./mysql.js";
@@ -209,9 +218,6 @@ const bitmap_owner_url = "https://indexapitx.bitmap.game/api/v1/collection/bitma
 const bitmap_stake_url = "https://bridge.merlinchain.io/api/v1/history/stake/bitmaps?btc_from_address=${address}";
 // const bw_url = "https://bridge.merlinchain.io/api/v1/history/stake/blueWands?btc_from_address=bc1q8hz6cgyapu57atgchlp7kkfkefa4myn32gyl4l";
 const virus_price = parseEther("0.00003").toString();
-const gift_for_login = 1000;
-const gift_for_share = 1000;
-const gift_for_login_energy = 500;
 
 //////////////////////////////////////////////////////
 
@@ -705,7 +711,7 @@ const checkStep = async () => {
             grid[y][x] = i + 1;
             attacker.land++;
             // for (let j = 0; j < 30000; j++) {
-                payload.push({x: x, y: y, color: attacker.color, fight: isFight});
+            payload.push({x: x, y: y, color: attacker.color, fight: isFight});
             // }
         }
 
