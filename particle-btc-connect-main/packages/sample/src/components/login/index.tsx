@@ -66,6 +66,16 @@ export default function Login() {
       <Button color="primary" onClick={onGetNetwork}>
         Get Network
       </Button>
+      {accounts.length === 0 && (
+        <Button color="primary" onClick={openConnectModal}>
+          Connect
+        </Button>
+      )}
+      {accounts.length !== 0 && (
+        <Button color="primary" onClick={disconnect}>
+          Disconnect
+        </Button>
+      )}
     </div>
   );
 }
