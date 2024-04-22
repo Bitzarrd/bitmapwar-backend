@@ -84,6 +84,8 @@ export default function Home() {
         return hash;
       }
     };
+    (window as any).switchNetwork = switchNetwork;
+    (window as any).switchChain = switchChain;
     (window as any).contractCall = async () => {
       if (typeof smartAccount !== 'undefined') {
         const to = await smartAccount.getAddress();

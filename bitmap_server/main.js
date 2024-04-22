@@ -426,7 +426,7 @@ const doSettlement = async () => {
 
     logger.info("地块信息：")
     for (let player of players) {
-        logger.info("地图：" + player.bitmap + " 用户：" + player.owner + " 颜色：" + player.color + " 领地：" + player.land + " 病毒：" + player.virus + " 损失：" + player.loss);
+        //logger.info("地图：" + player.bitmap + " 用户：" + player.owner + " 颜色：" + player.color + " 领地：" + player.land + " 病毒：" + player.virus + " 损失：" + player.loss);
     }
 
     logger.info("当前的队伍名次是：");

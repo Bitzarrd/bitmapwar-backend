@@ -14010,4 +14010,14 @@ function replace_color(obj) {
 
 let message = new SoldierMovementUpdate(replace_color(origin));
 
-console.log("message", message.toBinary())
+export function uint8ArrayToBase64(uint8Array) {
+    let binaryString = '';
+    for (let i = 0; i < uint8Array.length; i++) {
+        binaryString += String.fromCharCode(uint8Array[i]);
+    }
+    return btoa(binaryString);
+}
+
+console.log("message", uint8ArrayToBase64(message.toBinary()).length)
+console.log("origin",JSON.stringify(origin).length)
+console.log("len",origin.payload.length);
