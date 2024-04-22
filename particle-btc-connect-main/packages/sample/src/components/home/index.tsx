@@ -36,7 +36,10 @@ export default function Home() {
   // const [satoshis, setSatoshis] = useState<string>('1');
   const { connectors, connect } = useConnector();
 
-  const bitmapwarContractAddress = '0xff450eD594b5C6954caC777666C2f6F0c1De75bD';
+  let bitmapwarContractAddress = '0xff450eD594b5C6954caC777666C2f6F0c1De75bD';
+  if (window.location.hostname === 'unity.bitmapwar.com' || window.location.hostname === 'bitmapwar.com') {
+    bitmapwarContractAddress = '';
+  }
 
   if (typeof window !== 'undefined') {
     (window as any).getPublicKey = async (id: string) => {
@@ -110,7 +113,7 @@ export default function Home() {
       const fee = price * BigInt(virus);
       console.log('fee', fee.toString());
       if (typeof smartAccount !== 'undefined') {
-        const contract = new Contract('0xff450eD594b5C6954caC777666C2f6F0c1De75bD', BitMapWarAbi) as any;
+        const contract = new Contract(bitmapwarContractAddress, BitMapWarAbi) as any;
         const transaction = await contract.buySoldier.populateTransaction();
         console.log('transaction', transaction);
         const tx = {
