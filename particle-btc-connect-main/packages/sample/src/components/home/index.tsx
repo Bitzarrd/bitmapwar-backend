@@ -328,6 +328,8 @@ export default function Home() {
     console.log('domain', domain);
     if (domain === 'unity.bitmapwar.com' || domain === 'bitmapwar.com') {
       switchChain(4200);
+    } else {
+      switchChain(686868);
     }
 
     // 在组件加载完成后自动执行的函数
