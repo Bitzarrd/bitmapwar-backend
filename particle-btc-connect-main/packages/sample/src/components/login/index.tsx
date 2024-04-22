@@ -8,11 +8,12 @@ import {
   useConnector,
   useETHProvider,
 } from '@particle-network/btc-connectkit';
-import { useState } from 'react';
+import {useEffect, useState} from 'react';
 import { Simulate } from 'react-dom/test-utils';
 import click = Simulate.click;
 import { Button } from '@nextui-org/react';
 import { toast } from 'react-toastify';
+import { useLocation } from 'react-router-dom';
 
 export default function Login() {
   const { openConnectModal, disconnect } = useConnectModal();
@@ -70,9 +71,18 @@ export default function Login() {
     }
   };
 
+  const [code, setCode] = useState<string>('');
+
+  useEffect(() => {
+    // 在组件挂载时更新 code 状态
+    const searchParams = new URLSearchParams(location.search);
+    const code_ = searchParams.get('code');
+    setCode(code_);
+  }, [location.search]);
+
   return (
     <div>
-      {/*<Button color="primary" onClick={connect_wallet('unisat')}>login</Button>*/}
+      <h1>{code}</h1>
       <Button color="primary" onClick={onGetNetwork}>
         Get Network
       </Button>
