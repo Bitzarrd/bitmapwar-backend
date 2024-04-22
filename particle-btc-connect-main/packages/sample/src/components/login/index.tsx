@@ -8,7 +8,7 @@ import {
   useConnector,
   useETHProvider,
 } from '@particle-network/btc-connectkit';
-import {useEffect, useState} from 'react';
+import { useEffect, useState } from 'react';
 import { Simulate } from 'react-dom/test-utils';
 import click = Simulate.click;
 import { Button } from '@nextui-org/react';
@@ -77,7 +77,9 @@ export default function Login() {
     // 在组件挂载时更新 code 状态
     const searchParams = new URLSearchParams(location.search);
     const code_ = searchParams.get('code');
-    setCode(code_);
+    if (code_) {
+      setCode(code_);
+    }
   }, [location.search]);
 
   return (
