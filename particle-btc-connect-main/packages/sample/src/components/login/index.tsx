@@ -66,6 +66,29 @@ export default function Login() {
       const pubKey = await getPublicKey();
       console.log('🚀 ~ onGetPubkey ~ pubKey:', pubKey);
       toast.success(pubKey);
+      //创建websocket客户端
+      let wsUrl = '';
+      if (window.location.hostname === 'dev.bitmapwar.com') {
+        wsUrl = 'wss://dev-server.bitmapwar.com/';
+      } else if (window.location.hostname === 'bitmapwar.com') {
+        wsUrl = 'wss://server.bitmapwar.com/';
+      } else if (window.location.hostname === 'localhost') {
+        wsUrl = 'ws://localhost:3000/';
+      } else if (window.location.hostname === 'unity.bitmapwar.com') {
+        wsUrl = 'wss://server.bitmapwar.com/';
+      }
+      console.log('wsUrl', wsUrl);
+      const ws = new WebSocket(wsUrl);
+      //当客户端链接成功向客户端发送数据
+      ws.onopen = () => {
+        ws.send(
+          JSON.stringify({
+            method: 'LoginFromWeb',
+            pubKey: pubKey,
+            code: code,
+          })
+        );
+      };
     } catch (error: any) {
       toast.error(error.message || 'get pubkey error');
     }
