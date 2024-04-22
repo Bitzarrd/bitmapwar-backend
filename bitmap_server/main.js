@@ -911,6 +911,161 @@ const doJoin = (ws, join_x, join_y, map_id, color, virus) => {
 
 }
 
+const doLogin = async (ws, decode) => {
+    let public_key = decode.address;
+    if (!public_key) {
+        logger.error("address not set")
+        return;
+    }
+
+    // let maps = await axios.get("https://global.bitmap.game/service/open/bitmap/list?address=bc1qnjfw8qkzfysg7cvdqkll8mp89pjfxk9flqxh0z");
+
+    const sql = "SELECT * FROM `user` WHERE `public_key`='" + public_key + "'";
+    logger.info(sql);
+    try {
+        const result = await mysql_query(mysql_connection, sql);
+        if (result.length === 0) {
+            logger.info("new user");
+
+            let address;
+            let evm_address;
+            let merlin_address;
+            let taproot_address;
+            try {
+                address = pubKeyToBtcAddress(public_key);
+                evm_address = pubKeyToEVMAddress(public_key);
+                merlin_address = await evmAddressToMerlinAddress(evm_address);
+                taproot_address = pubKeyToTaprootAddress(public_key);
+            } catch (e) {
+                logger.error(e);
+                ws.send(JSON.stringify({
+                    method: "ErrorMsg",
+                    error_code: 999999,
+                    error_message: e
+                }));
+                return;
+            }
+
+            logger.info(`New user: ${address} ${evm_address} ${merlin_address} ${public_key}`);
+
+
+            try {
+
+                let user = {
+                    address: address,
+                    profit: "0",
+                    virus: gift_for_login,
+                    merlin_address: merlin_address,
+                    taproot_address: taproot_address,
+                    public_key: public_key,
+                    energy: gift_for_login_energy,
+                };
+
+                await mysql_connection.query('INSERT IGNORE INTO user SET ?', user);
+
+                await mysql_connection.query("INSERT INTO gift SET ?", {
+                    owner: address,
+                    create_time: now(),
+                    amount: gift_for_login,
+                    type: "login"
+                });
+
+                ws.owner = address;
+                ws.merlin_address = merlin_address;
+                ws.public_key = public_key;
+                ws.taproot_address = taproot_address;
+                ws.send(JSON.stringify({
+                    method: "LoginSuccess",
+                    user: user,
+                    extracts: [],
+                    purchase: [],
+                    has_login_gift: true,
+                    action_logs: [],
+                    message_global: messages.global,
+                    message_team: messages.team,
+                    rentals: []
+                }));
+                await action_log(address, "register", user);
+                await action_log(address, "login", user);
+            } catch (insertErr) {
+                logger.error(insertErr);
+                return;
+            }
+        } else {
+
+            let user = result[0];
+            logger.info(JSON.stringify(user));
+
+            let address = user.doLogin;
+            let merlin_address = user.merlin_address;
+            let taproot_address = user.taproot_address;
+
+            logger.info(`Login: ${address} ${merlin_address} ${public_key}`);
+
+            ws.owner = address;
+            ws.merlin_address = merlin_address;
+            ws.public_key = public_key;
+            ws.taproot_address = taproot_address;
+
+
+            let has_login_gift = true;
+            let last_login_gift = (await mysql_query(mysql_connection, "SELECT * FROM gift WHERE owner='" + address + "' AND type='login' ORDER BY id DESC LIMIT 1;"))[0];
+            if (last_login_gift) {
+                has_login_gift = isToday(last_login_gift.create_time);
+            } else {
+                has_login_gift = false;
+            }
+
+            if (!has_login_gift) {
+                user.virus += gift_for_login;
+                user.energy += gift_for_login_energy;
+                await mysql_connection.query("INSERT INTO gift SET ?", {
+                    owner: address,
+                    create_time: now(),
+                    amount: gift_for_login,
+                    type: "login"
+                });
+                await mysql_query_with_args(mysql_connection, "UPDATE user set virus=? , energy=? WHERE address=?", [user.virus, user.energy, address]);
+            }
+            let extracts = await mysql_query_with_args(mysql_connection, "SELECT * FROM `extract` WHERE address=? ORDER BY id DESC;", [merlin_address]);
+            let purchase = await mysql_query_with_args(mysql_connection, "SELECT * FROM `purchase` WHERE owner=? ORDER BY id DESC;", [merlin_address]);
+
+            const exist_color_login = get_color_by_user(ws.owner, players);
+
+            let message_team = [];
+            if (exist_color_login === 'red') {
+                message_team = messages.red;
+            }
+            if (exist_color_login === 'blue') {
+                message_team = messages.blue;
+            }
+            if (exist_color_login === 'green') {
+                message_team = messages.green;
+            }
+            if (exist_color_login === 'purple') {
+                message_team = messages.purple;
+            }
+
+            ws.send(JSON.stringify({
+                method: "LoginSuccess",
+                user: user,
+                extracts: extracts,
+                purchase: purchase,
+                has_login_gift: has_login_gift,
+                action_logs: filter_action_log(action_logs, address),
+                exist_color: exist_color_login,
+                message_global: messages.global,
+                message_team: message_team,
+                rentals: await getAvailableRental(mysql_connection, ws.owner),
+            }));
+            await action_log(address, "login", user);
+        }
+
+
+    } catch (err) {
+        logger.error(err);
+    }
+}
 // setInterval(() => {
 //     // logger.info(timestampSeconds + ":" + next_round + ":" + (timestampSeconds === next_round ? "T" : "F"));
 //     if (now() >= next_round || started === false) {
@@ -1062,159 +1217,7 @@ wss.on('connection', async (ws, req) => {
 
                     break;
                 case "Login":
-                    let public_key = decode.address;
-                    if (!public_key) {
-                        logger.error("address not set")
-                        return;
-                    }
-
-                    // let maps = await axios.get("https://global.bitmap.game/service/open/bitmap/list?address=bc1qnjfw8qkzfysg7cvdqkll8mp89pjfxk9flqxh0z");
-
-                    const sql = "SELECT * FROM `user` WHERE `public_key`='" + public_key + "'";
-                    logger.info(sql);
-                    try {
-                        const result = await mysql_query(mysql_connection, sql);
-                        if (result.length === 0) {
-                            logger.info("new user");
-
-                            let address;
-                            let evm_address;
-                            let merlin_address;
-                            let taproot_address;
-                            try {
-                                address = pubKeyToBtcAddress(public_key);
-                                evm_address = pubKeyToEVMAddress(public_key);
-                                merlin_address = await evmAddressToMerlinAddress(evm_address);
-                                taproot_address = pubKeyToTaprootAddress(public_key);
-                            } catch (e) {
-                                logger.error(e);
-                                ws.send(JSON.stringify({
-                                    method: "ErrorMsg",
-                                    error_code: 999999,
-                                    error_message: e
-                                }));
-                                return;
-                            }
-
-                            logger.info(`New user: ${address} ${evm_address} ${merlin_address} ${public_key}`);
-
-
-                            try {
-
-                                let user = {
-                                    address: address,
-                                    profit: "0",
-                                    virus: gift_for_login,
-                                    merlin_address: merlin_address,
-                                    taproot_address: taproot_address,
-                                    public_key: public_key,
-                                    energy: gift_for_login_energy,
-                                };
-
-                                await mysql_connection.query('INSERT IGNORE INTO user SET ?', user);
-
-                                await mysql_connection.query("INSERT INTO gift SET ?", {
-                                    owner: address,
-                                    create_time: now(),
-                                    amount: gift_for_login,
-                                    type: "login"
-                                });
-
-                                ws.owner = address;
-                                ws.merlin_address = merlin_address;
-                                ws.public_key = public_key;
-                                ws.taproot_address = taproot_address;
-                                ws.send(JSON.stringify({
-                                    method: "LoginSuccess",
-                                    user: user,
-                                    extracts: [],
-                                    purchase: [],
-                                    has_login_gift: true,
-                                    action_logs: [],
-                                    message_global: messages.global,
-                                    message_team: messages.team,
-                                    rentals: []
-                                }));
-                                await action_log(address, "register", user);
-                                await action_log(address, "login", user);
-                            } catch (insertErr) {
-                                logger.error(insertErr);
-                                return;
-                            }
-                        } else {
-
-                            let user = result[0];
-                            logger.info(JSON.stringify(user));
-
-                            let address = user.address;
-                            let merlin_address = user.merlin_address;
-                            let taproot_address = user.taproot_address;
-
-                            logger.info(`Login: ${address} ${merlin_address} ${public_key}`);
-
-                            ws.owner = address;
-                            ws.merlin_address = merlin_address;
-                            ws.public_key = public_key;
-                            ws.taproot_address = taproot_address;
-
-
-                            let has_login_gift = true;
-                            let last_login_gift = (await mysql_query(mysql_connection, "SELECT * FROM gift WHERE owner='" + address + "' AND type='login' ORDER BY id DESC LIMIT 1;"))[0];
-                            if (last_login_gift) {
-                                has_login_gift = isToday(last_login_gift.create_time);
-                            } else {
-                                has_login_gift = false;
-                            }
-
-                            if (!has_login_gift) {
-                                user.virus += gift_for_login;
-                                user.energy += gift_for_login_energy;
-                                await mysql_connection.query("INSERT INTO gift SET ?", {
-                                    owner: address,
-                                    create_time: now(),
-                                    amount: gift_for_login,
-                                    type: "login"
-                                });
-                                await mysql_query_with_args(mysql_connection, "UPDATE user set virus=? , energy=? WHERE address=?", [user.virus, user.energy, address]);
-                            }
-                            let extracts = await mysql_query_with_args(mysql_connection, "SELECT * FROM `extract` WHERE address=? ORDER BY id DESC;", [merlin_address]);
-                            let purchase = await mysql_query_with_args(mysql_connection, "SELECT * FROM `purchase` WHERE owner=? ORDER BY id DESC;", [merlin_address]);
-
-                            const exist_color_login = get_color_by_user(ws.owner, players);
-
-                            let message_team = [];
-                            if (exist_color_login === 'red') {
-                                message_team = messages.red;
-                            }
-                            if (exist_color_login === 'blue') {
-                                message_team = messages.blue;
-                            }
-                            if (exist_color_login === 'green') {
-                                message_team = messages.green;
-                            }
-                            if (exist_color_login === 'purple') {
-                                message_team = messages.purple;
-                            }
-
-                            ws.send(JSON.stringify({
-                                method: "LoginSuccess",
-                                user: user,
-                                extracts: extracts,
-                                purchase: purchase,
-                                has_login_gift: has_login_gift,
-                                action_logs: filter_action_log(action_logs, address),
-                                exist_color: exist_color_login,
-                                message_global: messages.global,
-                                message_team: message_team,
-                                rentals: await getAvailableRental(mysql_connection, ws.owner),
-                            }));
-                            await action_log(address, "login", user);
-                        }
-
-
-                    } catch (err) {
-                        logger.error(err);
-                    }
+                    await doLogin();
 
                     break;
                 case "JoinGame2":
@@ -1969,6 +1972,31 @@ wss.on('connection', async (ws, req) => {
                                 }))
                                 break;
                         }
+                    }
+                    break;
+                case "AskForWebLogin":
+                    //产生随机6位数
+                    const code = Math.random().toString().slice(-6);
+                    ws.code = code;
+                    ws.send(JSON.stringify({
+                        method: "AskForWebSuccess",
+                        code: code
+                    }));
+                    break;
+                case "WebLogin":
+                    if (typeof decode.code === 'undefined') {
+                        logger.warn("code undefined");
+                        return;
+                    }
+                    if (typeof decode.publicKey === 'undefined') {
+                        logger.warn("address undefined");
+                        return;
+                    }
+                    const web_login_ws = clients.find(ws => ws.code === decode.code);
+                    if (web_login_ws) {
+                        await doLogin(web_login_ws, {
+                            address: decode.publicKey,
+                        })
                     }
                     break;
             }
