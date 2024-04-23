@@ -142,9 +142,7 @@ process.on('SIGUSR1', async () => {
     if (players.length > 0) {
         for (let player of players) {
             try {
-                // await mysql_query(mysql_connection, "UPDATE `user` SET virus = += ? WHERE address = ?", [player.init_virus, player.owner]);
-                const sql = "UPDATE `user` SET virus = virus + " + player.init_virus + " WHERE address = '" + player.owner + "'";
-                await mysql_query(mysql_connection, sql);
+                await mysql_query_with_args(mysql_connection, "UPDATE `user` SET virus = virus + ? WHERE address = ?", [player.init_virus, player.owner]);
                 logger.debug(sql);
                 // await save_global_data_to_jsonfile();
             } catch (e) {
@@ -489,16 +487,14 @@ const doSettlement = async () => {
         let conn = get_conn_by_owner2(clients, owner);
         let user = users[owner];
 
-        let user_for_settlement = (await mysql_query(mysql_connection, "SELECT * FROM `user` WHERE `address`='" + owner + "';"))[0];
+        let user_for_settlement = (await mysql_query_with_args(mysql_connection, "SELECT * FROM `user` WHERE `address`=?;", [owner]))[0];
         user_for_settlement.profit = BigInt(user_for_settlement.profit) + BigInt(user.profit);
         user_for_settlement.profit = user_for_settlement.profit.toString();
         user_for_settlement.land = user_for_settlement.land + user.statistics.land;
         user_for_settlement.total_profit = (BigInt(user_for_settlement.total_profit) + BigInt(user.profit)).toString();
 
-        await mysql_connection.query("UPDATE `user` SET profit=" + user_for_settlement.profit + " WHERE `address`='" + owner + "';")
-        await mysql_connection.query("UPDATE `user` SET `total_profit`=" + user_for_settlement.total_profit + " WHERE `address`='" + owner + "';");
-        await mysql_connection.query("UPDATE `user` SET land=" + user_for_settlement.land + " WHERE `address`='" + owner + "';")
-
+        await mysql_query_with_args(mysql_connection, "UPDATE `user` SET profit=? , total_profit=? , land=? WHERE `address`=?;",
+            [user_for_settlement.profit, user_for_settlement.total_profit, user_for_settlement.land, owner]);
 
         let user_for_send = JSON.parse(JSON.stringify(user));
         user_for_send.land = user_for_settlement.land;
@@ -552,17 +548,17 @@ const doSettlement = async () => {
         // await mysql_connection.query("UPDATE `user` SET `jackpot`=" + jackpot_user.jackpot + " WHERE `address`='" + last_player.owner + "';");
 
         for (let user of last_3_users) {
-            let jackpot_user = (await mysql_query(mysql_connection, "select * from `user` where `address`='" + user.owner + "';"))[0];
+            let jackpot_user = (await mysql_query_with_args(mysql_connection, "SELECT * FROM `user` WHERE `address`=?;", [user.owner]))[0];
             let my_jackpot_reward = jackpot_reward / BigInt(last_3_users.length);
             let jackpot_user_profit = BigInt(jackpot_user.profit) + my_jackpot_reward;
             jackpot_user.profit = jackpot_user_profit.toString();
             const jackpot_remain = (jackpot - jackpot_reward - blue_wand_reward);
             jackpot_user.total_profit = (BigInt(jackpot_user.total_profit) + my_jackpot_reward).toString();
             jackpot_user.jackpot = (BigInt(jackpot_user.jackpot) + my_jackpot_reward).toString();
-            await mysql_connection.query("UPDATE `global` SET `val`='" + jackpot_remain.toString() + "' WHERE `key`='jackpot';");
-            await mysql_connection.query("UPDATE `user` SET `profit`=" + jackpot_user_profit + " WHERE `address`='" + user.owner + "';");
-            await mysql_connection.query("UPDATE `user` SET `total_profit`=" + jackpot_user.total_profit + " WHERE `address`='" + user.owner + "';");
-            await mysql_connection.query("UPDATE `user` SET `jackpot`=" + jackpot_user.jackpot + " WHERE `address`='" + user.owner + "';");
+            await mysql_query_with_args(mysql_connection, "UPDATE `global` SET `val`=? WHERE `key`='jackpot';", [jackpot_remain.toString()]);
+            await mysql_query_with_args(mysql_connection, "UPDATE `user` SET profit=? , total_profit=? , jackpot=? WHERE `address`=?;",
+                [jackpot_user.profit, jackpot_user.total_profit, jackpot_user.jackpot, user.owner]);
+
             logger.info(`奖励:${my_jackpot_reward.toString()} user:${JSON.stringify(jackpot_user)}`);
         }
 
@@ -571,9 +567,9 @@ const doSettlement = async () => {
         let bw_lucky_user_address = bw_info.lucky_user;
         let bw_jackpot_user = null;
         if (bw_lucky_user_address) {
-            bw_jackpot_user = (await mysql_query(mysql_connection, "select * from `user` where `address`='" + bw_lucky_user_address + "';"))[0];
+            bw_jackpot_user = (await mysql_query_with_args(mysql_connection, "SELECT * FROM `user` WHERE `address`=?;", [bw_lucky_user_address]))[0];
             bw_jackpot_user.jackpot_bw = (BigInt(bw_jackpot_user.jackpot_bw) + blue_wand_reward).toString();
-            await mysql_connection.query("UPDATE `user` SET `jackpot_bw`=" + bw_jackpot_user.jackpot_bw + " WHERE `address`='" + bw_lucky_user_address + "';");
+            await mysql_query_with_args(mysql_connection, "UPDATE `user` SET `jackpot_bw`=? WHERE `address`=?;", [bw_jackpot_user.jackpot_bw, bw_lucky_user_address]);
         }
 
         // let user = users[last_player.owner];
@@ -615,15 +611,7 @@ const doSettlement = async () => {
         return (Number)(BigInt(b.profit) - BigInt(a.profit));
     })
 
-    const sql = "INSERT INTO `round` (`end_time`,`rank`) VALUES (" + now() + ",'" + JSON.stringify(rank_for_save) + "')";
-    logger.info(sql);
-    mysql_connection.query(sql, function (err, result) {
-        if (err) {
-            logger.error(err);
-        } else {
-            logger.info("保存排名成功：" + result.insertId);
-        }
-    });
+    await mysql_query_with_args(mysql_connection, "INSERT INTO `round` (`end_time`,`rank`) VALUES (?,?);", [now(), JSON.stringify(rank_for_save)]);
 
     //clear
     join_logs = [];
@@ -1188,8 +1176,7 @@ wss.on('connection', async (ws, req) => {
                         logger.error("owner not set")
                         return;
                     }
-
-                    let last_share = (await mysql_query(mysql_connection, "SELECT * FROM gift WHERE owner='" + ws.owner + "' AND type='share' ORDER BY id DESC LIMIT 1;"))[0];
+                    let las_share = (await mysql_query_with_args(mysql_connection, "SELECT * FROM gift WHERE owner=? AND type='share' ORDER BY id DESC LIMIT 1;", [ws.owner]))[0];
                     if (last_share) {
                         if (isToday(last_share.create_time)) {
                             ws.send(JSON.stringify({
@@ -1207,8 +1194,8 @@ wss.on('connection', async (ws, req) => {
                         amount: gift_for_share,
                         type: "share"
                     })
-                    await mysql_connection.query("UPDATE user SET virus=virus+" + gift_for_share + " WHERE address='" + ws.owner + "';");
-                    let user_for_share = (await mysql_query(mysql_connection, "SELECT * FROM `user` WHERE `address`='" + ws.owner + "';"))[0];
+                    await mysql_query_with_args(mysql_connection, "UPDATE `user` SET `virus`=`virus`+? WHERE `address`=?;", [gift_for_share, ws.owner]);
+                    let user_for_share = (await mysql_query_with_args(mysql_connection, "SELECT * FROM `user` WHERE `address`=?;", [ws.owner]))[0];
                     ws.send(JSON.stringify({
                         method: "ShareSuccess",
                         user: user_for_share
@@ -1275,7 +1262,7 @@ wss.on('connection', async (ws, req) => {
 
                     decode.virus = (Number)(decode.virus);
 
-                    const user_for_join = (await mysql_query(mysql_connection, "SELECT * FROM `user` WHERE `address`='" + ws.owner + "';"))[0];
+                    const user_for_join = (await mysql_query_with_args(mysql_connection, "SELECT * FROM `user` WHERE `address`=?;", [ws.owner]))[0];
                     if (user_for_join.virus < decode.virus) {
                         logger.warn("insufficient virus");
 
@@ -1450,8 +1437,7 @@ wss.on('connection', async (ws, req) => {
                     break;
                 case "Purchase":
                     const txid = decode.txid;
-
-                    let order = await mysql_query(mysql_connection, "SELECT * FROM `purchase` WHERE `txid`='" + txid + "';");
+                    let order = await mysql_query_with_args(mysql_connection, "SELECT * FROM `purchase` WHERE `txid`=?;", [txid]);
                     if (order.length > 0) {
                         logger.warn("txid exists");
                         return;
