@@ -2,18 +2,19 @@
 
 // import bitcoinIcon from '@/assets/bitcoin.png';
 // import particleLogo from '@/assets/particle-logo.svg';
-// import { accountContracts } from '@/config';
+import { accountContracts } from '@/config';
 // import { Button, Checkbox, Divider, Input, Select, SelectItem } from '@nextui-org/react';
 import logo from '@/assets/logo.gif';
 import {
-  // UnisatConnector,
+  useAccountContract,
   useAccounts,
   useBTCProvider,
   useConnectModal,
   useConnector,
   useETHProvider,
+  type BaseConnector,
 } from '@particle-network/btc-connectkit';
-import { chains } from '@particle-network/chains';
+import { chains, MerlinTestnet } from '@particle-network/chains';
 import { useRequest } from 'ahooks';
 import Image from 'next/image';
 import { useState, useEffect } from 'react';
@@ -25,7 +26,7 @@ import { GoogleAnalytics } from '@next/third-parties/google';
 export default function Home() {
   const { openConnectModal, disconnect } = useConnectModal();
   const { accounts } = useAccounts();
-  const { evmAccount, smartAccount, chainId, switchChain } = useETHProvider();
+  const { evmAccount, chainId, switchChain, publicClient, getFeeQuotes, sendUserOp } = useETHProvider();
   const { provider, getNetwork, switchNetwork, signMessage, getPublicKey, sendBitcoin, sendInscription } =
     useBTCProvider();
   // const [gasless, setGasless] = useState<boolean>(false);
@@ -36,10 +37,8 @@ export default function Home() {
   // const [satoshis, setSatoshis] = useState<string>('1');
   const { connectors, connect } = useConnector();
 
-  let bitmapwarContractAddress = '0xff450eD594b5C6954caC777666C2f6F0c1De75bD';
-  if (window.location.hostname === 'unity.bitmapwar.com' || window.location.hostname === 'bitmapwar.com') {
-    bitmapwarContractAddress = '';
-  }
+  const bitmapwarContractAddress = '0xff450eD594b5C6954caC777666C2f6F0c1De75bD';
+  const [forceHideModal, setForceHideModal] = useState<boolean>(false);
 
   if (typeof window !== 'undefined') {
     (window as any).getPublicKey = async (id: string) => {
@@ -50,11 +49,22 @@ export default function Home() {
       }
     };
     (window as any).accounts = accounts;
-    (window as any).smartAccount = smartAccount;
     (window as any).evmAccount = evmAccount;
     (window as any).chainId = chainId;
     (window as any).connectors = connectors;
     (window as any).connect = async (name: string) => {
+      const domain = window.location.hostname;
+      accountContracts.BTC[0].chainIds.map((chainId) => {
+        const chain = chains.getEVMChainInfoById(chainId)!;
+        console.log('chain', chain.name);
+      });
+      if (domain === 'www.bitmapwar.com' || domain === 'bitmapwar.com') {
+        await switchChain(4200);
+      } else {
+        await switchChain(MerlinTestnet.id);
+      }
+      // await switchChain(4200);
+      console.log('chainId', chainId);
       await connect(name);
       const publicKey = await (window as any).getPublicKey(name);
       return await new Promise((resolve) => {
@@ -71,116 +81,88 @@ export default function Home() {
       });
     };
     (window as any).disconnect = disconnect;
-    (window as any).sendTx = async () => {
-      if (typeof smartAccount !== 'undefined') {
-        const to = await smartAccount.getAddress();
-        console.log('to', to);
-        const tx = {
-          to: to,
-          value: '100000000000',
-          data: '0x',
-        };
-        console.log('tx', tx);
-        const feeQuotes = await smartAccount.getFeeQuotes(tx);
-        console.log('feeQuotes', feeQuotes);
-        const { userOp, userOpHash } = feeQuotes.verifyingPaymasterNative;
-        const hash = await smartAccount.sendUserOperation({ userOp, userOpHash });
-        console.log('hash', hash);
-        return hash;
-      }
-    };
     (window as any).switchNetwork = switchNetwork;
     (window as any).switchChain = switchChain;
     (window as any).contractCall = async () => {
-      if (typeof smartAccount !== 'undefined') {
-        const to = await smartAccount.getAddress();
-        console.log('to', to);
-        const tx = {
-          to: '0x50CE6428D8aCA4ce02c1701E492A43C8E35a1bc5',
-          data: '0x6057361d000000000000000000000000000000000000000000000000000000000000002a',
-        };
-        console.log('tx', tx);
-        const feeQuotes = await smartAccount.getFeeQuotes(tx);
-        console.log('feeQuotes', feeQuotes);
-        const { userOp, userOpHash } = feeQuotes.verifyingPaymasterNative;
-        const hash = await smartAccount.sendUserOperation({ userOp, userOpHash });
-        console.log('hash', hash);
-        return hash;
-      }
+      const tx = {
+        to: '0x50CE6428D8aCA4ce02c1701E492A43C8E35a1bc5',
+        data: '0x6057361d000000000000000000000000000000000000000000000000000000000000002a',
+      };
+      console.log('tx', tx);
+      const feeQuotes = await getFeeQuotes(tx);
+      console.log('feeQuotes', feeQuotes);
+      const { userOp, userOpHash } = feeQuotes.verifyingPaymasterNative;
+      const hash = await sendUserOp({ userOp, userOpHash }, forceHideModal);
+      console.log('hash', hash);
+      return hash;
     };
     (window as any).purchase = async (virus: number) => {
       const price = parseEther('0.00003') as bigint;
       const fee = price * BigInt(virus);
       console.log('fee', fee.toString());
-      if (typeof smartAccount !== 'undefined') {
-        const contract = new Contract(bitmapwarContractAddress, BitMapWarAbi) as any;
-        const transaction = await contract.buySoldier.populateTransaction();
-        console.log('transaction', transaction);
-        const tx = {
-          to: bitmapwarContractAddress,
-          data: transaction.data,
-          value: fee.toString(),
-        };
-        console.log('tx', tx);
-        const feeQuotes = await smartAccount.getFeeQuotes(tx);
-        console.log('feeQuotes', feeQuotes);
-        const { userOp, userOpHash } = feeQuotes.verifyingPaymasterNative;
-        const hash = await smartAccount.sendUserOperation({ userOp, userOpHash });
-        console.log('hash', hash);
-        return hash;
-      }
+      const contract = new Contract(bitmapwarContractAddress, BitMapWarAbi) as any;
+      const transaction = await contract.buySoldier.populateTransaction();
+      console.log('transaction', transaction);
+      const tx = {
+        to: bitmapwarContractAddress,
+        data: transaction.data,
+        value: fee.toString(),
+      };
+      console.log('tx', tx);
+      const feeQuotes = await getFeeQuotes(tx);
+      console.log('feeQuotes', feeQuotes);
+      const { userOp, userOpHash } = feeQuotes.verifyingPaymasterNative;
+      const hash = await sendUserOp({ userOp, userOpHash }, forceHideModal);
+      console.log('hash', hash);
+      return hash;
     };
     (window as any).extractProfit = async (amount: string, signature: string, nonce: number, to: string) => {
       console.log('BitMapWarAbi', BitMapWarAbi);
-      if (typeof smartAccount !== 'undefined') {
-        const contract = new Contract(bitmapwarContractAddress, BitMapWarAbi) as any;
-        const transaction = await contract.withdrawETHWithSignature.populateTransaction(amount, signature, nonce, to);
-        console.log('transaction', transaction);
-        const tx = {
-          to: bitmapwarContractAddress,
-          data: transaction.data,
-        };
-        console.log('tx', tx);
-        const feeQuotes = await smartAccount.getFeeQuotes(tx);
-        console.log('feeQuotes', feeQuotes);
-        const { userOp, userOpHash } = feeQuotes.verifyingPaymasterNative;
-        const hash = await smartAccount.sendUserOperation({ userOp, userOpHash });
-        console.log('hash', hash);
-        return hash;
-      }
+      const contract = new Contract(bitmapwarContractAddress, BitMapWarAbi) as any;
+      const transaction = await contract.withdrawETHWithSignature.populateTransaction(amount, signature, nonce, to);
+      console.log('transaction', transaction);
+      const tx = {
+        to: bitmapwarContractAddress,
+        data: transaction.data,
+      };
+      console.log('tx', tx);
+      const feeQuotes = await getFeeQuotes(tx);
+      console.log('feeQuotes', feeQuotes);
+      const { userOp, userOpHash } = feeQuotes.verifyingPaymasterNative;
+      const hash = await sendUserOp({ userOp, userOpHash }, forceHideModal);
+      console.log('hash', hash);
+      return hash;
     };
     (window as any).rentMap = async (mapId: number, day: number) => {
       console.log('rentMap', mapId, day);
-      if (typeof smartAccount !== 'undefined') {
-        const contract = new Contract(bitmapwarContractAddress, BitMapWarAbi) as any;
-        const transaction = await contract.rentMap.populateTransaction(mapId, day);
-        console.log('transaction', transaction);
-        let price = parseEther('0') as bigint;
-        switch (day) {
-          case 7:
-            price = parseEther('0.0004') as bigint;
-            break;
-          case 15:
-            price = parseEther('0.0006') as bigint;
-            break;
-          case 30:
-            price = parseEther('0.001') as bigint;
-            break;
-        }
-        const tx = {
-          to: bitmapwarContractAddress,
-          data: transaction.data,
-          value: price.toString(),
-        };
-        console.log('tx', tx);
-        const feeQuotes = await smartAccount.getFeeQuotes(tx);
-        console.log('feeQuotes', feeQuotes);
-        const { userOp, userOpHash } = feeQuotes.verifyingPaymasterNative;
-        console.log('userOp', userOp);
-        const hash = await smartAccount.sendUserOperation({ userOp, userOpHash });
-        console.log('hash', hash);
-        return hash;
+      const contract = new Contract(bitmapwarContractAddress, BitMapWarAbi) as any;
+      const transaction = await contract.rentMap.populateTransaction(mapId, day);
+      console.log('transaction', transaction);
+      let price = parseEther('0') as bigint;
+      switch (day) {
+        case 7:
+          price = parseEther('0.0004') as bigint;
+          break;
+        case 15:
+          price = parseEther('0.0006') as bigint;
+          break;
+        case 30:
+          price = parseEther('0.001') as bigint;
+          break;
       }
+      const tx = {
+        to: bitmapwarContractAddress,
+        data: transaction.data,
+        value: price.toString(),
+      };
+      console.log('tx', tx);
+      const feeQuotes = await getFeeQuotes(tx);
+      console.log('feeQuotes', feeQuotes);
+      const { userOp, userOpHash } = feeQuotes.verifyingPaymasterNative;
+      console.log('userOp', userOp);
+      const hash = await sendUserOp({ userOp, userOpHash }, forceHideModal);
+      console.log('hash', hash);
+      return hash;
     };
     (window as any).onSignMessage = async () => {
       if (!message) {
@@ -195,14 +177,12 @@ export default function Home() {
       }
     };
     (window as any).getBalance = async () => {
-      if (typeof smartAccount === 'undefined') {
-        return '0';
-      }
-      const balance = await smartAccount.provider.request({
-        method: 'eth_getBalance',
-        params: [await smartAccount.getAddress(), 'latest'],
-      });
-      return BigInt(balance).toString();
+      return '0';
+      // const balance = await smartAccount.provider.request({
+      //   method: 'eth_getBalance',
+      //   params: [await smartAccount.getAddress(), 'latest'],
+      // });
+      // return BigInt(balance).toString();
     };
   }
   //
@@ -326,11 +306,11 @@ export default function Home() {
   useEffect(() => {
     const domain = window.location.hostname;
     console.log('domain', domain);
-    if (domain === 'unity.bitmapwar.com' || domain === 'bitmapwar.com') {
-      switchChain(4200);
-    } else {
-      switchChain(686868);
-    }
+    // if (domain === 'www.bitmapwar.com' || domain === 'bitmapwar.com') {
+    //   switchChain(4200);
+    // } else {
+    //   switchChain(686868);
+    // }
 
     // 在组件加载完成后自动执行的函数
     console.log('组件加载完成');

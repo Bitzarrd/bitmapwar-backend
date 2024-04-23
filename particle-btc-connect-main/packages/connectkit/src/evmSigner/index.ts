@@ -1,5 +1,6 @@
 import { intToHex } from '@ethereumjs/util';
 import type { RequestArguments } from '@particle-network/aa';
+import { chains } from '@particle-network/chains';
 import { EventEmitter } from 'events';
 import {
   InvalidParamsRpcError,
@@ -18,7 +19,8 @@ export class AASignerProvider {
   constructor(
     public supportChainIds: number[],
     public projectId: string,
-    public clientKey: string
+    public clientKey: string,
+    public rpcUrls: Record<number, string> | undefined
   ) {
     this.events = new EventEmitter();
     this.events.setMaxListeners(100);
@@ -29,11 +31,10 @@ export class AASignerProvider {
         this.chainId = Number(localChainId);
       } else {
         const chainId = supportChainIds[0];
-        if (!chainId) {
-          throw new Error('Please config valid chain id.');
+        if (chainId) {
+          localStorage.setItem('connect-evm-chain-id', chainId.toString());
+          this.chainId = chainId;
         }
-        localStorage.setItem('connect-evm-chain-id', chainId.toString());
-        this.chainId = chainId;
       }
     }
 
@@ -103,19 +104,26 @@ export class AASignerProvider {
     return this;
   }
 
+  once(event: string, listener: any) {
+    this.events.once(event, listener);
+    return this;
+  }
+
+  off(event: string, listener: any) {
+    this.events.off(event, listener);
+    return this;
+  }
+
   emit(event: string, ...args: any[]) {
     this.events.emit(event, args);
   }
 
   getPublicClient = () => {
-    let rpcDomain = 'https://rpc.particle.network';
-    if (typeof window !== 'undefined' && (window as any).__PARTICLE_ENVIRONMENT__ === 'development') {
-      rpcDomain = 'https://rpc-debug.particle.network';
-    }
+    const rpcUrl = this?.rpcUrls?.[this.chainId] || chains.getEVMChainInfoById(this.chainId || 1)?.rpcUrl;
+    console.log('rpcUrl', rpcUrl);
+
     return createPublicClient({
-      transport: http(
-        `${rpcDomain}/evm-chain?chainId=${this.chainId}&projectUuid=${this.projectId}&projectKey=${this.clientKey}`
-      ),
+      transport: http(rpcUrl),
     });
   };
 }

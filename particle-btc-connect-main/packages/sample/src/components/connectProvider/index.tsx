@@ -5,17 +5,23 @@ import {
   ConnectProvider as BTCConnectProvider,
   BitgetConnector,
   OKXConnector,
+  TokenPocketConnector,
   UnisatConnector,
+  WizzConnector,
+  XverseConnector,
 } from '@particle-network/btc-connectkit';
+import VConsole from 'vconsole';
 
 if (typeof window !== 'undefined') {
   (window as any).__PARTICLE_ENVIRONMENT__ = process.env.NEXT_PUBLIC_PARTICLE_ENV;
+  if (process.env.NEXT_PUBLIC_PARTICLE_ENV === 'development') {
+    setTimeout(() => {
+      new VConsole({ theme: 'dark' });
+    }, 300);
+  }
 }
 
 export default function ConnectProvider({ children }: { children: React.ReactNode }) {
-  if (typeof window !== 'undefined') {
-    (window as any).unisatConnector = new UnisatConnector();
-  }
   return (
     <BTCConnectProvider
       options={{
@@ -25,8 +31,19 @@ export default function ConnectProvider({ children }: { children: React.ReactNod
         aaOptions: {
           accountContracts,
         },
+        rpcUrls: {
+          686868: 'https://testnet-rpc.merlinchain.io',
+          4200: 'https://rpc.merlinchain.io',
+        },
       }}
-      connectors={[new UnisatConnector(), new OKXConnector(), new BitgetConnector()]}
+      connectors={[
+        new UnisatConnector(),
+        new OKXConnector(),
+        new BitgetConnector(),
+        new TokenPocketConnector(),
+        new WizzConnector(),
+        new XverseConnector(),
+      ]}
     >
       {children}
     </BTCConnectProvider>

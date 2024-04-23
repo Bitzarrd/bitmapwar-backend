@@ -9,16 +9,14 @@ import {
   useETHProvider,
 } from '@particle-network/btc-connectkit';
 import { useEffect, useState } from 'react';
-import { Simulate } from 'react-dom/test-utils';
-import click = Simulate.click;
 import { Button } from '@nextui-org/react';
 import { toast } from 'react-toastify';
-import { useLocation } from 'react-router-dom';
+// import { useLocation } from 'react-router-dom';
 
 export default function Login() {
   const { openConnectModal, disconnect } = useConnectModal();
   const { accounts } = useAccounts();
-  const { evmAccount, smartAccount, chainId, switchChain } = useETHProvider();
+  const { evmAccount, chainId, switchChain, publicClient, getFeeQuotes, sendUserOp } = useETHProvider();
 
   const { provider, getNetwork, switchNetwork, signMessage, getPublicKey, sendBitcoin, sendInscription } =
     useBTCProvider();
