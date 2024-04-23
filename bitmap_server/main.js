@@ -496,7 +496,6 @@ const doSettlement = async () => {
         user_for_settlement.total_profit = (BigInt(user_for_settlement.total_profit) + BigInt(user.profit)).toString();
 
         await mysql_connection.query("UPDATE `user` SET profit=" + user_for_settlement.profit + " WHERE `address`='" + owner + "';")
-        // await mysql_connection.query(`UPDATE user set profit=${user_for_settlement.profit} AND land=${user_for_settlement.land} WHERE address='${owner}';`)
         await mysql_connection.query("UPDATE `user` SET `total_profit`=" + user_for_settlement.total_profit + " WHERE `address`='" + owner + "';");
         await mysql_connection.query("UPDATE `user` SET land=" + user_for_settlement.land + " WHERE `address`='" + owner + "';")
 
@@ -1361,7 +1360,7 @@ wss.on('connection', async (ws, req) => {
 
                     let total_virus = maps.length * decode.virus;
 
-                    const user_for_join_batch = (await mysql_query(mysql_connection, "SELECT * FROM `user` WHERE `address`='" + ws.owner + "';"))[0];
+                    const user_for_join_batch = (await mysql_query_with_args(mysql_connection, "SELECT * FROM `user` WHERE `address`=?;", [ws.owner]))[0];
                     if (user_for_join_batch.virus < total_virus) {
                         logger.warn("insufficient virus");
 
