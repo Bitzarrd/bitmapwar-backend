@@ -995,7 +995,7 @@ const doLogin = async (ws, decode) => {
             let user = result[0];
             logger.info(JSON.stringify(user));
 
-            let address = user.doLogin;
+            let address = user.address;
             let merlin_address = user.merlin_address;
             let taproot_address = user.taproot_address;
 
