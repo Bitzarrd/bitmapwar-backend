@@ -1217,8 +1217,7 @@ wss.on('connection', async (ws, req) => {
 
                     break;
                 case "Login":
-                    await doLogin();
-
+                    await doLogin(ws, decode);
                     break;
                 case "JoinGame2":
                     if (typeof decode.map_id === 'undefined') {
