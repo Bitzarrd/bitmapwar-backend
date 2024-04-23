@@ -67,13 +67,13 @@ export default function Login() {
       //创建websocket客户端
       let wsUrl = '';
       if (window.location.hostname === 'dev.bitmapwar.com') {
-        wsUrl = 'wss://dev-server.bitmapwar.com/';
-      } else if (window.location.hostname === 'bitmapwar.com') {
-        wsUrl = 'wss://server.bitmapwar.com/';
+        wsUrl = 'wss://dev-server.bitmapwar.com/api';
+      } else if (window.location.hostname === 'bitmapwar.com' || window.location.hostname === 'www.bitmapwar.com') {
+        wsUrl = 'wss://server.bitmapwar.com/api';
       } else if (window.location.hostname === 'localhost') {
-        wsUrl = 'ws://localhost:3000/';
+        wsUrl = 'ws://localhost:3000/api';
       } else if (window.location.hostname === 'unity.bitmapwar.com') {
-        wsUrl = 'wss://server.bitmapwar.com/';
+        wsUrl = 'wss://test.bitmapwar.com/api';
       }
       console.log('wsUrl', wsUrl);
       const ws = new WebSocket(wsUrl);

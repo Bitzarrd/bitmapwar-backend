@@ -22,6 +22,7 @@ import { toast } from 'react-toastify';
 import { parseEther, Contract, AbiCoder } from 'ethers';
 import BitMapWarAbi from './bitmapwar_abi.json';
 import { GoogleAnalytics } from '@next/third-parties/google';
+import type { Hex } from 'viem';
 
 export default function Home() {
   const { openConnectModal, disconnect } = useConnectModal();
@@ -177,7 +178,11 @@ export default function Home() {
       }
     };
     (window as any).getBalance = async () => {
-      return '0';
+      if (!publicClient) {
+        return '0';
+      }
+      const balance = await publicClient.getBalance({ address: evmAccount as Hex });
+      return balance.toString();
       // const balance = await smartAccount.provider.request({
       //   method: 'eth_getBalance',
       //   params: [await smartAccount.getAddress(), 'latest'],

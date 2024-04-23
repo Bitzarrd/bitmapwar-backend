@@ -219,8 +219,9 @@ const SignModal = ({ open, onClose, onOpen }: { open: boolean; onClose: () => vo
         </div>
 
         {gasFee && (
-          <div className={styles.estimatedGas}>{`Estimated gas fee: ${formatEther(gasFee)} ${chainInfo?.nativeCurrency
-            .symbol}`}</div>
+          <div className={styles.estimatedGas}>{`Estimated gas fee: ${formatEther(gasFee)} ${
+            chainInfo?.nativeCurrency.symbol
+          }`}</div>
         )}
 
         <Button
