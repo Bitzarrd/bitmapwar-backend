@@ -2,7 +2,7 @@
 
 // import bitcoinIcon from '@/assets/bitcoin.png';
 // import particleLogo from '@/assets/particle-logo.svg';
-import { accountContracts } from '@/config';
+import {accountContracts} from '@/config';
 // import { Button, Checkbox, Divider, Input, Select, SelectItem } from '@nextui-org/react';
 import logo from '@/assets/logo.gif';
 import {
@@ -14,21 +14,21 @@ import {
   useETHProvider,
   type BaseConnector,
 } from '@particle-network/btc-connectkit';
-import { chains, MerlinTestnet } from '@particle-network/chains';
-import { useRequest } from 'ahooks';
+import {chains, MerlinTestnet} from '@particle-network/chains';
+import {useRequest} from 'ahooks';
 import Image from 'next/image';
-import { useState, useEffect } from 'react';
-import { toast } from 'react-toastify';
-import { parseEther, Contract, AbiCoder } from 'ethers';
+import {useState, useEffect} from 'react';
+import {toast} from 'react-toastify';
+import {parseEther, Contract, AbiCoder} from 'ethers';
 import BitMapWarAbi from './bitmapwar_abi.json';
-import { GoogleAnalytics } from '@next/third-parties/google';
-import type { Hex } from 'viem';
+import {GoogleAnalytics} from '@next/third-parties/google';
+import type {Hex} from 'viem';
 
 export default function Home() {
-  const { openConnectModal, disconnect } = useConnectModal();
-  const { accounts } = useAccounts();
-  const { evmAccount, chainId, switchChain, publicClient, getFeeQuotes, sendUserOp } = useETHProvider();
-  const { provider, getNetwork, switchNetwork, signMessage, getPublicKey, sendBitcoin, sendInscription } =
+  const {openConnectModal, disconnect} = useConnectModal();
+  const {accounts} = useAccounts();
+  const {evmAccount, chainId, switchChain, publicClient, getFeeQuotes, sendUserOp} = useETHProvider();
+  const {provider, getNetwork, switchNetwork, signMessage, getPublicKey, sendBitcoin, sendInscription} =
     useBTCProvider();
   // const [gasless, setGasless] = useState<boolean>(false);
   // const [inscriptionReceiverAddress, setInscriptionReceiverAddress] = useState<string>();
@@ -36,9 +36,12 @@ export default function Home() {
   const [message, setMessage] = useState<string>('Login For Bitmapwar!');
   // const [address, setAddress] = useState<string>();
   // const [satoshis, setSatoshis] = useState<string>('1');
-  const { connectors, connect } = useConnector();
+  const {connectors, connect} = useConnector();
 
-  const bitmapwarContractAddress = '0xff450eD594b5C6954caC777666C2f6F0c1De75bD';
+  const bitmapwarContractAddress = {
+    686868: '0xff450eD594b5C6954caC777666C2f6F0c1De75bD',
+    4200: '',
+  };
   const [forceHideModal, setForceHideModal] = useState<boolean>(false);
 
   if (typeof window !== 'undefined') {
@@ -92,51 +95,90 @@ export default function Home() {
       console.log('tx', tx);
       const feeQuotes = await getFeeQuotes(tx);
       console.log('feeQuotes', feeQuotes);
-      const { userOp, userOpHash } = feeQuotes.verifyingPaymasterNative;
-      const hash = await sendUserOp({ userOp, userOpHash }, forceHideModal);
+      const {userOp, userOpHash} = feeQuotes.verifyingPaymasterNative;
+      const hash = await sendUserOp({userOp, userOpHash}, forceHideModal);
       console.log('hash', hash);
       return hash;
     };
     (window as any).purchase = async (virus: number) => {
+      if (!chainId) {
+        return;
+      }
+      let contractAddress = null;
+      if (chainId == 4200) {
+        contractAddress = bitmapwarContractAddress["4200"];
+      }
+      if (chainId == 686868) {
+        contractAddress = bitmapwarContractAddress["686868"];
+      }
+      if (!contractAddress) {
+        return;
+      }
       const price = parseEther('0.00003') as bigint;
       const fee = price * BigInt(virus);
       console.log('fee', fee.toString());
-      const contract = new Contract(bitmapwarContractAddress, BitMapWarAbi) as any;
+      const contract = new Contract(contractAddress, BitMapWarAbi) as any;
       const transaction = await contract.buySoldier.populateTransaction();
       console.log('transaction', transaction);
       const tx = {
-        to: bitmapwarContractAddress,
+        to: contractAddress,
         data: transaction.data,
         value: fee.toString(),
       };
       console.log('tx', tx);
       const feeQuotes = await getFeeQuotes(tx);
       console.log('feeQuotes', feeQuotes);
-      const { userOp, userOpHash } = feeQuotes.verifyingPaymasterNative;
-      const hash = await sendUserOp({ userOp, userOpHash }, forceHideModal);
+      const {userOp, userOpHash} = feeQuotes.verifyingPaymasterNative;
+      const hash = await sendUserOp({userOp, userOpHash}, forceHideModal);
       console.log('hash', hash);
       return hash;
     };
     (window as any).extractProfit = async (amount: string, signature: string, nonce: number, to: string) => {
       console.log('BitMapWarAbi', BitMapWarAbi);
-      const contract = new Contract(bitmapwarContractAddress, BitMapWarAbi) as any;
+      if (!chainId) {
+        return;
+      }
+      let contractAddress = null;
+      if (chainId == 4200) {
+        contractAddress = bitmapwarContractAddress["4200"];
+      }
+      if (chainId == 686868) {
+        contractAddress = bitmapwarContractAddress["686868"];
+      }
+      if (!contractAddress) {
+        return;
+      }
+      const contract = new Contract(to, BitMapWarAbi) as any;
       const transaction = await contract.withdrawETHWithSignature.populateTransaction(amount, signature, nonce, to);
       console.log('transaction', transaction);
       const tx = {
-        to: bitmapwarContractAddress,
+        to: contractAddress,
         data: transaction.data,
       };
       console.log('tx', tx);
       const feeQuotes = await getFeeQuotes(tx);
       console.log('feeQuotes', feeQuotes);
-      const { userOp, userOpHash } = feeQuotes.verifyingPaymasterNative;
-      const hash = await sendUserOp({ userOp, userOpHash }, forceHideModal);
+      const {userOp, userOpHash} = feeQuotes.verifyingPaymasterNative;
+      const hash = await sendUserOp({userOp, userOpHash}, forceHideModal);
       console.log('hash', hash);
       return hash;
     };
     (window as any).rentMap = async (mapId: number, day: number) => {
       console.log('rentMap', mapId, day);
-      const contract = new Contract(bitmapwarContractAddress, BitMapWarAbi) as any;
+      if (!chainId) {
+        return;
+      }
+      let contractAddress = null;
+      if (chainId == 4200) {
+        contractAddress = bitmapwarContractAddress["4200"];
+      }
+      if (chainId == 686868) {
+        contractAddress = bitmapwarContractAddress["686868"];
+      }
+      if (!contractAddress) {
+        return;
+      }
+      const contract = new Contract(contractAddress, BitMapWarAbi) as any;
       const transaction = await contract.rentMap.populateTransaction(mapId, day);
       console.log('transaction', transaction);
       let price = parseEther('0') as bigint;
@@ -152,16 +194,16 @@ export default function Home() {
           break;
       }
       const tx = {
-        to: bitmapwarContractAddress,
+        to: contractAddress,
         data: transaction.data,
         value: price.toString(),
       };
       console.log('tx', tx);
       const feeQuotes = await getFeeQuotes(tx);
       console.log('feeQuotes', feeQuotes);
-      const { userOp, userOpHash } = feeQuotes.verifyingPaymasterNative;
+      const {userOp, userOpHash} = feeQuotes.verifyingPaymasterNative;
       console.log('userOp', userOp);
-      const hash = await sendUserOp({ userOp, userOpHash }, forceHideModal);
+      const hash = await sendUserOp({userOp, userOpHash}, forceHideModal);
       console.log('hash', hash);
       return hash;
     };
@@ -181,7 +223,7 @@ export default function Home() {
       if (!publicClient) {
         return '0';
       }
-      const balance = await publicClient.getBalance({ address: evmAccount as Hex });
+      const balance = await publicClient.getBalance({address: evmAccount as Hex});
       return balance.toString();
       // const balance = await smartAccount.provider.request({
       //   method: 'eth_getBalance',
@@ -409,17 +451,17 @@ export default function Home() {
       <div id="unity-container" className="unity-desktop">
         <canvas id="unity-canvas"></canvas>
       </div>
-      <div id="loading-cover" style={{ display: 'flex' }}>
+      <div id="loading-cover" style={{display: 'flex'}}>
         <div id="unity-loading-bar">
           <div id="unity-logo">
-            <Image src={logo} alt="" />
+            <Image src={logo} alt=""/>
           </div>
-          <div className="loading-text" style={{ color: 'white' }}>
+          <div className="loading-text" style={{color: 'white'}}>
             Entering BitmapWar Explorer...
-            <br />
+            <br/>
             git revision: {gitRev}
           </div>
-          <div id="unity-progress-bar-empty" style={{ display: 'none' }}>
+          <div id="unity-progress-bar-empty" style={{display: 'none'}}>
             <div id="unity-progress-bar-full"></div>
           </div>
           <div className="spinner"></div>
@@ -427,7 +469,7 @@ export default function Home() {
       </div>
       {/*<script async src="https://www.googletagmanager.com/gtag/js?id=87CMZBWYNC" />*/}
       {/*<script>{injectGA()}</script>*/}
-      <GoogleAnalytics gaId="G-87CMZBWYNC" />
+      <GoogleAnalytics gaId="G-87CMZBWYNC"/>
     </div>
     // <div className="container mx-auto flex h-full flex-col items-center gap-6 overflow-auto py-10">
     //   <Image src={particleLogo} alt="" className=""></Image>
