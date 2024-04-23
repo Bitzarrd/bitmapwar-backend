@@ -1376,7 +1376,7 @@ wss.on('connection', async (ws, req) => {
 
                     user_for_join_batch.virus -= total_virus;
 
-                    await mysql_connection.query("UPDATE user SET virus=virus-" + total_virus + " WHERE address='" + ws.owner + "';");
+                    await mysql_query_with_args(mysql_connection, "UPDATE `user` SET virus=virus-? WHERE `address`=?;", [total_virus, ws.owner]);
 
                     let join_batch_players = [];
                     for (let i = 0; i < maps.length; i++) {
@@ -1479,19 +1479,13 @@ wss.on('connection', async (ws, req) => {
                                 let to = event.args[1];
                                 let amount = (Number)(BigInt(event.args[2]) / BigInt(virus_price));
                                 if (from === "0x0000000000000000000000000000000000000000") {
-                                    // const sql = "UPDATE `user` SET `virus` = `virus` + " + amount + " , `energy` = `energy` +" + amount + " WHERE `merlin_address` = '" + to + "';";
-                                    const sql = `UPDATE \`user\` SET \`virus\` = \`virus\` + ${amount}, \`energy\` = \`energy\` + ${amount} WHERE \`merlin_address\` = '${to}';`;
-                                    logger.info(sql);
                                     try {
-                                        const result = await mysql_connection.query(sql);
-                                        logger.info(result);
-                                        const select_sql = "SELECT * FROM `user` WHERE `merlin_address` = '" + to + "';";
-                                        logger.info(select_sql);
+                                        await mysql_query_with_args(mysql_connection, "UPDATE `user` SET `virus` = `virus` + ? , `energy` = `energy` + ? WHERE `merlin_address` = ?;", [amount, amount, to])
                                         try {
-                                            const selectResult = await mysql_query(mysql_connection, select_sql);
+                                            const selectResult = await mysql_query_with_args(mysql_connection, "SELECT * FROM `user` WHERE `merlin_address` = ?;", [to])
                                             logger.info(selectResult);
                                             let user = selectResult[0];
-                                            let purchases = await mysql_query(mysql_connection, "SELECT * FROM `purchase` WHERE `owner`='" + to + "' ORDER BY create_time DESC;");
+                                            let purchases = await mysql_query_with_args(mysql_connection, "SELECT * FROM `purchase` WHERE `owner`=? ORDER BY create_time DESC;", [to]);
                                             ws.send(JSON.stringify({
                                                 method: "PurchaseSuccess",
                                                 user: user,
@@ -1535,7 +1529,7 @@ wss.on('connection', async (ws, req) => {
                     }
                     let wei = parseEther(decode.amount.toString());
 
-                    let user = (await mysql_query(mysql_connection, "SELECT * FROM `user` WHERE `merlin_address` = '" + ws.merlin_address + "';"))[0];
+                    let user = (await mysql_query_with_args(mysql_connection, "SELECT * FROM `user` WHERE `merlin_address` = ?;", [ws.merlin_address]))[0];
                     if (user === undefined) {
                         logger.error(`user not found ${ws.merlin_address}`);
                         return;
@@ -1553,7 +1547,7 @@ wss.on('connection', async (ws, req) => {
                     console.log(profit_n.toString());
                     user.profit = profit_n.toString();
 
-                    mysql_connection.query("UPDATE user SET profit='" + profit_n.toString() + "' WHERE merlin_address='" + ws.merlin_address + "';");
+                    await mysql_query_with_args(mysql_connection, "UPDATE user SET profit=? WHERE merlin_address=?;", [profit_n.toString(), ws.merlin_address]);
 
                     mysql_connection.query('INSERT INTO extract SET ?', {
                         amount: wei.toString(),
@@ -1576,8 +1570,7 @@ wss.on('connection', async (ws, req) => {
                             user: user,
                         }));
 
-                        await mysql_connection.query("UPDATE extract SET signature='" + signature + "' WHERE id=" + results.insertId + ";")
-
+                        await mysql_query_with_args(mysql_connection, "UPDATE extract SET signature=? WHERE id=?;", [signature, results.insertId]);
                     });
 
                     // let extract_insert_sql = "INSERT INTO `extract` (`amount`,`address`) VALUES (" + amount + ",'" + decode.address + "');";
@@ -1588,11 +1581,9 @@ wss.on('connection', async (ws, req) => {
                     break;
                 case "UpdateExtract":
                     let status = 1;
-                    let update_extract_sql = "UPDATE extract SET status=" + status + " AND txid='" + decode.txid + "' WHERE id=" + decode.id + ";";
-                    logger.info(update_extract_sql);
-                    let update_extract_result = await mysql_connection.query(update_extract_sql);
+                    let update_extract_result = await mysql_query_with_args(mysql_connection, "UPDATE extract SET status=? AND txid=? WHERE id=?;", [status, decode.txid, decode.id])
                     logger.info(update_extract_result);
-                    let extract_logs = await mysql_query(mysql_connection, "SELECT * FROM `extract` WHERE `address` = '" + ws.owner + "' ORDER BY `create_time` DESC LIMIT 100;");
+                    let extract_logs = await mysql_query_with_args(mysql_connection, "SELECT * FROM `extract` WHERE `address` = ? ORDER BY `create_time` DESC LIMIT 100;", [ws.owner]);
                     ws.send(JSON.stringify({
                         method: "UpdateExtractSuccess",
                         id: decode.id,
@@ -1637,8 +1628,12 @@ wss.on('connection', async (ws, req) => {
                     }));
                     break;
                 case "GetExtractPurchaseLog":
-                    let extract_log = await mysql_query(mysql_connection, "SELECT * FROM `extract` WHERE `address` = '" + ws.owner + "' ORDER BY `create_time` DESC LIMIT 100;");
-                    let purchase_log = await mysql_query(mysql_connection, "SELECT * FROM `purchase` WHERE `owner` = '" + ws.owner + "' ORDER BY `create_time` DESC LIMIT 100;");
+                    let extract_log = await mysql_query_with_args(mysql_connection, "SELECT * FROM `extract` WHERE `address` = ? ORDER BY `create_time` DESC LIMIT 100;", [
+                        ws.owner
+                    ]);
+                    let purchase_log = await mysql_query_with_args(mysql_connection, "SELECT * FROM `purchase` WHERE `owner` = ? ORDER BY `create_time` DESC LIMIT 100;", [
+                        ws.owner
+                    ])
                     ws.send(JSON.stringify({
                         method: "GetExtractPurchaseLogSuccess",
                         extract_log: extract_log,
@@ -1646,7 +1641,9 @@ wss.on('connection', async (ws, req) => {
                     }));
                     break;
                 case "GetUserHistoricalBenefit":
-                    let user_historical_benefit = await mysql_query(mysql_connection, "SELECT * FROM `user_historical_benefit` WHERE `owner` = '" + ws.owner + "' ORDER BY `create_time` DESC LIMIT 12;");
+                    let user_historical_benefit = await mysql_query_with_args(mysql_connection, "SELECT * FROM `user_historical_benefit` WHERE `owner` = ? ORDER BY `create_time` DESC LIMIT 12;", [
+                        ws.owner
+                    ]);
                     ws.send(JSON.stringify({
                         method: "GetUserHistoricalBenefitSuccess",
                         benefits: user_historical_benefit
@@ -1657,7 +1654,9 @@ wss.on('connection', async (ws, req) => {
                         logger.warn("amount undefined");
                         return;
                     }
-                    let user_purchase_virus_with_profit = await mysql_query(mysql_connection, "SELECT * FROM `user` WHERE `address` = '" + ws.owner + "';");
+                    let user_purchase_virus_with_profit = await mysql_query_with_args(mysql_connection, "SELECT * FROM `user` WHERE `address` = ?;", [
+                        ws.owner
+                    ]);
                     if (!user_purchase_virus_with_profit || user_purchase_virus_with_profit.length === 0) {
                         ws.send(JSON.stringify({
                             method: "ErrorMsg",
@@ -1706,7 +1705,7 @@ wss.on('connection', async (ws, req) => {
                         virus: decode.amount
                     });
 
-                    let purchases_log = await mysql_query(mysql_connection, "SELECT * FROM `purchase` WHERE `owner`='" + ws.merlin_address + "' ORDER BY create_time DESC;");
+                    let purchases_log = await mysql_query_with_args(mysql_connection, "SELECT * FROM `purchase` WHERE `owner` = ? ORDER BY create_time DESC;", [ws.merlin_address]);
 
                     ws.send(JSON.stringify({
                         method: "PurchaseVirusWithProfitSuccess",
@@ -1889,7 +1888,7 @@ wss.on('connection', async (ws, req) => {
 
                         rental.total_profit = (BigInt(rental.total_profit) + BigInt(rental_config.profit)).toString();
                         user_for_rental.profit = (BigInt(user_for_rental.profit) - BigInt(rental_config.profit)).toString();
-                        await mysql_query(mysql_connection, "UPDATE `user` SET `profit` = " + user_for_rental.profit + " WHERE `address` = '" + ws.owner + "';");
+                        await mysql_query_with_args(mysql_connection, "UPDATE `user` SET `profit` = ? WHERE `address` = ?;", [user_for_rental.profit, ws.owner]);
                     } else if (decode.type === 'energy') {
                         if (user_for_rental.energy < rental_config.energy) {
                             ws.send(JSON.stringify({
@@ -1901,7 +1900,7 @@ wss.on('connection', async (ws, req) => {
                         }
                         rental.total_energy += rental_config.energy;
                         user_for_rental.energy -= rental_config.energy;
-                        await mysql_query(mysql_connection, "UPDATE `user` SET `energy` = `energy` - " + rental_config.energy + " WHERE `address` = '" + ws.owner + "';");
+                        await mysql_query_with_args(mysql_connection, "UPDATE `user` SET `energy` = ? WHERE `address` = ?;", [user_for_rental.energy, ws.owner]);
                     }
                     await updateRental(mysql_connection, rental);
                     ws.send(JSON.stringify({
