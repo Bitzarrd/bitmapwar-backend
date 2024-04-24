@@ -91,7 +91,7 @@ export async function getRentalByIds(mysql_connection, bitmap_ids) {
     const sql = "SELECT * FROM rental WHERE bitmap_id IN (?) AND timeout > ?";
     const now_timestamp = Math.floor(Date.now() / 1000);
 
-    console.log(sql, bitmap_ids, now_timestamp);
+    // console.log(sql, bitmap_ids, now_timestamp);
 
     try {
         const result = await new Promise((resolve, reject) => {

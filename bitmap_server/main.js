@@ -1582,27 +1582,45 @@ wss.on('connection', async (ws, req) => {
                         logger.warn("tab undefined");
                         return;
                     }
-                    let my_self_rank = 0;
+                    let my_self_rank = [{
+                        rank: 0
+                    }]
                     let leader_board_users = [];
                     if (decode.tab === "profit") {
                         leader_board_users = await mysql_query(mysql_connection, "SELECT * FROM `user` ORDER BY `total_profit_lpad` DESC LIMIT 500;");
-                        my_self_rank = await mysql_query(mysql_connection, "SELECT COUNT(*) as rank FROM `user` WHERE `total_profit_lpad` > (SELECT `total_profit_lpad` FROM `user` WHERE `address` = '" + ws.owner + "');");
+                        if (ws.owner) {
+                            // my_self_rank = await mysql_query(mysql_connection, "SELECT COUNT(*) as rank FROM `user` WHERE `total_profit_lpad` > (SELECT `total_profit_lpad` FROM `user` WHERE `address` = '" + ws.owner + "');");
+                            my_self_rank = await mysql_query_with_args(mysql_connection, "SELECT COUNT(*) as rank FROM `user` WHERE `total_profit_lpad` > (SELECT `total_profit_lpad` FROM `user` WHERE `address` = ?);", [ws.owner]);
+                        }
                     }
                     if (decode.tab === 'land') {
                         leader_board_users = await mysql_query(mysql_connection, "SELECT * FROM `user` ORDER BY `land` DESC LIMIT 500;");
-                        my_self_rank = await mysql_query(mysql_connection, "SELECT COUNT(*)  as rank FROM `user` WHERE `land` > (SELECT `land` FROM `user` WHERE `address` = '" + ws.owner + "');");
+                        if (ws.owner) {
+                            // my_self_rank = await mysql_query(mysql_connection, "SELECT COUNT(*)  as rank FROM `user` WHERE `land` > (SELECT `land` FROM `user` WHERE `address` = '" + ws.owner + "');");
+                            my_self_rank = await mysql_query_with_args(mysql_connection, "SELECT COUNT(*)  as rank FROM `user` WHERE `land` > (SELECT `land` FROM `user` WHERE `address` = ?);", [ws.owner]);
+                        }
                     }
                     if (decode.tab === 'jackpot') {
                         leader_board_users = await mysql_query(mysql_connection, "SELECT * FROM `user` ORDER BY `jackpot_lpad` DESC LIMIT 500;");
-                        my_self_rank = await mysql_query(mysql_connection, "SELECT COUNT(*)  as rank FROM `user` WHERE `jackpot_lpad` > (SELECT `jackpot_lpad` FROM `user` WHERE `address` = '" + ws.owner + "');");
+                        if (ws.owner) {
+                            // my_self_rank = await mysql_query(mysql_connection, "SELECT COUNT(*)  as rank FROM `user` WHERE `jackpot_lpad` > (SELECT `jackpot_lpad` FROM `user` WHERE `address` = '" + ws.owner + "');");
+                            my_self_rank = await mysql_query_with_args(mysql_connection, "SELECT COUNT(*)  as rank FROM `user` WHERE `jackpot_lpad` > (SELECT `jackpot_lpad` FROM `user` WHERE `address` = ?);", [ws.owner]);
+                        }
                     }
                     if (decode.tab === 'jackpot_bw') {
                         leader_board_users = await mysql_query(mysql_connection, "SELECT * FROM `user` ORDER BY `jackpot_bw_lpad` DESC LIMIT 500;");
-                        my_self_rank = await mysql_query(mysql_connection, "SELECT COUNT(*)  as rank FROM `user` WHERE `jackpot_bw_lpad` > (SELECT `jackpot_bw_lpad` FROM `user` WHERE `address` = '" + ws.owner + "');");
+                        if (ws.owner) {
+                            // my_self_rank = await mysql_query(mysql_connection, "SELECT COUNT(*)  as rank FROM `user` WHERE `jackpot_bw_lpad` > (SELECT `jackpot_bw_lpad` FROM `user` WHERE `address` = '" + ws.owner + "');");
+                            my_self_rank = await mysql_query_with_args(mysql_connection, "SELECT COUNT(*)  as rank FROM `user` WHERE `jackpot_bw_lpad` > (SELECT `jackpot_bw_lpad` FROM `user` WHERE `address` = ?);", [ws.owner]);
+
+                        }
                     }
                     if (decode.tab === 'points') {
                         leader_board_users = await mysql_query(mysql_connection, "SELECT * FROM `user` ORDER BY `points` DESC LIMIT 500;");
-                        my_self_rank = await mysql_query(mysql_connection, "SELECT COUNT(*)   as rank FROM `user` WHERE `points` > (SELECT `points` FROM `user` WHERE `address` = '" + ws.owner + "');");
+                        if (ws.owner) {
+                            // my_self_rank = await mysql_query(mysql_connection, "SELECT COUNT(*)   as rank FROM `user` WHERE `points` > (SELECT `points` FROM `user` WHERE `address` = '" + ws.owner + "');");
+                            my_self_rank = await mysql_query_with_args(mysql_connection, "SELECT COUNT(*)   as rank FROM `user` WHERE `points` > (SELECT `points` FROM `user` WHERE `address` = ?);", [ws.owner]);
+                        }
                     }
 
                     ws.send(JSON.stringify({
