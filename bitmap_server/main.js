@@ -32,7 +32,7 @@ import {evmAddressToMerlinAddress, pubKeyToBtcAddress, pubKeyToEVMAddress, pubKe
 import {filter_action_log} from "./action_log.js";
 import {parseEther} from "ethers";
 import {v4 as uuidv4} from 'uuid';
-import {getLast3User} from "./reward3.0.js";
+import {getLast3User, getLastUser} from "./reward3.0.js";
 import {
     checkRent,
     checkRent2,
@@ -407,6 +407,33 @@ const doSettlement = async () => {
     turn = 0;
 
     if (players.length === 0) {
+        //这轮没有人玩
+
+        //找到上一轮最后一个下注的用户 给予50% jackpot奖励
+        // let last_bet_user = await getLastBetUser();
+        // if (last_bet_user) {
+        //     let jackpot = await getJackpot();
+        //     let reward = jackpot * 0.5;
+        //     let reward_sat = Math.floor(reward * 1e8);
+        //     let reward_sat_per_user = Math.floor(reward_sat / 2);
+        //     let reward_sat_last_user = reward_sat - reward_sat_per_user;
+        //     let last_user = await get_user_by_owner(last_bet_user);
+        //     if (last_user) {
+        //         let last_user_balance = await getBalance(last_user.owner);
+        //         let last_user_new_balance = last_user_balance + reward_sat_last_user;
+        //         await updateBalance(last_user.owner, last_user_new_balance);
+        //         await insertBalanceHistory(last_user.owner, reward_sat_last_user, "jackpot", "last_user");
+        //     }
+        //     let users = await getUsers();
+        //     for (let user of users) {
+        //         let user_balance = await getBalance(user.owner);
+        //         let user_new_balance = user_balance + reward_sat_per_user;
+        //         await updateBalance(user.owner, user_new_balance);
+        //         await insertBalanceHistory(user.owner, reward_sat_per_user, "jackpot", "user");
+        //     }
+        //     await updateJackpot(0);
+        // }
+
         logger.info("no players");
         clients.forEach((client) => {
             if (client.readyState === WebSocket.OPEN) {
@@ -429,9 +456,9 @@ const doSettlement = async () => {
     const win_teams = sort_win_team(players);
 
     logger.info("地块信息：")
-    for (let player of players) {
+    // for (let player of players) {
         //logger.info("地图：" + player.bitmap + " 用户：" + player.owner + " 颜色：" + player.color + " 领地：" + player.land + " 病毒：" + player.virus + " 损失：" + player.loss);
-    }
+    // }
 
     logger.info("当前的队伍名次是：");
     for (let win_team of win_teams) {
@@ -611,7 +638,8 @@ const doSettlement = async () => {
         return (Number)(BigInt(b.profit) - BigInt(a.profit));
     })
 
-    await mysql_query_with_args(mysql_connection, "INSERT INTO `round` (`end_time`,`rank`) VALUES (?,?);", [now(), JSON.stringify(rank_for_save)]);
+    const last_user = getLastUser(players);
+    await mysql_query_with_args(mysql_connection, "INSERT INTO `round` (`end_time`,`rank`,`last_user`) VALUES (?,?,?);", [now(), JSON.stringify(rank_for_save), last_user.owner]);
 
     //clear
     join_logs = [];
@@ -1589,47 +1617,31 @@ wss.on('connection', async (ws, req) => {
                     if (decode.tab === "profit") {
                         leader_board_users = await mysql_query(mysql_connection, "SELECT * FROM `user` ORDER BY `total_profit_lpad` DESC LIMIT 500;");
                         if (ws.owner) {
-                            // my_self_rank = await mysql_query(mysql_connection, "SELECT COUNT(*) as rank FROM `user` WHERE `total_profit_lpad` > (SELECT `total_profit_lpad` FROM `user` WHERE `address` = '" + ws.owner + "');");
-                            // my_self_rank = await mysql_query_with_args(mysql_connection, "SELECT COUNT(*) as rank FROM `user` WHERE `total_profit_lpad` > (SELECT `total_profit_lpad` FROM `user` WHERE `address` = ?);", [ws.owner]);
-
-                            // SELECT COUNT(*) as user_rank
-                            // FROM `user`
-                            // WHERE `total_profit_lpad` > (
-                            //     SELECT `total_profit_lpad`
-                            // FROM `user`
-                            // WHERE `address` = 'bc1qjqp9e3e44nk5k6l7vgxs8jzlfjttkpwxqka5ec'
-                            // );
-                            my_self_rank = await mysql_query_with_args(mysql_connection, "SELECT COUNT(*) as user_rank FROM `user` WHERE `total_profit_lpad` > (SELECT `total_profit_lpad` FROM `user` WHERE `address` = ?);", [ws.owner]);
-
+                            my_self_rank = await mysql_query_with_args(mysql_connection, "SELECT COUNT(*) + 1 as user_rank FROM `user` WHERE `total_profit_lpad` > (SELECT `total_profit_lpad` FROM `user` WHERE `address` = ?);", [ws.owner]);
                         }
                     }
                     if (decode.tab === 'land') {
                         leader_board_users = await mysql_query(mysql_connection, "SELECT * FROM `user` ORDER BY `land` DESC LIMIT 500;");
                         if (ws.owner) {
-                            // my_self_rank = await mysql_query(mysql_connection, "SELECT COUNT(*)  as rank FROM `user` WHERE `land` > (SELECT `land` FROM `user` WHERE `address` = '" + ws.owner + "');");
-                            my_self_rank = await mysql_query_with_args(mysql_connection, "SELECT COUNT(*)  as user_rank FROM `user` WHERE `land` > (SELECT `land` FROM `user` WHERE `address` = ?);", [ws.owner]);
+                            my_self_rank = await mysql_query_with_args(mysql_connection, "SELECT COUNT(*) + 1 as user_rank FROM `user` WHERE `land` > (SELECT `land` FROM `user` WHERE `address` = ?);", [ws.owner]);
                         }
                     }
                     if (decode.tab === 'jackpot') {
                         leader_board_users = await mysql_query(mysql_connection, "SELECT * FROM `user` ORDER BY `jackpot_lpad` DESC LIMIT 500;");
                         if (ws.owner) {
-                            // my_self_rank = await mysql_query(mysql_connection, "SELECT COUNT(*)  as rank FROM `user` WHERE `jackpot_lpad` > (SELECT `jackpot_lpad` FROM `user` WHERE `address` = '" + ws.owner + "');");
-                            my_self_rank = await mysql_query_with_args(mysql_connection, "SELECT COUNT(*)  as user_rank FROM `user` WHERE `jackpot_lpad` > (SELECT `jackpot_lpad` FROM `user` WHERE `address` = ?);", [ws.owner]);
+                            my_self_rank = await mysql_query_with_args(mysql_connection, "SELECT COUNT(*) + 1  as user_rank FROM `user` WHERE `jackpot_lpad` > (SELECT `jackpot_lpad` FROM `user` WHERE `address` = ?);", [ws.owner]);
                         }
                     }
                     if (decode.tab === 'jackpot_bw') {
                         leader_board_users = await mysql_query(mysql_connection, "SELECT * FROM `user` ORDER BY `jackpot_bw_lpad` DESC LIMIT 500;");
                         if (ws.owner) {
-                            // my_self_rank = await mysql_query(mysql_connection, "SELECT COUNT(*)  as rank FROM `user` WHERE `jackpot_bw_lpad` > (SELECT `jackpot_bw_lpad` FROM `user` WHERE `address` = '" + ws.owner + "');");
-                            my_self_rank = await mysql_query_with_args(mysql_connection, "SELECT COUNT(*)  as user_rank FROM `user` WHERE `jackpot_bw_lpad` > (SELECT `jackpot_bw_lpad` FROM `user` WHERE `address` = ?);", [ws.owner]);
-
+                            my_self_rank = await mysql_query_with_args(mysql_connection, "SELECT COUNT(*) + 1 as user_rank FROM `user` WHERE `jackpot_bw_lpad` > (SELECT `jackpot_bw_lpad` FROM `user` WHERE `address` = ?);", [ws.owner]);
                         }
                     }
                     if (decode.tab === 'points') {
                         leader_board_users = await mysql_query(mysql_connection, "SELECT * FROM `user` ORDER BY `points` DESC LIMIT 500;");
                         if (ws.owner) {
-                            // my_self_rank = await mysql_query(mysql_connection, "SELECT COUNT(*)   as rank FROM `user` WHERE `points` > (SELECT `points` FROM `user` WHERE `address` = '" + ws.owner + "');");
-                            my_self_rank = await mysql_query_with_args(mysql_connection, "SELECT COUNT(*)   as user_rank FROM `user` WHERE `points` > (SELECT `points` FROM `user` WHERE `address` = ?);", [ws.owner]);
+                            my_self_rank = await mysql_query_with_args(mysql_connection, "SELECT COUNT(*) + 1 as user_rank FROM `user` WHERE `points` > (SELECT `points` FROM `user` WHERE `address` = ?);", [ws.owner]);
                         }
                     }
 

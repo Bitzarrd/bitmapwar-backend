@@ -7,9 +7,21 @@ export function getLast3User(players) {
         res.push(users[owner]);
     }
     if (res.length > 3) {
-        return res.slice(0, 3);
+        //最后三个
+        return res.slice(-3);
     }
 
     return res;
 }
 
+export function getLastUser(players) {
+    let users = get_users(players);
+    let ownerKeys = Object.keys(users);
+    let lastOwner = ownerKeys[ownerKeys.length - 1];
+
+    if (lastOwner) {
+        return users[lastOwner];
+    }
+
+    return null;
+}
