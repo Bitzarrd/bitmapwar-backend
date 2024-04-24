@@ -70,6 +70,7 @@ const logger = winston.createLogger({
 
 
 let last_rank = [];
+let last_join = null;
 mysql_connection.connect({}, async (err) => {
     if (err) {
         logger.error("mysql connect error" + err)
@@ -81,8 +82,9 @@ mysql_connection.connect({}, async (err) => {
     logger.info("last_rounds length:" + last_rounds.length);
 
     if (last_rounds.length > 0) {
-        logger.info("last_rounds:" + last_rounds[0].rank);
+        logger.info("last_rounds:" + last_rounds[0].rank + ";" + last_rounds[0].last_join);
         last_rank = JSON.parse(last_rounds[0].rank);
+        last_join = last_rounds[0].last_join;
     }
 
     const keepAliveQuery = 'SELECT 1';
@@ -408,31 +410,32 @@ const doSettlement = async () => {
 
     if (players.length === 0) {
         //这轮没有人玩
-
         //找到上一轮最后一个下注的用户 给予50% jackpot奖励
-        // let last_bet_user = await getLastBetUser();
-        // if (last_bet_user) {
-        //     let jackpot = await getJackpot();
-        //     let reward = jackpot * 0.5;
-        //     let reward_sat = Math.floor(reward * 1e8);
-        //     let reward_sat_per_user = Math.floor(reward_sat / 2);
-        //     let reward_sat_last_user = reward_sat - reward_sat_per_user;
-        //     let last_user = await get_user_by_owner(last_bet_user);
-        //     if (last_user) {
-        //         let last_user_balance = await getBalance(last_user.owner);
-        //         let last_user_new_balance = last_user_balance + reward_sat_last_user;
-        //         await updateBalance(last_user.owner, last_user_new_balance);
-        //         await insertBalanceHistory(last_user.owner, reward_sat_last_user, "jackpot", "last_user");
-        //     }
-        //     let users = await getUsers();
-        //     for (let user of users) {
-        //         let user_balance = await getBalance(user.owner);
-        //         let user_new_balance = user_balance + reward_sat_per_user;
-        //         await updateBalance(user.owner, user_new_balance);
-        //         await insertBalanceHistory(user.owner, reward_sat_per_user, "jackpot", "user");
-        //     }
-        //     await updateJackpot(0);
-        // }
+        if (last_join) {
+            let jackpot = await mysql_query(mysql_connection, "select val from `global` where `key`='jackpot';");
+            jackpot = BigInt(jackpot[0].val);
+            logger.info(`当前jackpot总量:${jackpot.toString()}`)
+            let last_join_user = (await mysql_query_with_args(mysql_connection, "SELECT * FROM `user` WHERE `address`=?;;", [last_join]))[0];
+            if (last_join_user) {
+                let last_join_user_jackpot_reward = jackpot / BigInt(2);
+                logger.info(`上一轮最后一个下注的用户:${last_join_user.address} jackpot奖励:${last_join_user_jackpot_reward.toString()}`)
+                let now_last_user_profit = BigInt(last_join_user.profit) + last_join_user_jackpot_reward;
+                last_join_user.profit = now_last_user_profit.toString();
+                await mysql_query_with_args(mysql_connection, "UPDATE `user` SET `jackpot`=? WHERE `address`=?;", [last_join_user.profit, last_join]);
+                await mysql_query_with_args(mysql_connection, "UPDATE `global` SET `val`=? WHERE `key`='jackpot';", [last_join_user_jackpot_reward.toString()]);
+                let message = JSON.stringify({
+                    method: "JackpotLightUpWithoutPlayers",
+                    amount: last_join_user_jackpot_reward.toString(),
+                    user: last_join_user,
+                    create_now: now(),
+                });
+                clients.forEach((client) => {
+                    if (client.readyState === WebSocket.OPEN) {
+                        client.send(message);
+                    }
+                });
+            }
+        }
 
         logger.info("no players");
         clients.forEach((client) => {
@@ -457,7 +460,7 @@ const doSettlement = async () => {
 
     logger.info("地块信息：")
     // for (let player of players) {
-        //logger.info("地图：" + player.bitmap + " 用户：" + player.owner + " 颜色：" + player.color + " 领地：" + player.land + " 病毒：" + player.virus + " 损失：" + player.loss);
+    //logger.info("地图：" + player.bitmap + " 用户：" + player.owner + " 颜色：" + player.color + " 领地：" + player.land + " 病毒：" + player.virus + " 损失：" + player.loss);
     // }
 
     logger.info("当前的队伍名次是：");
@@ -508,6 +511,10 @@ const doSettlement = async () => {
         }
     }
     last_rank = Object.values(users);
+    const last_user = getLastUser(players);
+    if (last_user) {
+        last_join = last_user.owner;
+    }
 
     //发放奖励
     for (let owner of Object.keys(users)) {
@@ -638,8 +645,7 @@ const doSettlement = async () => {
         return (Number)(BigInt(b.profit) - BigInt(a.profit));
     })
 
-    const last_user = getLastUser(players);
-    await mysql_query_with_args(mysql_connection, "INSERT INTO `round` (`end_time`,`rank`,`last_user`) VALUES (?,?,?);", [now(), JSON.stringify(rank_for_save), last_user.owner]);
+    await mysql_query_with_args(mysql_connection, "INSERT INTO `round` (`end_time`,`rank`,`last_join`) VALUES (?,?,?);", [now(), JSON.stringify(rank_for_save), last_join]);
 
     //clear
     join_logs = [];
