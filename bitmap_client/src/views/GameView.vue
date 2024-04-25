@@ -59,10 +59,10 @@ export default {
   },
   mounted() {
 
-    const audio = new Audio('../../public/music/bg.mp3');
-    audio.autoplay = true;
-    audio.loop = true;
-    audio.play();
+    // const audio = new Audio('../../public/music/bg.mp3');
+    // audio.autoplay = true;
+    // audio.loop = true;
+    // audio.play();
 
     // 添加鼠标滚轮事件监听器
     let resizeable = document.getElementById('gridCanvas');

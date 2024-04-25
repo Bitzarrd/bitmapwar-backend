@@ -412,28 +412,32 @@ const doSettlement = async () => {
         //这轮没有人玩
         //找到上一轮最后一个下注的用户 给予50% jackpot奖励
         if (last_join) {
-            let jackpot = await mysql_query(mysql_connection, "select val from `global` where `key`='jackpot';");
-            jackpot = BigInt(jackpot[0].val);
-            logger.info(`当前jackpot总量:${jackpot.toString()}`)
-            let last_join_user = (await mysql_query_with_args(mysql_connection, "SELECT * FROM `user` WHERE `address`=?;;", [last_join]))[0];
-            if (last_join_user) {
-                let last_join_user_jackpot_reward = jackpot / BigInt(2);
-                logger.info(`上一轮最后一个下注的用户:${last_join_user.address} jackpot奖励:${last_join_user_jackpot_reward.toString()}`)
-                let now_last_user_profit = BigInt(last_join_user.profit) + last_join_user_jackpot_reward;
-                last_join_user.profit = now_last_user_profit.toString();
-                await mysql_query_with_args(mysql_connection, "UPDATE `user` SET `jackpot`=? WHERE `address`=?;", [last_join_user.profit, last_join]);
-                await mysql_query_with_args(mysql_connection, "UPDATE `global` SET `val`=? WHERE `key`='jackpot';", [last_join_user_jackpot_reward.toString()]);
-                let message = JSON.stringify({
-                    method: "JackpotLightUpWithoutPlayers",
-                    amount: last_join_user_jackpot_reward.toString(),
-                    user: last_join_user,
-                    create_now: now(),
-                });
-                clients.forEach((client) => {
-                    if (client.readyState === WebSocket.OPEN) {
-                        client.send(message);
-                    }
-                });
+            try {
+                let jackpot = await mysql_query(mysql_connection, "select val from `global` where `key`='jackpot';");
+                jackpot = BigInt(jackpot[0].val);
+                logger.info(`当前jackpot总量:${jackpot.toString()}`)
+                let last_join_user = (await mysql_query_with_args(mysql_connection, "SELECT * FROM `user` WHERE `address`=?;;", [last_join]))[0];
+                if (last_join_user) {
+                    let last_join_user_jackpot_reward = jackpot / BigInt(2);
+                    logger.info(`上一轮最后一个下注的用户:${last_join_user.address} jackpot奖励:${last_join_user_jackpot_reward.toString()}`)
+                    let now_last_user_profit = BigInt(last_join_user.profit) + last_join_user_jackpot_reward;
+                    last_join_user.profit = now_last_user_profit.toString();
+                    await mysql_query_with_args(mysql_connection, "UPDATE `user` SET `jackpot`=? WHERE `address`=?;", [last_join_user.profit, last_join]);
+                    await mysql_query_with_args(mysql_connection, "UPDATE `global` SET `val`=? WHERE `key`='jackpot';", [last_join_user_jackpot_reward.toString()]);
+                    let message = JSON.stringify({
+                        method: "JackpotLightUpWithoutPlayers",
+                        amount: last_join_user_jackpot_reward.toString(),
+                        user: last_join_user,
+                        create_now: now(),
+                    });
+                    clients.forEach((client) => {
+                        if (client.readyState === WebSocket.OPEN) {
+                            client.send(message);
+                        }
+                    });
+                }
+            }catch (e) {
+                logger.error(e);
             }
         }
 

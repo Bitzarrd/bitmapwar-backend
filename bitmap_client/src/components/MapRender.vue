@@ -55,7 +55,7 @@ function Queue() {
 
 export function clearCell(ctx, cellSize, x, y) {
   // 清除指定位置的矩形区域
-  console.log("clearCell", x, y);
+  // console.log("clearCell", x, y);
   ctx.clearRect(x * cellSize, y * cellSize, cellSize, cellSize);
 }
 
@@ -84,7 +84,7 @@ export default {
   watch: {
     game_started(newValue, oldValue) {
       // Perform actions based on the changes in myProperty
-      console.log('MapRender watch game_started:', newValue);
+      // console.log('MapRender watch game_started:', newValue);
       if (newValue > 0) {
         clearAll(this.ctx);
         this.init();
@@ -111,7 +111,7 @@ export default {
         // console.log("render",this.ctx, this.gridWidth, this.gridHeight, this.cellSize, this.grid, this.players);
         this.canvas.width = this.cellSize * this.gridWidth;
         this.canvas.height = this.cellSize * this.gridHeight;
-        console.log("init", this.canvas, this.ctx, this.gridWidth, this.gridHeight, this.cellSize)
+        // console.log("init", this.canvas, this.ctx, this.gridWidth, this.gridHeight, this.cellSize)
         drawGrid(this.canvas, this.ctx, this.gridWidth, this.gridHeight, this.cellSize);
         renderGrid(this.ctx, this.gridWidth, this.gridHeight, this.cellSize, this.grid, this.players);
       }
@@ -167,7 +167,7 @@ export default {
     consumeQueue() {
       while (!this.queue.isEmpty()) {
         let cell = this.queue.dequeue();
-        console.log("draw", cell.x, cell.y, cell.color);
+        // console.log("draw", cell.x, cell.y, cell.color);
         drawCell(this.ctx, this.cellSize, cell.x, cell.y, cell.color);
       }
       setTimeout(this.consumeQueue, 100);
