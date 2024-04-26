@@ -22,8 +22,8 @@ const logger = winston.createLogger({
 
 program
   .requiredOption('-a, --accounts <string>', 'accounts file path')
-  .requiredOption('-s, --soldier <number>', 'soldier amount number')
-  .requiredOption('-c, --color <string>', 'color : red blue green purple')
+  .requiredOption('-d, --days <number>', 'days')
+  .requiredOption('-t, --type <string>', 'type: energy or profit')
   .requiredOption('-ws, --websocket_url <string>', 'websocket server');
 
 program.parse();
@@ -43,7 +43,7 @@ const main = async () => {
 
   for (let i = 0; i < public_keys.length; i++) {
     logger.info("public key: " + public_keys[i]);
-    new RobotClient(public_keys[i], options.websocket_url,options.color, (Number)(options.soldier));
+    new RobotClient(public_keys[i], options.websocket_url);
 
   }
 
@@ -57,13 +57,9 @@ const sleep = async function (ms: number) {
 
 export class RobotClient {
   public pk;
-  public color;
-  public virus;
 
-  constructor(pk: string, websocket_url: string, color: string, virus: number) {
+  constructor(pk: string, websocket_url: string) {
     this.pk = pk;
-    this.color = color;
-    this.virus = virus;
     const myFormat = winston.format.printf(({level, message, timestamp}) => {
       return `${timestamp} ${level} ${pk}: ${message}`;
     });
@@ -102,10 +98,9 @@ export class RobotClient {
           this.send(msg);
         } else if (message.method === 'LoginSuccess') {
           my_logger.info(event.toString());
+          const random = Math.floor(Math.random() * 800000);
           this.send(JSON.stringify({
-            method: "JoinGameBatch",
-            virus: virus,
-            color: color,
+            method: "JoinGameBat",
           }));
         } else if (message.method === 'JoinedGameBatchSuccess') {
           my_logger.info(event.toString());
