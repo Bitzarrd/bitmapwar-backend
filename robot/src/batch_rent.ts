@@ -108,10 +108,10 @@ export class RobotClient {
             type: rent_type,
             day: days
           }));
-        } else if (message.method === 'JoinedGameBatchSuccess') {
+        } else if (message.method === 'RentBitmapSuccess') {
           my_logger.info(event.toString());
         } else {
-          // my_logger.info('Received message from server:' + event.toString());
+          // my_logger.debug('Received message from server:' + event.toString());
         }
       }
     });

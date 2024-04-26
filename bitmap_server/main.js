@@ -422,13 +422,14 @@ const doSettlement = async () => {
                     logger.info(`上一轮最后一个下注的用户:${last_join_user.address} jackpot奖励:${last_join_user_jackpot_reward.toString()}`)
                     let now_last_user_profit = BigInt(last_join_user.profit) + last_join_user_jackpot_reward;
                     last_join_user.profit = now_last_user_profit.toString();
-                    await mysql_query_with_args(mysql_connection, "UPDATE `user` SET `jackpot`=? WHERE `address`=?;", [last_join_user.profit, last_join]);
+                    await mysql_query_with_args(mysql_connection, "UPDATE `user` SET `profit`=? WHERE `address`=?;", [last_join_user.profit, last_join]);
                     await mysql_query_with_args(mysql_connection, "UPDATE `global` SET `val`=? WHERE `key`='jackpot';", [last_join_user_jackpot_reward.toString()]);
                     let message = JSON.stringify({
                         method: "JackpotLightUpWithoutPlayers",
                         amount: last_join_user_jackpot_reward.toString(),
                         user: last_join_user,
                         create_now: now(),
+                        jackpot: last_join_user_jackpot_reward.toString(),
                     });
                     clients.forEach((client) => {
                         if (client.readyState === WebSocket.OPEN) {
@@ -436,7 +437,7 @@ const doSettlement = async () => {
                         }
                     });
                 }
-            }catch (e) {
+            } catch (e) {
                 logger.error(e);
             }
         }
@@ -553,6 +554,7 @@ const doSettlement = async () => {
 
     }
 
+    /*
     //计算爆灯
     //胜利方战地面积如果为质数
     logger.info("计算爆灯");
@@ -632,6 +634,7 @@ const doSettlement = async () => {
             }
         });
     }
+    */
 
     for (let owner of Object.keys(users)) {
         let user = users[owner];
