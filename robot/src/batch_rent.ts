@@ -43,8 +43,7 @@ const main = async () => {
 
   for (let i = 0; i < public_keys.length; i++) {
     logger.info("public key: " + public_keys[i]);
-    new RobotClient(public_keys[i], options.websocket_url);
-
+    new RobotClient(public_keys[i], options.websocket_url, (Number)(options.days), options.type);
   }
 
   await sleep(100 * 1000);
@@ -57,9 +56,13 @@ const sleep = async function (ms: number) {
 
 export class RobotClient {
   public pk;
+  public days;
+  public rent_type;
 
-  constructor(pk: string, websocket_url: string) {
+  constructor(pk: string, websocket_url: string, days: number, rent_type: string) {
     this.pk = pk;
+    this.days = days;
+    this.rent_type = rent_type;
     const myFormat = winston.format.printf(({level, message, timestamp}) => {
       return `${timestamp} ${level} ${pk}: ${message}`;
     });
@@ -100,7 +103,10 @@ export class RobotClient {
           my_logger.info(event.toString());
           const random = Math.floor(Math.random() * 800000);
           this.send(JSON.stringify({
-            method: "JoinGameBat",
+            method: "RentBitmap",
+            map_id: random,
+            type: rent_type,
+            day: days
           }));
         } else if (message.method === 'JoinedGameBatchSuccess') {
           my_logger.info(event.toString());
