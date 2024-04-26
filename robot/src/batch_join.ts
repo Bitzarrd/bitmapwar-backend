@@ -3,12 +3,14 @@ import dotenv from "dotenv";
 import {program} from 'commander';
 import {WebSocket} from 'ws';
 import * as fs from "node:fs";
+import {RobotClient} from "./client";
 
 dotenv.config();
 
 const myFormat = winston.format.printf(({level, message, timestamp}) => {
   return `${timestamp} ${level}: ${message}`;
 });
+
 
 const logger = winston.createLogger({
   transports: [new winston.transports.Console()],
@@ -51,29 +53,17 @@ const main = async () => {
   const public_keys = load_public_key_array_from_path(options.accounts);
 
   for (let i = 0; i < public_keys.length; i++) {
-    const websocket_client = new WebSocket(options.websocket_url);
-    websocket_client.on('open', function open() {
-      logger.info("connected to websocket server success");
+    logger.info("public key: " + public_keys[i]);
+    new RobotClient(public_keys[i], options.websocket_url);
 
-    });
-
-    websocket_client.on('message', function (event) {
-      console.log(event);
-      logger.info('Received message from server:');
-    });
-
-// Connection closed
-    websocket_client.on('close', function (event) {
-      logger.info('Disconnected from the WebSocket server');
-    });
-
-// Error occurred
-    websocket_client.on('error', function (event) {
-      logger.error('WebSocket error:' + event);
-    });
   }
 
+  await sleep(100 * 1000);
 
+}
+
+const sleep = async function (ms: number) {
+  return new Promise(resolve => setTimeout(resolve, ms));
 }
 
 main().then(r => {
