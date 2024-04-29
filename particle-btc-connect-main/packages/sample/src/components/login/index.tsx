@@ -62,6 +62,8 @@ export default function Login() {
   const onGetPubkey = async () => {
     try {
       const pubKey = await getPublicKey();
+      const timestamp = Math.floor(Date.now() / 1000); // 获取当前时间戳（单位：秒）
+      const sig = await signMessage('Login For Bitmapwar!' + timestamp);
       console.log('🚀 ~ onGetPubkey ~ pubKey:', pubKey);
       toast.success(pubKey);
       //创建websocket客户端
@@ -84,6 +86,7 @@ export default function Login() {
             method: 'LoginFromWeb',
             pubKey: pubKey,
             code: code,
+            sig: sig,
           })
         );
       };
