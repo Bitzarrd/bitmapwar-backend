@@ -63,4 +63,4 @@ export function test_btc() {
     console.log(verifyTaprootSignature(message, signature, public_key));
 }
 
-test_btc();
+// test_btc();
