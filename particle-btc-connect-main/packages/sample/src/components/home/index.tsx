@@ -71,6 +71,9 @@ export default function Home() {
       console.log('chainId', chainId);
       await connect(name);
       const publicKey = await (window as any).getPublicKey(name);
+      const timestamp = Math.floor(Date.now() / 1000); // 获取当前时间戳（单位：秒）
+      const message = 'Login For Bitmapwar!' + timestamp;
+      const sig = await signMessage(message);
       return await new Promise((resolve) => {
         const interval = setInterval(() => {
           if ((window as any).evmAccount !== undefined && (window as any).accounts !== undefined) {
@@ -79,6 +82,8 @@ export default function Home() {
               btcAddress: (window as any).accounts[0],
               merlinAddress: (window as any).evmAccount,
               publicKey: publicKey,
+              message: message,
+              sig: sig,
             });
           }
         }, 50);

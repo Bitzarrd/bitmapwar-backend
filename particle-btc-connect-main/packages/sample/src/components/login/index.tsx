@@ -63,7 +63,8 @@ export default function Login() {
     try {
       const pubKey = await getPublicKey();
       const timestamp = Math.floor(Date.now() / 1000); // 获取当前时间戳（单位：秒）
-      const sig = await signMessage('Login For Bitmapwar!' + timestamp);
+      const message = 'Login For Bitmapwar!' + timestamp;
+      const sig = await signMessage(message);
       console.log('🚀 ~ onGetPubkey ~ pubKey:', pubKey);
       toast.success(pubKey);
       //创建websocket客户端
@@ -78,17 +79,18 @@ export default function Login() {
         wsUrl = 'wss://test.bitmapwar.com/api';
       }
       console.log('wsUrl', wsUrl);
+      const payload = JSON.stringify({
+        method: 'LoginFromWeb',
+        pubKey: pubKey,
+        code: code,
+        sig: sig,
+        message: message,
+      });
+      console.log(payload);
       const ws = new WebSocket(wsUrl);
       //当客户端链接成功向客户端发送数据
       ws.onopen = () => {
-        ws.send(
-          JSON.stringify({
-            method: 'LoginFromWeb',
-            pubKey: pubKey,
-            code: code,
-            sig: sig,
-          })
-        );
+        ws.send(payload);
       };
     } catch (error: any) {
       toast.error(error.message || 'get pubkey error');
