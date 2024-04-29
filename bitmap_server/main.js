@@ -1087,6 +1087,7 @@ const doLogin = async (ws, decode) => {
                 rentals: await getAvailableRental(mysql_connection, ws.owner),
             }));
             await action_log(address, "login", user);
+            logger.info("login success:" + address);
         }
 
 
@@ -2016,23 +2017,28 @@ wss.on('connection', async (ws, req) => {
                     ws.code = code;
                     ws.send(JSON.stringify({
                         method: "AskForWebSuccess",
-                        code: code
+                        code: code,
+                        url: process.env.LOGIN_URL + code.toString(),
                     }));
+                    logger.info("AskForWebLogin:" + code);
                     break;
-                case "WebLogin":
+                case "LoginFromWeb":
                     if (typeof decode.code === 'undefined') {
                         logger.warn("code undefined");
                         return;
                     }
-                    if (typeof decode.publicKey === 'undefined') {
+                    if (typeof decode.pubKey === 'undefined') {
                         logger.warn("address undefined");
                         return;
                     }
-                    const web_login_ws = clients.find(ws => ws.code === decode.code);
-                    if (web_login_ws) {
-                        await doLogin(web_login_ws, {
-                            address: decode.publicKey,
-                        })
+                    for (const web_login_ws of clients) {
+                        // console.log("web_login_ws", web_login_ws.code.toString(), decode.code.toString());
+                        if (typeof web_login_ws.code !== 'undefined' && web_login_ws.code.toString() === decode.code.toString()) {
+                            // console.log("web_login_ws", web_login_ws);
+                            await doLogin(web_login_ws, {
+                                address: decode.pubKey,
+                            })
+                        }
                     }
                     break;
             }
