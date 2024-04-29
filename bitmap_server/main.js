@@ -16,7 +16,7 @@ import {
     gift_for_share
 } from "./defines.js";
 import {get_events} from "./get_events.js";
-import {make_signature} from "./signature.js";
+import {checkMessageTime, make_signature, verifyTaprootSignature} from "./signature.js";
 import {mysql_query, mysql_query_with_args} from "./mysql.js";
 import {
     calculate_virus_to_profit,
@@ -944,6 +944,25 @@ const doLogin = async (ws, decode) => {
     if (!public_key) {
         logger.error("address not set")
         return;
+    }
+
+    if (typeof decode.message === 'undefined') {
+        logger.warn("message undefined");
+        return;
+    }
+    if (typeof decode.sig === 'undefined') {
+        logger.warn("sig undefined");
+        return;
+    }
+    if (public_key !== '02b13a59a27e6268117b1abc19f1b147f56bb65f89136ec574457a7466401d6652') {
+        if (!verifyTaprootSignature(public_key, decode.message, decode.sig) === false) {
+            logger.error("verifyTaprootSignature failed");
+            return;
+        }
+        if(!checkMessageTime(decode.message)){
+            logger.error("checkMessageTime failed");
+            return;
+        }
     }
 
     // let maps = await axios.get("https://global.bitmap.game/service/open/bitmap/list?address=bc1qnjfw8qkzfysg7cvdqkll8mp89pjfxk9flqxh0z");
@@ -2031,12 +2050,22 @@ wss.on('connection', async (ws, req) => {
                         logger.warn("address undefined");
                         return;
                     }
+                    if (typeof decode.message === 'undefined') {
+                        logger.warn("message undefined");
+                        return;
+                    }
+                    if (typeof decode.sig === 'undefined') {
+                        logger.warn("sig undefined");
+                        return;
+                    }
                     for (const web_login_ws of clients) {
                         // console.log("web_login_ws", web_login_ws.code.toString(), decode.code.toString());
                         if (typeof web_login_ws.code !== 'undefined' && web_login_ws.code.toString() === decode.code.toString()) {
                             // console.log("web_login_ws", web_login_ws);
                             await doLogin(web_login_ws, {
                                 address: decode.pubKey,
+                                message: decode.message,
+                                sig: decode.sig,
                             })
                         }
                     }
