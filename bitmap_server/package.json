@@ -17,7 +17,8 @@
     "bip-schnorr": "^0.6.7",
     "bip32": "^4.0.0",
     "bip86": "^0.0.3",
-    "bitcoinjs-lib": "^6.1.5",
+    "bitcoinjs-lib": "^5.2.0",
+    "bitcoinjs-message": "^2.2.0",
     "bitmap_sdk": "file:../bitmap_sdk/",
     "crypto": "^1.0.1",
     "dotenv": "^16.3.1",
@@ -35,9 +36,9 @@
   "author": "",
   "license": "ISC",
   "devDependencies": {
-    "@types/jest": "^29.5.12",
-    "jest": "^29.7.0",
     "@bufbuild/buf": "^1.30.0",
-    "@bufbuild/protoc-gen-es": "^1.8.0"
+    "@bufbuild/protoc-gen-es": "^1.8.0",
+    "@types/jest": "^29.5.12",
+    "jest": "^29.7.0"
   }
 }
