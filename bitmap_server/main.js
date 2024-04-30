@@ -959,7 +959,7 @@ const doLogin = async (ws, decode) => {
             logger.error("verifyTaprootSignature failed");
             return;
         }
-        if(!checkMessageTime(decode.message)){
+        if (!checkMessageTime(decode.message)) {
             logger.error("checkMessageTime failed");
             return;
         }
