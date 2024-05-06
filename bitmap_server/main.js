@@ -2,6 +2,7 @@ import {generate2DArray, runTurn, compress5} from 'bitmap_sdk';
 import WebSocket, {WebSocketServer} from 'ws';
 import express from "express";
 import http from "http";
+import cors from "cors";
 import winston from "winston";
 import dotenv from "dotenv";
 import axios from "axios";
@@ -122,6 +123,7 @@ mysql_connection.connect({}, async (err) => {
 
 // 创建 Express 应用程序
 const app = express();
+app.use(cors());
 
 // 创建 HTTP 服务器
 const server = http.createServer(app);
@@ -2106,6 +2108,93 @@ wss.on('connection', async (ws, req) => {
 // 处理 Express 路由
 app.get('/', (req, res) => {
     res.send('Hello Bitmapwar!');
+});
+
+app.get('/GetExtractPurchaseLog', async (req, res) => {
+    try {
+        let address = req.query.address;
+        let extract_log = await mysql_query_with_args(mysql_connection, "SELECT * FROM `extract` WHERE `address` = ? ORDER BY `create_time` DESC LIMIT 100;", [
+            address
+        ]);
+        let purchase_log = await mysql_query_with_args(mysql_connection, "SELECT * FROM `purchase` WHERE `owner` = ? ORDER BY `create_time` DESC LIMIT 100;", [
+            address
+        ])
+        res.json({
+            code: 0,
+            data: {
+                extract_log: extract_log,
+                purchase_log: purchase_log,
+            }
+        });
+    } catch (e) {
+        res.json({
+            code: -1,
+            message: e.toString(),
+        })
+    }
+});
+
+app.get('/Purchase', async (req, res) => {
+    try {
+        const txid = req.query.txid;
+        let order = await mysql_query_with_args(mysql_connection, "SELECT * FROM `purchase` WHERE `txid`=?;", [txid]);
+        if (order.length > 0) {
+            logger.warn("txid exists");
+            return;
+        }
+
+        res.json({
+            code: 0,
+            data: {
+                txid: txid
+            }
+        })
+    } catch (e) {
+        res.json({
+            code: -1,
+            message: e.toString(),
+        })
+    }
+});
+
+app.get('/LoginFromWeb', async (req, res) => {
+    try {
+        if (typeof req.query.code === 'undefined') {
+            logger.warn("code undefined");
+            return;
+        }
+        if (typeof req.query.pubKey === 'undefined') {
+            logger.warn("address undefined");
+            return;
+        }
+        if (typeof req.query.message === 'undefined') {
+            logger.warn("message undefined");
+            return;
+        }
+        if (typeof req.query.sig === 'undefined') {
+            logger.warn("sig undefined");
+            return;
+        }
+        for (const web_login_ws of clients) {
+            // console.log("web_login_ws", web_login_ws.code.toString(), decode.code.toString());
+            if (typeof web_login_ws.code !== 'undefined' && web_login_ws.code.toString() === req.query.code.toString()) {
+                // console.log("web_login_ws", web_login_ws);
+                await doLogin(web_login_ws, {
+                    address: req.query.pubKey,
+                    message: req.query.message,
+                    sig: req.query.sig,
+                })
+                await req.json({
+                    code: 0,
+                })
+            }
+        }
+    } catch (e) {
+        res.json({
+            code: -1,
+            message: e.toString(),
+        })
+    }
 });
 
 // 启动服务器
