@@ -124,6 +124,7 @@ mysql_connection.connect({}, async (err) => {
 // 创建 Express 应用程序
 const app = express();
 app.use(cors());
+app.use(express.json());
 
 // 创建 HTTP 服务器
 const server = http.createServer(app);
@@ -2157,38 +2158,43 @@ app.get('/Purchase', async (req, res) => {
     }
 });
 
-app.get('/LoginFromWeb', async (req, res) => {
+app.post('/LoginFromWeb', async (req, res) => {
     try {
-        if (typeof req.query.code === 'undefined') {
+        if (typeof req.body.code === 'undefined') {
             logger.warn("code undefined");
             return;
         }
-        if (typeof req.query.pubKey === 'undefined') {
+        if (typeof req.body.pubKey === 'undefined') {
             logger.warn("address undefined");
             return;
         }
-        if (typeof req.query.message === 'undefined') {
+        if (typeof req.body.message === 'undefined') {
             logger.warn("message undefined");
             return;
         }
-        if (typeof req.query.sig === 'undefined') {
+        if (typeof req.body.sig === 'undefined') {
             logger.warn("sig undefined");
             return;
         }
         for (const web_login_ws of clients) {
             // console.log("web_login_ws", web_login_ws.code.toString(), decode.code.toString());
-            if (typeof web_login_ws.code !== 'undefined' && web_login_ws.code.toString() === req.query.code.toString()) {
+            if (typeof web_login_ws.code !== 'undefined' && web_login_ws.code.toString() === req.body.code.toString()) {
                 // console.log("web_login_ws", web_login_ws);
                 await doLogin(web_login_ws, {
-                    address: req.query.pubKey,
-                    message: req.query.message,
-                    sig: req.query.sig,
+                    address: req.body.pubKey,
+                    message: req.body.message,
+                    sig: req.body.sig,
                 })
                 await req.json({
                     code: 0,
                 })
+                return;
             }
         }
+        await req.json({
+            code: -1,
+            message: "not found"
+        })
     } catch (e) {
         res.json({
             code: -1,
