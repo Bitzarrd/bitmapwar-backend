@@ -78,4 +78,4 @@ export function test_btc() {
     console.log(checkMessageTime('Login For Bitmapwar!1714383862'));
 }
 
-test_btc();
+// test_btc();

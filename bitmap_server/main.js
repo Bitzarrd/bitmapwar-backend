@@ -1,5 +1,7 @@
 import {generate2DArray, runTurn, compress5} from 'bitmap_sdk';
 import WebSocket, {WebSocketServer} from 'ws';
+import express from "express";
+import http from "http";
 import winston from "winston";
 import dotenv from "dotenv";
 import axios from "axios";
@@ -118,8 +120,21 @@ mysql_connection.connect({}, async (err) => {
 });
 
 
+// 创建 Express 应用程序
+const app = express();
+
+// 创建 HTTP 服务器
+const server = http.createServer(app);
+
 // 创建WebSocket服务器实例
-const wss = new WebSocketServer({port: process.env.PORT});
+// const wss = new WebSocketServer({port: process.env.PORT});
+const wss = new WebSocketServer(
+    {
+        server: server,
+        autoAcceptConnections: false
+    }
+);
+
 
 // 用于存储连接的客户端
 const clients = new Set();
@@ -2083,7 +2098,21 @@ wss.on('connection', async (ws, req) => {
         // 从集合中删除离开的客户端
         clients.delete(ws);
     });
+
+
 });
 
-logger.info('WebSocket chat server is running on port ' + process.env.PORT);
-logger.info('Process ID: ' + process.pid);
+
+// 处理 Express 路由
+app.get('/', (req, res) => {
+    res.send('Hello Bitmapwar!');
+});
+
+// 启动服务器
+const port = process.env.PORT;
+server.listen(port, () => {
+    logger.info(`Server listening on port ${port}`);
+});
+
+// logger.info('WebSocket chat server is running on port ' + process.env.PORT);
+// logger.info('Process ID: ' + process.pid);
