@@ -864,7 +864,9 @@ export const store = createStore({
             console.log("login", wallet_address)
             context.state.conn.sendObj({
                 method: "Login",
-                address: wallet_address
+                address: wallet_address,
+                message: '',
+                sig: ''
             })
         }
     },
