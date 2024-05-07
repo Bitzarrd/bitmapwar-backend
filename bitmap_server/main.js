@@ -2111,6 +2111,21 @@ app.get('/', (req, res) => {
     res.send('Hello Bitmapwar!');
 });
 
+app.get('/Status', (req, res) => {
+    res.json({
+        next_round: next_round,
+        now: now(),
+        stop_time: stop_time,
+        player_count: players.length,
+    });
+});
+
+app.post('/Join', (req, res) => {
+    res.json({
+
+    });
+});
+
 app.get('/GetExtractPurchaseLog', async (req, res) => {
     try {
         let address = req.query.address;
