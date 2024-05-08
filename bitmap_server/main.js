@@ -2194,19 +2194,43 @@ app.post('/Join', async (req, res) => {
     });
 });
 
-app.get('/GetExtractPurchaseLog', async (req, res) => {
+app.post('/GetExtractLog', async (req, res) => {
     try {
-        let address = req.query.address;
+        let public_key = req.body.pubkey;
+        let evm_address = pubKeyToEVMAddress(public_key);
+        let merlin_address = await evmAddressToMerlinAddress(evm_address);
         let extract_log = await mysql_query_with_args(mysql_connection, "SELECT * FROM `extract` WHERE `address` = ? ORDER BY `create_time` DESC LIMIT 100;", [
-            address
+            merlin_address
         ]);
+
+        res.json({
+            code: 0,
+            data: {
+                merlin_address:merlin_address,
+                extract_log: extract_log,
+            }
+        });
+    } catch (e) {
+        res.json({
+            code: -1,
+            message: e.toString(),
+        })
+    }
+});
+
+app.post('/GetPurchaseLog', async (req, res) => {
+    try {
+        let public_key = req.body.pubkey;
+        let evm_address = pubKeyToEVMAddress(public_key);
+        let merlin_address = await evmAddressToMerlinAddress(evm_address);
+
         let purchase_log = await mysql_query_with_args(mysql_connection, "SELECT * FROM `purchase` WHERE `owner` = ? ORDER BY `create_time` DESC LIMIT 100;", [
-            address
+            merlin_address
         ])
         res.json({
             code: 0,
             data: {
-                extract_log: extract_log,
+                merlin_address:merlin_address,
                 purchase_log: purchase_log,
             }
         });

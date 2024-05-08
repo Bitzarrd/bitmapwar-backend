@@ -20,6 +20,7 @@ import { toast } from 'react-toastify';
 import '../../styles/login.css';
 import BitMapWarAbi from './bitmapwar_abi.json';
 import { Contract, parseEther } from 'ethers';
+import axios from 'axios';
 
 export default function Login() {
   const { openConnectModal, disconnect } = useConnectModal();
@@ -43,6 +44,17 @@ export default function Login() {
   const bitmapwarContractAddress = {
     686868: '0xff450eD594b5C6954caC777666C2f6F0c1De75bD',
     4200: '0x1F8C06CFF96Cdc230b5660343af39889828e16EB',
+  };
+
+  const onOpenPurchaseModal = async () => {
+    onOpen();
+    const pubkey = await getPublicKey();
+    const resp = await axios.post('http://localhost:3000/GetPurchaseLog', {
+      pubkey: pubkey,
+    });
+    console.log('resp', resp.data.purchase_log);
+    setRows(resp.data.purchase_log);
+    setIsLoading(false);
   };
 
   const onConfirm = async () => {
@@ -160,7 +172,7 @@ export default function Login() {
     }
   }, []);
 
-  const rows: Iterable<any> | undefined = [];
+  const [rows,setRows] = useState([]);
 
   const columns = [
     {
@@ -249,7 +261,7 @@ export default function Login() {
           </Button>
           <br />
           <br />
-          <Button onPress={onOpen} size="lg" className="btn">
+          <Button onPress={onOpenPurchaseModal} size="lg" className="btn">
             Purchase Soldier
           </Button>
           <br />
@@ -274,7 +286,7 @@ export default function Login() {
                   <br />
                   If you encounter any issues, please contact our customer service.
                 </Button>
-                <Tooltip content="1 Soilder = 0.03 BTC">
+                <Tooltip content="1 Soilder = 0.00003 BTC">
                   <Input
                     type="number"
                     label="Price"
