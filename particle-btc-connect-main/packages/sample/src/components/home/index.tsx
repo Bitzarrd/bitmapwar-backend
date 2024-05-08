@@ -40,7 +40,7 @@ export default function Home() {
 
   const bitmapwarContractAddress = {
     686868: '0xff450eD594b5C6954caC777666C2f6F0c1De75bD',
-    4200: '',
+    4200: '0x1F8C06CFF96Cdc230b5660343af39889828e16EB',
   };
   const [forceHideModal, setForceHideModal] = useState<boolean>(false);
 

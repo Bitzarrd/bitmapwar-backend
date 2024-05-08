@@ -34,8 +34,12 @@ export default function Login() {
   // const [address, setAddress] = useState<string>();
   // const [satoshis, setSatoshis] = useState<string>('1');
   const {connectors, connect} = useConnector();
-  const {isOpen, onOpen, onOpenChange} = useDisclosure();
+  const {isOpen, onOpen, onOpenChange,} = useDisclosure();
   const {isOpen: isOpenExtract, onOpen: onOpenExtract, onOpenChange: onOpenChangeExtract} = useDisclosure();
+
+  const onConfirm = ()=>{
+    toast.success("123");
+  }
 
   // const connect_wallet = async (name: string) => {
   //   await connect(name);
@@ -238,8 +242,8 @@ export default function Login() {
                 <Button color="danger" variant="light" onPress={onClose}>
                   Close
                 </Button>
-                <Button color="primary" onPress={onClose}>
-                  Action
+                <Button color="primary" onPress={onConfirm}>
+                  Confirm
                 </Button>
               </ModalFooter>
             </>
