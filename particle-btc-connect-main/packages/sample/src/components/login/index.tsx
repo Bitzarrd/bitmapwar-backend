@@ -18,6 +18,8 @@ import { toast } from 'react-toastify';
 // import {bgBlack} from "next/dist/lib/picocolors";
 // import { useLocation } from 'react-router-dom';
 import '../../styles/login.css';
+import BitMapWarAbi from './bitmapwar_abi.json';
+import { Contract, parseEther } from 'ethers';
 
 export default function Login() {
   const { openConnectModal, disconnect } = useConnectModal();
@@ -37,7 +39,33 @@ export default function Login() {
   const { isOpen, onOpen, onOpenChange } = useDisclosure();
   const { isOpen: isOpenExtract, onOpen: onOpenExtract, onOpenChange: onOpenChangeExtract } = useDisclosure();
 
-  const onConfirm = () => {
+  const bitmapwarContractAddress = {
+    686868: '0xff450eD594b5C6954caC777666C2f6F0c1De75bD',
+    4200: '0x1F8C06CFF96Cdc230b5660343af39889828e16EB',
+  };
+
+  const onConfirm = async () => {
+    if (!chainId) {
+      return;
+    }
+    let contractAddress = null;
+    if (chainId == 4200) {
+      contractAddress = bitmapwarContractAddress['4200'];
+    }
+    if (chainId == 686868) {
+      contractAddress = bitmapwarContractAddress['686868'];
+    }
+    if (!contractAddress) {
+      return;
+    }
+
+    const price = parseEther('0.00003') as bigint;
+    const fee = price * BigInt('1');
+    console.log('fee', fee.toString());
+    const contract = new Contract(contractAddress, BitMapWarAbi) as any;
+    const transaction = await contract.buySoldier.populateTransaction();
+    console.log('transaction', transaction);
+
     toast.success('123');
   };
 
@@ -173,8 +201,8 @@ export default function Login() {
       {accounts.length === 0 && (
         <div className="btnBox">
           <div className="code-123456">CODE: {code}</div>
-
-          <Button color="warning" size="lg" onClick={openConnectModal} className="btn" style={{ marginTop: '100px' }}>
+          <br /> <br />
+          <Button color="warning" size="lg" onClick={openConnectModal} className="btn">
             Connect Wallet
           </Button>
         </div>
@@ -182,16 +210,31 @@ export default function Login() {
 
       <br />
       {accounts.length !== 0 && (
-        <Button color="primary" onClick={disconnect}>
-          Disconnect
-        </Button>
+        <div className="btnBox">
+          <div className="address">{accounts}</div>
+          <br />
+          <br />
+          <Button color="primary" onClick={disconnect} size="lg" className="btn">
+            Disconnect
+          </Button>
+          <br />
+          <br />
+          <Button color="primary" onClick={onGetPubkey} size="lg" className="btn">
+            Enter Game
+          </Button>
+          <br />
+          <br />
+          <Button onPress={onOpen} size="lg" className="btn">
+            Purchase Soldier
+          </Button>
+          <br />
+          <br />
+          <Button onPress={onOpenExtract} size="lg" className="btn">
+            Extract Profit
+          </Button>
+        </div>
       )}
       <br />
-      <Button color="primary" onClick={onGetPubkey}>
-        Enter Game
-      </Button>
-      <Button onPress={onOpen}>Purchase Soldier</Button>
-      <Button onPress={onOpenExtract}>Extract Profit</Button>
 
       <br />
 
