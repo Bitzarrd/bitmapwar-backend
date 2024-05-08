@@ -315,7 +315,7 @@ export default function Login() {
                     {(column) => <TableColumn key={column.key}>{column.label}</TableColumn>}
                   </TableHeader>
                   <TableBody items={rows} isLoading={isLoading} loadingContent={<Spinner label="Loading..." />}>
-                    {(item) => (
+                    {(item: any) => (
                       <TableRow key={item.key}>
                         {(columnKey) => <TableCell>{getKeyValue(item, columnKey)}</TableCell>}
                       </TableRow>
@@ -375,7 +375,7 @@ export default function Login() {
                     {(column) => <TableColumn key={column.key}>{column.label}</TableColumn>}
                   </TableHeader>
                   <TableBody items={rows} isLoading={isLoading} loadingContent={<Spinner label="Loading..." />}>
-                    {(item) => (
+                    {(item: any) => (
                       <TableRow key={item.key}>
                         {(columnKey) => <TableCell>{getKeyValue(item, columnKey)}</TableCell>}
                       </TableRow>
