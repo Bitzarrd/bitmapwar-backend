@@ -243,7 +243,9 @@ export default function Login() {
       </div>
       {accounts.length === 0 && (
         <div className="btnBox codeBox">
-          <div className="code-123456" style={{backgroundImage:"url(code_bg.png)"}}>CODE: {code}</div>
+          <div className="code-123456" style={{ backgroundImage: 'url(code_bg.png)' }}>
+            CODE: {code}
+          </div>
           <br /> <br />
           <Button color="warning" size="lg" onClick={openConnectModal} className="btn">
             Connect Wallet
@@ -254,7 +256,9 @@ export default function Login() {
       <br />
       {accounts.length !== 0 && (
         <div className="btnBox">
-          <div className="address"  style={{backgroundImage:"url(ID_bg.png)"}}>{accounts}</div>
+          <div className="address" style={{ backgroundImage: 'url(ID_bg.png)' }}>
+            {accounts}
+          </div>
           <br />
           <br />
           <Button color="primary" onClick={disconnect} size="lg" className="btn">
