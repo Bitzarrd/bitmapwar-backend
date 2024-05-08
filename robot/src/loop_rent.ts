@@ -28,10 +28,13 @@ const logger = winston.createLogger({
 
 
 program
-  // .requiredOption('-a, --accounts <string>', 'accounts file path')
-  // .requiredOption('-d, --days <number>', 'days')
-  // .requiredOption('-t, --type <string>', 'type: energy or profit')
-  .requiredOption('-ws, --websocket_url <string>', 'websocket server');
+  .requiredOption('-pk, --public_key <string>', 'public_key', '025499c675669bcf6ee2587f827f42e3c90e13ec0493ef5c477e0c5e8a4ba86d6d')
+  .requiredOption('-m, --map_id <number>', 'map_id', '697116')
+  .requiredOption('-s, --soldier <number>', 'soldier amount number', '1')
+  .requiredOption('-i, --interval_of_endtime <number>', 'interval of end time', '1200')
+  .requiredOption('-ws, --websocket_url <string>', 'websocket server', 'http://localhost:3000');
+
+program.parse();
 
 const options = program.opts();
 
@@ -46,13 +49,22 @@ const main = async () => {
     const next_round = status_resp.data.next_round;
     const player_count = status_resp.data.player_count;
     const interval = stop_time - now;
-    logger.info(`检查服务器状态，本局结束时间:${timestampToBeijingTime(stop_time)},一局开始时间: ${timestampToBeijingTime(next_round)}，当前下注次数地图数:${player_count},距离结束间隔${interval}秒`);
-    if (interval < 1200 && interval > 0 && player_count === 0) {
-      logger.info("开始下注");
-      let bet_resp = await axios.post("http://localhost:3000/Join", {
-        "public_key": "bc1pct76kp5l9ru5uftjdlt2c8hvveyqqpac47ug78d7gze4nrrqw8dq9jv0dn",
-        "amount": 1,
+    //距离下一局开始时间
+    const next_round_interval = next_round - now;
+    if (interval > 0) {
+      logger.info(`检查服务器状态，本局结束时间:${timestampToBeijingTime(stop_time)},下一局开始时间: ${timestampToBeijingTime(next_round)}，当前下注次数地图数:${player_count},距离本局结束间隔${interval}秒`);
+    } else {
+      logger.info(`检查服务器状态，本局结束时间:${timestampToBeijingTime(stop_time)},下一局开始时间: ${timestampToBeijingTime(next_round)}，当前下注次数地图数:${player_count},距离下一局开始间隔${next_round_interval}秒`);
+    }
 
+    if (interval < (Number)(options.interval_of_endtime) && interval > 0 && player_count === 0) {
+      logger.info("开始下注");
+      const colors = ['red', 'blue', 'green', 'purple'];
+      let bet_resp = await axios.post(options.websocket_url + "/Join", {
+        "public_key": options.public_key,
+        "amount": (Number)(options.soldier),
+        "color": colors[Math.floor(Math.random() * colors.length)],
+        "map_id": (Number)(options.map_id),
       });
       logger.info(`下注结果:${JSON.stringify(bet_resp.data)}`);
     }

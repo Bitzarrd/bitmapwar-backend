@@ -2120,9 +2120,77 @@ app.get('/Status', (req, res) => {
     });
 });
 
-app.post('/Join', (req, res) => {
-    res.json({
+app.post('/Join', async (req, res) => {
+    const amount = req.body.amount;
+    const public_key = req.body.public_key;
+    const color = req.body.color;
+    const map_id = req.body.map_id;
+    let join_y = Math.floor(map_id / gridWidth);
+    let join_x = map_id % gridWidth;
 
+    const address = pubKeyToBtcAddress(public_key);
+    const taproot_address = pubKeyToTaprootAddress(public_key);
+    const ws = {owner: address};
+    const user_for_join = (await mysql_query_with_args(mysql_connection, "SELECT * FROM `user` WHERE `address`=?;", [ws.owner]))[0];
+
+    let join_result = doJoin(ws, join_x, join_y, map_id, color, amount);
+    let join_player = join_result.player;
+    let player_index = join_result.index;
+    // if (user_for_join.virus < decode.virus) {
+    //     logger.warn("insufficient virus");
+    //
+    //     ws.send(JSON.stringify({
+    //         method: "ErrorMsg",
+    //         error_code: 100001,
+    //         error_message: bitmap_errors["100001"],
+    //     }));
+    //
+    //     return;
+    // }
+    // user_for_join.virus -= decode.virus;
+    //
+    // await mysql_connection.query("UPDATE user SET virus=virus-" + decode.virus + " WHERE address='" + ws.owner + "';");
+    let jackpot = await mysql_query(mysql_connection, "SELECT val FROM `global` WHERE `key`='jackpot';");
+    jackpot = jackpot[0].val;
+    let profit_add_to_jackpot = calculate_virus_to_profit(amount.toString());
+    // profit_add_to_jackpot = Math.floor(Number(profit_add_to_jackpot) * 0.1);
+    let new_jackpot = BigInt(jackpot) + BigInt(profit_add_to_jackpot);
+    //
+    // await mysql_connection.query("UPDATE `global` SET val='" + new_jackpot.toString() + "' WHERE `key`='jackpot';");
+    //
+    // let join_result = doJoin(ws, join_x, join_y, decode.map_id, decode.color, decode.virus);
+    // let join_player = join_result.player;
+    // let player_index = join_result.index;
+
+
+    grid[join_y][join_x] = player_index;
+
+    clients.forEach((client) => {
+        if (client.readyState === WebSocket.OPEN) {
+            client.send(JSON.stringify({
+                method: "JoinedGameSuccess",
+                player: simple_player(join_player),
+                user: user_for_join,
+                jackpot: new_jackpot.toString(),
+                statistics: statistics(),
+                create_time: now(),
+            }));
+        }
+    });
+
+    join_logs.push({
+        address: taproot_address,
+        create_time: now(),
+    });
+
+    res.json({
+        args: {
+            amount: amount,
+            public_key: public_key,
+            color: color,
+            map_id: map_id,
+        },
+        result: join_result,
     });
 });
 
