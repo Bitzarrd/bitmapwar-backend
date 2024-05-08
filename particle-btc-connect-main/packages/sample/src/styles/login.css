@@ -1,0 +1,37 @@
+.bgBlack{
+    /*color: black;*/
+    background: black;
+    height: 100vh;
+    width: 100vw;
+}
+
+.btnBox{
+    height: 400px;
+    width: 600px;
+    margin: auto auto;
+}
+
+.btn{
+    color: white;
+    width: 300px;
+    height: 72px;
+    background-color: #ff961b;
+    border-radius: 4px;
+
+    font-family: Roboto-Medium;
+    font-size: 18px;
+    font-weight: normal;
+    font-stretch: normal;
+    letter-spacing: 0px;
+}
+
+.code-123456 {
+    width: 280px;
+    height: 20px;
+    font-family: Roboto-Regular;
+    font-size: 28px;
+    font-weight: normal;
+    font-stretch: normal;
+    letter-spacing: 0px;
+    color: #ffffff;
+}
