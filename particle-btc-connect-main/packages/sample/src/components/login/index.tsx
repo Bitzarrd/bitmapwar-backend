@@ -35,6 +35,7 @@ export default function Login() {
   // const [satoshis, setSatoshis] = useState<string>('1');
   const {connectors, connect} = useConnector();
   const {isOpen, onOpen, onOpenChange} = useDisclosure();
+  const {isOpen: isOpenExtract, onOpen: onOpenExtract, onOpenChange: onOpenChangeExtract} = useDisclosure();
 
   // const connect_wallet = async (name: string) => {
   //   await connect(name);
@@ -159,6 +160,7 @@ export default function Login() {
     },
   ];
 
+  const [selectionBehavior, setSelectionBehavior] = useState("toggle");
 
   return (
     <div className="bgBlack dark">
@@ -186,9 +188,10 @@ export default function Login() {
       )}
       <br/>
       <Button color="primary" onClick={onGetPubkey}>
-        Get Pubkey
+        Enter Game
       </Button>
       <Button onPress={onOpen}>Purchase Soldier</Button>
+      <Button onPress={onOpenExtract}>Extract Profit</Button>
 
       <br/>
 
@@ -203,20 +206,22 @@ export default function Login() {
                   <br/>
                   If you encounter any issues, please contact our customer service.
                 </Button>
-                <Tooltip content="1BTC = 0.04">
-                <Input
-                  type="number"
-                  label="Price"
-                  placeholder="0.00"
-                  labelPlacement="outside"
-                  endContent={
-                    <div className="pointer-events-none flex items-center">
-                      <span className="text-default-400 text-small">$</span>
-                    </div>
-                  }
-                />
+                <Tooltip content="1 Soilder = 0.03 BTC">
+                  <Input
+                    type="number"
+                    label="Price"
+                    placeholder="0.00"
+                    // labelPlacement="outside"
+                    endContent={
+                      <div className="pointer-events-none flex items-center">
+                        <span className="text-default-400 text-small">Soilder</span>
+                      </div>
+                    }
+                  />
                 </Tooltip>
-                <Table aria-label="Example table with dynamic content" isStriped>
+                <Table aria-label="Example table with dynamic content"
+                       selectionMode="single"
+                >
                   <TableHeader columns={columns}>
                     {(column) => <TableColumn key={column.key}>{column.label}</TableColumn>}
                   </TableHeader>
@@ -234,6 +239,67 @@ export default function Login() {
                   Close
                 </Button>
                 <Button color="primary" onPress={onClose}>
+                  Action
+                </Button>
+              </ModalFooter>
+            </>
+          )}
+        </ModalContent>
+      </Modal>
+      <Modal isOpen={isOpenExtract} onOpenChange={onOpenChangeExtract} className="dark" size="5xl">
+        <ModalContent>
+          {(onCloseExtract) => (
+            <>
+              <ModalHeader className="flex flex-col gap-1">Extract Profit</ModalHeader>
+              <ModalBody>
+                <Button color="warning" variant="flat">
+                  Please do not close the browser or fresh the page during the recharge process.
+                  <br/>
+                  If you encounter any issues, please contact our customer service.
+                </Button>
+                <Input
+                  type="number"
+                  label="Your profit:"
+                  placeholder="1.23456"
+                  disabled={true}
+                  // labelPlacement="outside"
+                  endContent={
+                    <div className="pointer-events-none flex items-center">
+                      <span className="text-default-400 text-small">BTC</span>
+                    </div>
+                  }
+                />
+                <Input
+                  type="number"
+                  label="Enter amount"
+                  placeholder="0.00"
+                  // labelPlacement="outside"
+                  endContent={
+                    <div className="pointer-events-none flex items-center">
+                      <span className="text-default-400 text-small">BTC</span>
+                    </div>
+                  }
+                />
+                <Table aria-label="Example table with dynamic content"
+                       selectionMode="single"
+                >
+                  <TableHeader columns={columns}>
+                    {(column) => <TableColumn key={column.key}>{column.label}</TableColumn>}
+                  </TableHeader>
+                  <TableBody items={rows}>
+                    {(item) => (
+                      <TableRow key={item.key}>
+                        {(columnKey) => <TableCell>{getKeyValue(item, columnKey)}</TableCell>}
+                      </TableRow>
+                    )}
+                  </TableBody>
+                </Table>
+              </ModalBody>
+              <ModalFooter>
+                <Button color="danger" variant="light" onPress={onCloseExtract}>
+                  Close
+                </Button>
+                <Button color="primary" onPress={onCloseExtract}>
                   Action
                 </Button>
               </ModalFooter>
