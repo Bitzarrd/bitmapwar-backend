@@ -8,24 +8,24 @@ import {
   useConnector,
   useETHProvider,
 } from '@particle-network/btc-connectkit';
-import {useEffect, useState} from 'react';
-import {Modal, ModalContent, ModalHeader, ModalBody, ModalFooter, Button, useDisclosure} from "@nextui-org/react";
-import {Table, TableHeader, TableColumn, TableBody, TableRow, TableCell, getKeyValue} from "@nextui-org/react";
-import {Input} from "@nextui-org/react";
-import {Tooltip} from "@nextui-org/tooltip";
+import { useEffect, useState } from 'react';
+import { Modal, ModalContent, ModalHeader, ModalBody, ModalFooter, Button, useDisclosure } from '@nextui-org/react';
+import { Table, TableHeader, TableColumn, TableBody, TableRow, TableCell, getKeyValue } from '@nextui-org/react';
+import { Input } from '@nextui-org/react';
+import { Tooltip } from '@nextui-org/tooltip';
 
-import {toast} from 'react-toastify';
+import { toast } from 'react-toastify';
 // import {bgBlack} from "next/dist/lib/picocolors";
 // import { useLocation } from 'react-router-dom';
 import '../../styles/login.css';
 
 export default function Login() {
-  const {openConnectModal, disconnect} = useConnectModal();
-  const {accounts} = useAccounts();
-  const {evmAccount, chainId, switchChain, publicClient, getFeeQuotes, sendUserOp} = useETHProvider();
+  const { openConnectModal, disconnect } = useConnectModal();
+  const { accounts } = useAccounts();
+  const { evmAccount, chainId, switchChain, publicClient, getFeeQuotes, sendUserOp } = useETHProvider();
   // const location = useLocation();
 
-  const {provider, getNetwork, switchNetwork, signMessage, getPublicKey, sendBitcoin, sendInscription} =
+  const { provider, getNetwork, switchNetwork, signMessage, getPublicKey, sendBitcoin, sendInscription } =
     useBTCProvider();
   // const [gasless, setGasless] = useState<boolean>(false);
   // const [inscriptionReceiverAddress, setInscriptionReceiverAddress] = useState<string>();
@@ -33,13 +33,13 @@ export default function Login() {
   const [message, setMessage] = useState<string>('Login For Bitmapwar!');
   // const [address, setAddress] = useState<string>();
   // const [satoshis, setSatoshis] = useState<string>('1');
-  const {connectors, connect} = useConnector();
-  const {isOpen, onOpen, onOpenChange,} = useDisclosure();
-  const {isOpen: isOpenExtract, onOpen: onOpenExtract, onOpenChange: onOpenChangeExtract} = useDisclosure();
+  const { connectors, connect } = useConnector();
+  const { isOpen, onOpen, onOpenChange } = useDisclosure();
+  const { isOpen: isOpenExtract, onOpen: onOpenExtract, onOpenChange: onOpenChangeExtract } = useDisclosure();
 
-  const onConfirm = ()=>{
-    toast.success("123");
-  }
+  const onConfirm = () => {
+    toast.success('123');
+  };
 
   // const connect_wallet = async (name: string) => {
   //   await connect(name);
@@ -121,50 +121,49 @@ export default function Login() {
     }
   }, []);
 
-
   const rows = [
     {
-      key: "1",
-      name: "Tony Reichert",
-      role: "CEO",
-      status: "Active",
+      key: '1',
+      name: 'Tony Reichert',
+      role: 'CEO',
+      status: 'Active',
     },
     {
-      key: "2",
-      name: "Zoey Lang",
-      role: "Technical Lead",
-      status: "Paused",
+      key: '2',
+      name: 'Zoey Lang',
+      role: 'Technical Lead',
+      status: 'Paused',
     },
     {
-      key: "3",
-      name: "Jane Fisher",
-      role: "Senior Developer",
-      status: "Active",
+      key: '3',
+      name: 'Jane Fisher',
+      role: 'Senior Developer',
+      status: 'Active',
     },
     {
-      key: "4",
-      name: "William Howard",
-      role: "Community Manager",
-      status: "Vacation",
+      key: '4',
+      name: 'William Howard',
+      role: 'Community Manager',
+      status: 'Vacation',
     },
   ];
 
   const columns = [
     {
-      key: "name",
-      label: "NAME",
+      key: 'name',
+      label: 'NAME',
     },
     {
-      key: "role",
-      label: "ROLE",
+      key: 'role',
+      label: 'ROLE',
     },
     {
-      key: "status",
-      label: "STATUS",
+      key: 'status',
+      label: 'STATUS',
     },
   ];
 
-  const [selectionBehavior, setSelectionBehavior] = useState("toggle");
+  const [selectionBehavior, setSelectionBehavior] = useState('toggle');
 
   return (
     <div className="bgBlack dark">
@@ -172,32 +171,29 @@ export default function Login() {
       {/*  Get Network*/}
       {/*</Button>*/}
       {accounts.length === 0 && (
-
         <div className="btnBox">
-          <div className="code-123456">
-            CODE: {code}
-          </div>
+          <div className="code-123456">CODE: {code}</div>
 
-          <Button color="warning" size="lg" onClick={openConnectModal} className="btn" style={{marginTop: "100px"}}>
+          <Button color="warning" size="lg" onClick={openConnectModal} className="btn" style={{ marginTop: '100px' }}>
             Connect Wallet
           </Button>
         </div>
       )}
 
-      <br/>
+      <br />
       {accounts.length !== 0 && (
         <Button color="primary" onClick={disconnect}>
           Disconnect
         </Button>
       )}
-      <br/>
+      <br />
       <Button color="primary" onClick={onGetPubkey}>
         Enter Game
       </Button>
       <Button onPress={onOpen}>Purchase Soldier</Button>
       <Button onPress={onOpenExtract}>Extract Profit</Button>
 
-      <br/>
+      <br />
 
       <Modal isOpen={isOpen} onOpenChange={onOpenChange} className="dark" size="5xl">
         <ModalContent>
@@ -207,7 +203,7 @@ export default function Login() {
               <ModalBody>
                 <Button color="warning" variant="flat">
                   Please do not close the browser or fresh the page during the recharge process.
-                  <br/>
+                  <br />
                   If you encounter any issues, please contact our customer service.
                 </Button>
                 <Tooltip content="1 Soilder = 0.03 BTC">
@@ -223,9 +219,7 @@ export default function Login() {
                     }
                   />
                 </Tooltip>
-                <Table aria-label="Example table with dynamic content"
-                       selectionMode="single"
-                >
+                <Table aria-label="Example table with dynamic content" selectionMode="single">
                   <TableHeader columns={columns}>
                     {(column) => <TableColumn key={column.key}>{column.label}</TableColumn>}
                   </TableHeader>
@@ -258,7 +252,7 @@ export default function Login() {
               <ModalBody>
                 <Button color="warning" variant="flat">
                   Please do not close the browser or fresh the page during the recharge process.
-                  <br/>
+                  <br />
                   If you encounter any issues, please contact our customer service.
                 </Button>
                 <Input
@@ -284,9 +278,7 @@ export default function Login() {
                     </div>
                   }
                 />
-                <Table aria-label="Example table with dynamic content"
-                       selectionMode="single"
-                >
+                <Table aria-label="Example table with dynamic content" selectionMode="single">
                   <TableHeader columns={columns}>
                     {(column) => <TableColumn key={column.key}>{column.label}</TableColumn>}
                   </TableHeader>
