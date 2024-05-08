@@ -67,5 +67,11 @@
 }
 
 .codeBox{
-    margin-top: 25%;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 400px;
+    height: 200px;
+    /*background-color: #f0f0f0;*/
+    transform: translate(-50%, -50%);
 }
