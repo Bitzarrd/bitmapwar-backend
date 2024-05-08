@@ -21,6 +21,8 @@ import '../../styles/login.css';
 import BitMapWarAbi from './bitmapwar_abi.json';
 import { Contract, parseEther } from 'ethers';
 import axios from 'axios';
+import Image from 'next/image';
+import logo from '../../assets/login/logo.png';
 
 export default function Login() {
   const { openConnectModal, disconnect } = useConnectModal();
@@ -172,7 +174,7 @@ export default function Login() {
     }
   }, []);
 
-  const [rows,setRows] = useState([]);
+  const [rows, setRows] = useState([]);
 
   const columns = [
     {
@@ -235,9 +237,13 @@ export default function Login() {
       {/*<Button color="primary" onClick={onGetNetwork}>*/}
       {/*  Get Network*/}
       {/*</Button>*/}
+
+      <div className="logo">
+        <Image src={logo} alt="logo" />
+      </div>
       {accounts.length === 0 && (
-        <div className="btnBox">
-          <div className="code-123456">CODE: {code}</div>
+        <div className="btnBox codeBox">
+          <div className="code-123456" style={{backgroundImage:"url(code_bg.png)"}}>CODE: {code}</div>
           <br /> <br />
           <Button color="warning" size="lg" onClick={openConnectModal} className="btn">
             Connect Wallet
@@ -248,7 +254,7 @@ export default function Login() {
       <br />
       {accounts.length !== 0 && (
         <div className="btnBox">
-          <div className="address">{accounts}</div>
+          <div className="address"  style={{backgroundImage:"url(ID_bg.png)"}}>{accounts}</div>
           <br />
           <br />
           <Button color="primary" onClick={disconnect} size="lg" className="btn">
@@ -289,12 +295,13 @@ export default function Login() {
                 <Tooltip content="1 Soilder = 0.00003 BTC">
                   <Input
                     type="number"
-                    label="Price"
-                    placeholder="0.00"
+                    label="Enter amount"
+                    placeholder="0"
+                    step="1"
                     // labelPlacement="outside"
                     endContent={
                       <div className="pointer-events-none flex items-center">
-                        <span className="text-default-400 text-small">Soilder</span>
+                        <span className="text-default-400 text-small">Soldier</span>
                       </div>
                     }
                   />
@@ -351,6 +358,7 @@ export default function Login() {
                   type="number"
                   label="Enter amount"
                   placeholder="0.00"
+                  step="0.0000000000001"
                   // labelPlacement="outside"
                   endContent={
                     <div className="pointer-events-none flex items-center">
