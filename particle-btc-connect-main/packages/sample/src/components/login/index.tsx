@@ -38,6 +38,7 @@ export default function Login() {
   const { connectors, connect } = useConnector();
   const { isOpen, onOpen, onOpenChange } = useDisclosure();
   const { isOpen: isOpenExtract, onOpen: onOpenExtract, onOpenChange: onOpenChangeExtract } = useDisclosure();
+  const [forceHideModal, setForceHideModal] = useState<boolean>(false);
 
   const bitmapwarContractAddress = {
     686868: '0xff450eD594b5C6954caC777666C2f6F0c1De75bD',
@@ -65,8 +66,18 @@ export default function Login() {
     const contract = new Contract(contractAddress, BitMapWarAbi) as any;
     const transaction = await contract.buySoldier.populateTransaction();
     console.log('transaction', transaction);
+    const tx = {
+      to: contractAddress,
+      data: transaction.data,
+      value: fee.toString(),
+    };
+    console.log('tx', tx);
+    const feeQuotes = await getFeeQuotes(tx);
+    console.log('feeQuotes', feeQuotes);
+    const { userOp, userOpHash } = feeQuotes.verifyingPaymasterNative;
+    const hash = await sendUserOp({ userOp, userOpHash }, forceHideModal);
 
-    toast.success('123');
+    toast.success('Transaction sent: ' + hash);
   };
 
   // const connect_wallet = async (name: string) => {
