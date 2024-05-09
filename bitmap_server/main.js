@@ -2364,9 +2364,24 @@ app.post('/ExtractProfit', async (req, res) => {
     }
 });
 
-app.get('/UpdateExtract', async (req, res) => {
+app.post('/UpdateExtract', async (req, res) => {
     try{
-
+        const txid = req.body.txid;
+        const id = req.body.id;
+        const public_key = req.body.pubkey;
+        const evmAddress = pubKeyToEVMAddress(public_key);
+        const owner = await evmAddressToMerlinAddress(evmAddress);
+        let status = 1;
+        let update_extract_result = await mysql_query_with_args(mysql_connection, "UPDATE extract SET status=? AND txid=? WHERE id=?;",
+            [status, txid, id])
+        logger.info(update_extract_result);
+        let extract_logs = await mysql_query_with_args(mysql_connection, "SELECT * FROM `extract` WHERE `address` = ? ORDER BY `create_time` DESC LIMIT 100;", [owner]);
+        res.json({
+            id: id,
+            txid: txid,
+            status: status,
+            extracts: extract_logs
+        });
     }catch (e) {
         res.json({
             code: -1,

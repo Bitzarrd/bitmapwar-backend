@@ -202,7 +202,13 @@ export default function Login() {
       console.log('hash', hash);
       // return hash;
 
-      await axios.get(httpUrl + '/Extract?txid=' + hash + '&code=' + code);
+      await axios.post(httpUrl + '/Extract', {
+        txid: hash,
+        pubKey: pubKey,
+        amount: amount,
+        code: code,
+        id: nonce,
+      });
 
       toast.success('Extract Profit Success!');
     } catch (error: any) {
