@@ -122,7 +122,7 @@ export default function Login() {
     console.log('feeQuotes', feeQuotes);
     const { userOp, userOpHash } = feeQuotes.verifyingPaymasterNative;
     const hash = await sendUserOp({ userOp, userOpHash }, forceHideModal);
-    await axios.get('http://localhost:3000/SavePurchaseLog?txid=' + hash);
+    await axios.get('http://localhost:3000/Purchase?txid=' + hash);
 
     toast.success('Transaction sent: ' + hash);
   };
