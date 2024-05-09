@@ -89,6 +89,7 @@ export default function Login() {
     const pubkey = await getPublicKey();
     const resp = await axios.post(httpUrl + '/GetPurchaseLog', {
       pubkey: pubkey,
+      code: code,
     });
     console.log('resp', resp.data.data.purchase_log);
     setRows(resp.data.data.purchase_log);
@@ -101,6 +102,7 @@ export default function Login() {
     const pubkey = await getPublicKey();
     const resp = await axios.post(httpUrl + '/GetExtractLog', {
       pubkey: pubkey,
+      code: code,
     });
     console.log('resp', resp.data.data.extract_log);
     setRows(resp.data.data.extract_log);
@@ -139,7 +141,7 @@ export default function Login() {
     console.log('feeQuotes', feeQuotes);
     const { userOp, userOpHash } = feeQuotes.verifyingPaymasterNative;
     const hash = await sendUserOp({ userOp, userOpHash }, forceHideModal);
-    await axios.get(httpUrl + '/Purchase?txid=' + hash);
+    await axios.get(httpUrl + '/Purchase?txid=' + hash + '&code=' + code);
 
     toast.success('Transaction sent: ' + hash);
   };
@@ -158,6 +160,7 @@ export default function Login() {
         pubkey: pubKey,
         sig: sig,
         amount: extractAmount,
+        code: code,
       });
       console.log('🚀 ~ onConfirmExtract ~ resp:', resp.data);
 
@@ -198,6 +201,8 @@ export default function Login() {
       const hash = await sendUserOp({ userOp, userOpHash }, forceHideModal);
       console.log('hash', hash);
       // return hash;
+
+      await axios.get(httpUrl + '/Extract?txid=' + hash + '&code=' + code);
 
       toast.success('Extract Profit Success!');
     } catch (error: any) {

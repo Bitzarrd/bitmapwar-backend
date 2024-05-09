@@ -2364,6 +2364,17 @@ app.post('/ExtractProfit', async (req, res) => {
     }
 });
 
+app.get('/UpdateExtract', async (req, res) => {
+    try{
+
+    }catch (e) {
+        res.json({
+            code: -1,
+            message: e.toString(),
+        })
+    }
+})
+
 app.post('/LoginFromWeb', async (req, res) => {
     try {
         if (typeof req.body.code === 'undefined') {
