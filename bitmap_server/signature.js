@@ -5,7 +5,8 @@ import bitcoinMessage from 'bitcoinjs-message';
 export async function make_signature(privateKey, amount, nonce, to) {
     console.log("make_signature", privateKey, amount, nonce);
     const wallet = new ethers.Wallet(privateKey);
-    const messageHash = solidityPackedKeccak256(['uint256', 'uint256', 'address'], [amount.toString(), nonce, to]);
+    const chain_id = process.env.CHAIN_ID;
+    const messageHash = solidityPackedKeccak256(['uint256', 'uint256', 'address', 'uint256'], [amount.toString(), nonce, to, chain_id]);
     let messageHashBytes = getBytes(messageHash)
     return await wallet.signMessage(messageHashBytes);
 }
@@ -45,7 +46,7 @@ export function test() {
 
 export function verifyTaprootSignature(message, signature, publicKey) {
     try {
-        const address = bitcoin.payments.p2pkh({ pubkey: Buffer.from(publicKey, 'hex') }).address;
+        const address = bitcoin.payments.p2pkh({pubkey: Buffer.from(publicKey, 'hex')}).address;
         console.log(address);
         const result = bitcoinMessage.verify(message, address, signature);
 
@@ -60,15 +61,20 @@ export function verifyTaprootSignature(message, signature, publicKey) {
 //有效时间10分钟
 export function checkMessageTime(message) {
     let time = parseInt(message.split('!')[1]);
-    let now =  Math.floor(Date.now() / 1000);
-    if (now - time > 10 * 60 ) {
+    let now = Math.floor(Date.now() / 1000);
+    if (now - time > 10 * 60) {
         return false;
     }
     return true;
 }
 
 export function test_btc() {
-    let json =     {"message":"Login For Bitmapwar!1714384007","sig":"IDxjBi1TusTsGINaBNr9dCSkEtyyh9xqGvXqDpk9iZwAJPdsvyujLlQtCItwLMmrhKCtPOBJKb2fRIKLKwaFtw8=","method":"Login","address":"036fdda33d2696fbb9cca0b522d0f5b84a31a95086a91f798b253825a7a0e9d9a4"};
+    let json = {
+        "message": "Login For Bitmapwar!1714384007",
+        "sig": "IDxjBi1TusTsGINaBNr9dCSkEtyyh9xqGvXqDpk9iZwAJPdsvyujLlQtCItwLMmrhKCtPOBJKb2fRIKLKwaFtw8=",
+        "method": "Login",
+        "address": "036fdda33d2696fbb9cca0b522d0f5b84a31a95086a91f798b253825a7a0e9d9a4"
+    };
     let message = 'Login For Bitmapwar!';
     let signature = 'H3khUeUswA6rFVArWcC71FZTsvmhQmKRF0e9TSLLqJi4EK8U/EI1pj5vxsnIKRFYI2FulSD6MOKp20InAnf4tCA='
     let public_key = '03d26bce8755abbc5a58fbc64d8998af29311bb9b773cd6ade2cbb7d63fc6b3057';
