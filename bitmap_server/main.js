@@ -2271,7 +2271,7 @@ app.get('/Purchase', async (req, res) => {
             code: 0,
             data: {
                 txid: txid,
-                tx:tx
+                tx: tx
             }
         })
     } catch (e) {
@@ -2315,22 +2315,36 @@ app.post('/ExtractProfit', async (req, res) => {
         await mysql_query_with_args(mysql_connection, "UPDATE user SET profit=? WHERE merlin_address=?;", [profit_n.toString(), merlin_address]);
 
         let extract_log = {
-            address: ws.merlin_address,
+            address: merlin_address,
             amount: amount_n.toString(),
             create_time: now(),
         };
 
-        await mysql_query_with_args(mysql_connection, "INSERT INTO `extract` (`address`, `amount`, `create_time`) VALUES (?, ?, ?);", [
+        let insert_result = await mysql_query_with_args(mysql_connection, "INSERT INTO `extract` (`address`, `amount`, `create_time`) VALUES (?, ?, ?);", [
             merlin_address,
             amount_n.toString(),
             now(),
         ]);
+
+        let signature = await make_signature(process.env.PRIVATE_KEY, wei.toString(), insert_result.insertId, merlin_address);
+        logger.info("signature:" + signature);
+
+        // ws.send(JSON.stringify({
+        //     method: "ExtractProfitSuccess",
+        //     signature: signature,
+        //     amount: wei.toString(),
+        //     nonce: results.insertId,
+        //     create_time: now(),
+        //     user: user,
+        // }));
 
         res.json({
             code: 0,
             data: {
                 amount: amount_n.toString(),
                 extract_log: extract_log,
+                nonce: insert_result.insertId,
+                signature: signature
             }
         });
 

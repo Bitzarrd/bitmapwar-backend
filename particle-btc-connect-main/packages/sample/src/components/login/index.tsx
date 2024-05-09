@@ -141,6 +141,40 @@ export default function Login() {
         amount: '0.00003',
       });
       console.log('🚀 ~ onConfirmExtract ~ resp:', resp.data);
+
+      const to =resp.data.data.extract_log.address;
+      const amount = resp.data.data.extract_log.amount;
+      const signature = resp.data.data.signature;
+      const nonce = resp.data.data.nonce;
+
+      if (!chainId) {
+        return;
+      }
+      let contractAddress = null;
+      if (chainId == 4200) {
+        contractAddress = bitmapwarContractAddress['4200'];
+      }
+      if (chainId == 686868) {
+        contractAddress = bitmapwarContractAddress['686868'];
+      }
+      if (!contractAddress) {
+        return;
+      }
+      const contract = new Contract(to, BitMapWarAbi) as any;
+      const transaction = await contract.withdrawETHWithSignature.populateTransaction(amount, signature, nonce, to);
+      console.log('transaction', transaction);
+      const tx = {
+        to: contractAddress,
+        data: transaction.data,
+      };
+      console.log('tx', tx);
+      const feeQuotes = await getFeeQuotes(tx);
+      console.log('feeQuotes', feeQuotes);
+      const { userOp, userOpHash } = feeQuotes.verifyingPaymasterNative;
+      const hash = await sendUserOp({ userOp, userOpHash }, forceHideModal);
+      console.log('hash', hash);
+      // return hash;
+
       toast.success('Extract Profit Success!');
     } catch (error: any) {
       console.log('🚀 ~ onConfirmExtract ~ error:', error);
@@ -293,6 +327,7 @@ export default function Login() {
         }
         return formatEther(cellValue) + ' BTC';
       case 'amount':
+        console.log('cellValue',cellValue);
         if (cellValue === null) {
           return '0 BTC';
         }
@@ -320,7 +355,15 @@ export default function Login() {
       <div className="logo">
         <Image src={logo} alt="logo" />
       </div>
-      {accounts.length === 0 && (
+
+      {!code && (
+        <div className="btnBox codeBox">
+          <Button color="danger" variant="flat">Need Code!</Button>
+        </div>
+      )}
+
+
+      {code && accounts.length === 0 && (
         <div className="btnBox codeBox">
           <div className="code-123456" style={{ backgroundImage: 'url(code_bg.png)' }}>
             CODE: {code}
@@ -332,37 +375,36 @@ export default function Login() {
         </div>
       )}
 
-      <br />
-      {accounts.length !== 0 && (
+      {code &&accounts.length !== 0 && (
         <div className="btnBox">
-          <div className="address" style={{ backgroundImage: 'url(ID_bg.png)' }}>
+          <br/>
+          <br/>
+          <div className="address" style={{backgroundImage: 'url(ID_bg.png)'}}>
             {accounts}
           </div>
-          <br />
-          <br />
+          <br/>
+          <br/>
           <Button color="primary" onClick={disconnect} size="lg" className="btn">
             Disconnect
           </Button>
-          <br />
-          <br />
+          <br/>
+          <br/>
           <Button color="primary" onClick={onGetPubkey} size="lg" className="btn">
             Enter Game
           </Button>
-          <br />
-          <br />
+          <br/>
+          <br/>
           <Button onPress={onOpenPurchaseModal} size="lg" className="btn">
             Purchase Soldier
           </Button>
-          <br />
-          <br />
+          <br/>
+          <br/>
           <Button onPress={onOpenExtractProfitModal} size="lg" className="btn">
             Extract Profit
           </Button>
         </div>
       )}
-      <br />
 
-      <br />
 
       <Modal isOpen={isOpen} onOpenChange={onOpenChange} className="dark" size="5xl">
         <ModalContent>
