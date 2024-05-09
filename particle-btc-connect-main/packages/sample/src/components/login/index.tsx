@@ -32,6 +32,7 @@ import { Contract, parseEther, formatEther } from 'ethers';
 import axios from 'axios';
 import Image from 'next/image';
 import logo from '../../assets/login/logo.png';
+import { MerlinTestnet } from '@particle-network/chains';
 
 export default function Login() {
   const { openConnectModal, disconnect } = useConnectModal();
@@ -51,6 +52,15 @@ export default function Login() {
   const { isOpen, onOpen, onOpenChange } = useDisclosure();
   const { isOpen: isOpenExtract, onOpen: onOpenExtract, onOpenChange: onOpenChangeExtract } = useDisclosure();
   const [forceHideModal, setForceHideModal] = useState<boolean>(false);
+
+  if (typeof window !== 'undefined') {
+    const domain = window.location.hostname;
+    if (domain === 'www.bitmapwar.com' || domain === 'bitmapwar.com') {
+      switchChain(4200);
+    } else {
+      switchChain(MerlinTestnet.id);
+    }
+  }
 
   const bitmapwarContractAddress = {
     686868: '0xff450eD594b5C6954caC777666C2f6F0c1De75bD',
@@ -112,6 +122,7 @@ export default function Login() {
     console.log('feeQuotes', feeQuotes);
     const { userOp, userOpHash } = feeQuotes.verifyingPaymasterNative;
     const hash = await sendUserOp({ userOp, userOpHash }, forceHideModal);
+    await axios.get('http://localhost:3000/SavePurchaseLog?txid=' + hash);
 
     toast.success('Transaction sent: ' + hash);
   };
@@ -277,8 +288,14 @@ export default function Login() {
     const cellValue = row[columnKey];
     switch (columnKey) {
       case 'fee':
+        if (cellValue === null) {
+          return '0 BTC';
+        }
         return formatEther(cellValue) + ' BTC';
       case 'amount':
+        if (cellValue === null) {
+          return '0 BTC';
+        }
         return formatEther(cellValue) + ' BTC';
       case 'create_time':
         return new Date(Number(cellValue) * 1000).toLocaleString();
