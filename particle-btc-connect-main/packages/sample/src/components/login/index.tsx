@@ -8,8 +8,17 @@ import {
   useConnector,
   useETHProvider,
 } from '@particle-network/btc-connectkit';
-import { useEffect, useState } from 'react';
-import { Modal, ModalContent, ModalHeader, ModalBody, ModalFooter, Button, useDisclosure } from '@nextui-org/react';
+import { useCallback, useEffect, useState } from 'react';
+import {
+  Modal,
+  ModalContent,
+  ModalHeader,
+  ModalBody,
+  ModalFooter,
+  Button,
+  useDisclosure,
+  Chip,
+} from '@nextui-org/react';
 import { Table, TableHeader, TableColumn, TableBody, TableRow, TableCell, getKeyValue } from '@nextui-org/react';
 import { Input, Spinner } from '@nextui-org/react';
 import { Tooltip } from '@nextui-org/tooltip';
@@ -19,7 +28,7 @@ import { toast } from 'react-toastify';
 // import { useLocation } from 'react-router-dom';
 import '../../styles/login.css';
 import BitMapWarAbi from './bitmapwar_abi.json';
-import { Contract, parseEther } from 'ethers';
+import { Contract, parseEther, formatEther } from 'ethers';
 import axios from 'axios';
 import Image from 'next/image';
 import logo from '../../assets/login/logo.png';
@@ -54,8 +63,19 @@ export default function Login() {
     const resp = await axios.post('http://localhost:3000/GetPurchaseLog', {
       pubkey: pubkey,
     });
-    console.log('resp', resp.data.purchase_log);
-    setRows(resp.data.purchase_log);
+    console.log('resp', resp.data.data.purchase_log);
+    setRows(resp.data.data.purchase_log);
+    setIsLoading(false);
+  };
+
+  const onOpenExtractProfitModal = async () => {
+    onOpenExtract();
+    const pubkey = await getPublicKey();
+    const resp = await axios.post('http://localhost:3000/GetExtractLog', {
+      pubkey: pubkey,
+    });
+    console.log('resp', resp.data.data.extract_log);
+    setRows(resp.data.data.extract_log);
     setIsLoading(false);
   };
 
@@ -190,10 +210,6 @@ export default function Login() {
       label: 'Fee',
     },
     {
-      key: 'fee',
-      label: 'Fee',
-    },
-    {
       key: 'virus',
       label: 'Soldier',
     },
@@ -231,6 +247,28 @@ export default function Login() {
   ];
 
   const [isLoading, setIsLoading] = useState(true);
+
+  const statusColorMap = ['warning', 'success', 'danger'];
+  const statusName = ['Pending', 'Success', 'Failed'];
+
+  const renderCell = useCallback((row: any, columnKey: any) => {
+    const cellValue = row[columnKey];
+    switch (columnKey) {
+      case 'fee':
+        return formatEther(cellValue) + ' BTC';
+      case 'create_time':
+        return new Date(cellValue * 1000).toLocaleString();
+      case 'status':
+        // @ts-ignore
+        return (
+          <Chip className="capitalize" color={statusColorMap[Number(cellValue)]} size="sm" variant="flat">
+            {statusName[Number(cellValue)]}
+          </Chip>
+        );
+      default:
+        return cellValue;
+    }
+  }, []);
 
   return (
     <div className="bgBlack dark">
@@ -276,7 +314,7 @@ export default function Login() {
           </Button>
           <br />
           <br />
-          <Button onPress={onOpenExtract} size="lg" className="btn">
+          <Button onPress={onOpenExtractProfitModal} size="lg" className="btn">
             Extract Profit
           </Button>
         </div>
@@ -311,13 +349,16 @@ export default function Login() {
                   />
                 </Tooltip>
                 <Table aria-label="Example table with dynamic content" selectionMode="single">
-                  <TableHeader columns={columnsExtract}>
+                  <TableHeader columns={columns}>
                     {(column) => <TableColumn key={column.key}>{column.label}</TableColumn>}
                   </TableHeader>
                   <TableBody items={rows} isLoading={isLoading} loadingContent={<Spinner label="Loading..." />}>
                     {(item: any) => (
-                      <TableRow key={item.key}>
-                        {(columnKey) => <TableCell>{getKeyValue(item, columnKey)}</TableCell>}
+                      // <TableRow key={item.key}>
+                      //   {(columnKey) => <TableCell>{getKeyValue(item, columnKey)}</TableCell>}
+                      // </TableRow>
+                      <TableRow key={item.id}>
+                        {(columnKey) => <TableCell>{renderCell(item, columnKey)}</TableCell>}
                       </TableRow>
                     )}
                   </TableBody>
@@ -371,7 +412,7 @@ export default function Login() {
                   }
                 />
                 <Table aria-label="Example table with dynamic content" selectionMode="single">
-                  <TableHeader columns={columns}>
+                  <TableHeader columns={columnsExtract}>
                     {(column) => <TableColumn key={column.key}>{column.label}</TableColumn>}
                   </TableHeader>
                   <TableBody items={rows} isLoading={isLoading} loadingContent={<Spinner label="Loading..." />}>
