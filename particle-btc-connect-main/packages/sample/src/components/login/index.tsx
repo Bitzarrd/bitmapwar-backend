@@ -392,7 +392,7 @@ export default function Login() {
 
       {code && accounts.length === 0 && (
         <div className="btnBox codeBox">
-          <div className="code-123456" style={{ backgroundImage: 'url(code_bg.png)' }}>
+          <div className="code-123456" style={{ backgroundImage: 'url(code_bg.png)',backgroundSize:'100% 46px' }}>
             CODE: {code}
           </div>
           <br /> <br />
