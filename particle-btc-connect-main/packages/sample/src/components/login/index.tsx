@@ -114,6 +114,25 @@ export default function Login() {
     toast.success('Transaction sent: ' + hash);
   };
 
+  const onConfirmExtract = async () => {
+    try {
+      const pubKey = await getPublicKey();
+      const timestamp = Math.floor(Date.now() / 1000); // 获取当前时间戳（单位：秒）
+      const message = 'Extract Profit!' + timestamp;
+      const sig = await signMessage(message);
+      console.log('🚀 ~ onConfirmExtract ~ pubKey:', pubKey);
+      console.log('🚀 ~ onConfirmExtract ~ sig:', sig);
+      const resp = await axios.post('http://localhost:3000/ExtractProfit', {
+        pubkey: pubKey,
+        sig: sig,
+      });
+      console.log('🚀 ~ onConfirmExtract ~ resp:', resp.data);
+      toast.success('Extract Profit Success!');
+    } catch (error: any) {
+      console.log('🚀 ~ onConfirmExtract ~ error:', error);
+    }
+  };
+
   // const connect_wallet = async (name: string) => {
   //   await connect(name);
   //   const publicKey = await (window as any).getPublicKey(name);
@@ -248,20 +267,20 @@ export default function Login() {
 
   const [isLoading, setIsLoading] = useState(true);
 
-  const statusColorMap = ['warning', 'success', 'danger'];
+  // const statusColorMap = {'0':'warning', '1':'success', '2':'danger'};
   const statusName = ['Pending', 'Success', 'Failed'];
 
-  const renderCell = useCallback((row: any, columnKey: any) => {
+  const renderCell = useCallback((row: string[], columnKey: any) => {
     const cellValue = row[columnKey];
     switch (columnKey) {
       case 'fee':
         return formatEther(cellValue) + ' BTC';
       case 'create_time':
-        return new Date(cellValue * 1000).toLocaleString();
+        return new Date(Number(cellValue) * 1000).toLocaleString();
       case 'status':
-        // @ts-ignore
+        // const color  =
         return (
-          <Chip className="capitalize" color={statusColorMap[Number(cellValue)]} size="sm" variant="flat">
+          <Chip className="capitalize" color={'success'} size="sm" variant="flat">
             {statusName[Number(cellValue)]}
           </Chip>
         );
@@ -428,7 +447,7 @@ export default function Login() {
                 <Button color="danger" variant="light" onPress={onCloseExtract}>
                   Close
                 </Button>
-                <Button color="primary" onPress={onCloseExtract}>
+                <Button color="primary" onPress={onConfirmExtract}>
                   Action
                 </Button>
               </ModalFooter>
