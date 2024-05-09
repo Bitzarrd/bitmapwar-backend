@@ -329,13 +329,13 @@ export default function Login() {
     const cellValue = row[columnKey];
     switch (columnKey) {
       case 'fee':
-        if (cellValue === null) {
+        if (cellValue === null || cellValue === undefined) {
           return '0 BTC';
         }
         return formatEther(cellValue) + ' BTC';
       case 'amount':
         console.log('cellValue', cellValue);
-        if (cellValue === null) {
+        if (cellValue === null || cellValue === undefined) {
           return '0 BTC';
         }
         return formatEther(cellValue) + ' BTC';
