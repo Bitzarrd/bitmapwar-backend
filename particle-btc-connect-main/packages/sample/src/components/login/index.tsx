@@ -142,7 +142,7 @@ export default function Login() {
       });
       console.log('🚀 ~ onConfirmExtract ~ resp:', resp.data);
 
-      const to =resp.data.data.extract_log.address;
+      const to = resp.data.data.extract_log.address;
       const amount = resp.data.data.extract_log.amount;
       const signature = resp.data.data.signature;
       const nonce = resp.data.data.nonce;
@@ -327,7 +327,7 @@ export default function Login() {
         }
         return formatEther(cellValue) + ' BTC';
       case 'amount':
-        console.log('cellValue',cellValue);
+        console.log('cellValue', cellValue);
         if (cellValue === null) {
           return '0 BTC';
         }
@@ -358,10 +358,11 @@ export default function Login() {
 
       {!code && (
         <div className="btnBox codeBox">
-          <Button color="danger" variant="flat">Need Code!</Button>
+          <Button color="danger" variant="flat">
+            Need Code!
+          </Button>
         </div>
       )}
-
 
       {code && accounts.length === 0 && (
         <div className="btnBox codeBox">
@@ -375,36 +376,35 @@ export default function Login() {
         </div>
       )}
 
-      {code &&accounts.length !== 0 && (
+      {code && accounts.length !== 0 && (
         <div className="btnBox">
-          <br/>
-          <br/>
-          <div className="address" style={{backgroundImage: 'url(ID_bg.png)'}}>
+          <br />
+          <br />
+          <div className="address" style={{ backgroundImage: 'url(ID_bg.png)' }}>
             {accounts}
           </div>
-          <br/>
-          <br/>
+          <br />
+          <br />
           <Button color="primary" onClick={disconnect} size="lg" className="btn">
             Disconnect
           </Button>
-          <br/>
-          <br/>
+          <br />
+          <br />
           <Button color="primary" onClick={onGetPubkey} size="lg" className="btn">
             Enter Game
           </Button>
-          <br/>
-          <br/>
+          <br />
+          <br />
           <Button onPress={onOpenPurchaseModal} size="lg" className="btn">
             Purchase Soldier
           </Button>
-          <br/>
-          <br/>
+          <br />
+          <br />
           <Button onPress={onOpenExtractProfitModal} size="lg" className="btn">
             Extract Profit
           </Button>
         </div>
       )}
-
 
       <Modal isOpen={isOpen} onOpenChange={onOpenChange} className="dark" size="5xl">
         <ModalContent>
