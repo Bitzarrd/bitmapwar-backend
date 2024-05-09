@@ -84,9 +84,8 @@ export default function Login() {
     4200: '0x1F8C06CFF96Cdc230b5660343af39889828e16EB',
   };
 
-  const onOpenPurchaseModal = async () => {
-    onOpen();
-    const pubkey = await getPublicKey();
+  const refreshPurchase = async (pubkey: string) => {
+    setIsLoading(true);
     const resp = await axios.post(httpUrl + '/GetPurchaseLog', {
       pubkey: pubkey,
       code: code,
@@ -95,19 +94,28 @@ export default function Login() {
     setRows(resp.data.data.purchase_log);
     setIsLoading(false);
   };
+  const onOpenPurchaseModal = async () => {
+    onOpen();
+    const pubkey = await getPublicKey();
+    await refreshPurchase(pubkey);
+  };
 
   const [profit, setProfit] = useState('0');
-  const onOpenExtractProfitModal = async () => {
-    onOpenExtract();
-    const pubkey = await getPublicKey();
+  const refreshExtract = async (publicKey: string) => {
+    setIsLoading(true);
     const resp = await axios.post(httpUrl + '/GetExtractLog', {
-      pubkey: pubkey,
+      pubkey: publicKey,
       code: code,
     });
     console.log('resp', resp.data.data.extract_log);
     setRows(resp.data.data.extract_log);
     setProfit(resp.data.data.profit);
     setIsLoading(false);
+  };
+  const onOpenExtractProfitModal = async () => {
+    onOpenExtract();
+    const pubkey = await getPublicKey();
+    await refreshExtract(pubkey);
   };
 
   const onConfirm = async () => {
@@ -141,9 +149,11 @@ export default function Login() {
     console.log('feeQuotes', feeQuotes);
     const { userOp, userOpHash } = feeQuotes.verifyingPaymasterNative;
     const hash = await sendUserOp({ userOp, userOpHash }, forceHideModal);
-    await axios.get(httpUrl + '/Purchase?txid=' + hash + '&code=' + code);
 
-    toast.success('Transaction sent: ' + hash);
+    toast.warning('do not close the window, waiting for the transaction to be confirmed');
+
+    await axios.get(httpUrl + '/Purchase?txid=' + hash + '&code=' + code);
+    toast.success('Purchase success!');
   };
 
   const [extractAmount, setExtractAmount] = useState('0');
@@ -202,7 +212,9 @@ export default function Login() {
       const hash = await sendUserOp({ userOp, userOpHash }, forceHideModal);
       console.log('hash', hash);
       // return hash;
+      await refreshExtract(pubKey);
 
+      toast.warning('do not close the window, waiting for the transaction to be confirmed');
       await axios.post(httpUrl + '/Extract', {
         txid: hash,
         pubKey: pubKey,
@@ -210,8 +222,10 @@ export default function Login() {
         code: code,
         id: nonce,
       });
+      await refreshExtract(pubKey);
 
       toast.success('Extract Profit Success!');
+      await refreshPurchase(pubKey);
     } catch (error: any) {
       console.log('🚀 ~ onConfirmExtract ~ error:', error);
     }
@@ -392,7 +406,7 @@ export default function Login() {
 
       {code && accounts.length === 0 && (
         <div className="btnBox codeBox">
-          <div className="code-123456" style={{ backgroundImage: 'url(code_bg.png)',backgroundSize:'100% 46px' }}>
+          <div className="code-123456" style={{ backgroundImage: 'url(code_bg.png)', backgroundSize: '100% 46px' }}>
             CODE: {code}
           </div>
           <br /> <br />
