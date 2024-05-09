@@ -125,6 +125,7 @@ export default function Login() {
       const resp = await axios.post('http://localhost:3000/ExtractProfit', {
         pubkey: pubKey,
         sig: sig,
+        amount: '0.00003',
       });
       console.log('🚀 ~ onConfirmExtract ~ resp:', resp.data);
       toast.success('Extract Profit Success!');
@@ -274,6 +275,8 @@ export default function Login() {
     const cellValue = row[columnKey];
     switch (columnKey) {
       case 'fee':
+        return formatEther(cellValue) + ' BTC';
+      case 'amount':
         return formatEther(cellValue) + ' BTC';
       case 'create_time':
         return new Date(Number(cellValue) * 1000).toLocaleString();
@@ -436,8 +439,8 @@ export default function Login() {
                   </TableHeader>
                   <TableBody items={rows} isLoading={isLoading} loadingContent={<Spinner label="Loading..." />}>
                     {(item: any) => (
-                      <TableRow key={item.key}>
-                        {(columnKey) => <TableCell>{getKeyValue(item, columnKey)}</TableCell>}
+                      <TableRow key={item.id}>
+                        {(columnKey) => <TableCell>{renderCell(item, columnKey)}</TableCell>}
                       </TableRow>
                     )}
                   </TableBody>
