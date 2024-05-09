@@ -2297,12 +2297,20 @@ app.post('/ExtractProfit', async (req, res) => {
         let user = (await mysql_query_with_args(mysql_connection, "SELECT * FROM `user` WHERE `merlin_address` = ?;", [merlin_address]))[0];
         if (user === undefined) {
             logger.error(`user not found ${merlin_address}`);
+            res.json({
+                code: -1,
+                message: "user not found",
+            });
             return;
         }
         let profit = BigInt(user.profit);
         let amount_n = BigInt(wei.toString());
         if (profit < amount_n) {
             logger.warn("profit < amount_n")
+            res.json({
+                code: -1,
+                message: "profit < amount_n",
+            });
             return
         }
 

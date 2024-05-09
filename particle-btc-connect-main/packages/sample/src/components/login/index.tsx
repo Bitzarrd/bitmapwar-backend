@@ -124,7 +124,7 @@ export default function Login() {
     }
 
     const price = parseEther('0.00003') as bigint;
-    const fee = price * BigInt('1');
+    const fee = price * BigInt(soldierAmount);
     console.log('fee', fee.toString());
     const contract = new Contract(contractAddress, BitMapWarAbi) as any;
     const transaction = await contract.buySoldier.populateTransaction();
@@ -144,6 +144,8 @@ export default function Login() {
     toast.success('Transaction sent: ' + hash);
   };
 
+  const [extractAmount, setExtractAmount] = useState('0');
+  const [soldierAmount, setSoldierAmount] = useState('0');
   const onConfirmExtract = async () => {
     try {
       const pubKey = await getPublicKey();
@@ -155,9 +157,14 @@ export default function Login() {
       const resp = await axios.post(httpUrl + '/ExtractProfit', {
         pubkey: pubKey,
         sig: sig,
-        amount: '0.00003',
+        amount: extractAmount,
       });
       console.log('🚀 ~ onConfirmExtract ~ resp:', resp.data);
+
+      if (resp.data.code !== 0) {
+        toast.error(resp.data.message);
+        return;
+      }
 
       const to = resp.data.data.extract_log.address;
       const amount = resp.data.data.extract_log.amount;
@@ -393,7 +400,7 @@ export default function Login() {
           <br />
           <br />
           <Button color="primary" onClick={disconnect} size="lg" className="btn">
-            Disconnect
+            Disconnect Wallet
           </Button>
           <br />
           <br />
@@ -430,6 +437,7 @@ export default function Login() {
                     label="Enter amount"
                     placeholder="0"
                     step="1"
+                    onChange={(event) => setSoldierAmount(event.target.value)}
                     // labelPlacement="outside"
                     endContent={
                       <div className="pointer-events-none flex items-center">
@@ -495,6 +503,7 @@ export default function Login() {
                   placeholder="0.00"
                   step="0.0000000000001"
                   // labelPlacement="outside"
+                  onChange={(event) => setExtractAmount(event.target.value)}
                   endContent={
                     <div className="pointer-events-none flex items-center">
                       <span className="text-default-400 text-small">BTC</span>
