@@ -1,5 +1,6 @@
-import {ethers, Interface} from "ethers";
+import {ethers, FetchRequest, Interface, parseEther} from "ethers";
 
+const txid = "0xccbd5a4c2186be48c5dcb9a137fa550fe9d9133262018216b30128b3d2e27cb3";
 const abi = [
     {
         "inputs": [
@@ -434,61 +435,39 @@ const abi = [
         "stateMutability": "pure",
         "type": "function"
     }
-];
-
-// const rpc_url = "https://magical-wiser-uranium.bsc-testnet.quiknode.pro/129a6185443fadec6a5f672b3727e6864400dfd8/";
-// const rpc_url = "https://testnet-rpc.merlinchain.io";
+]
 
 
-async function sleep(ms) {
-    return new Promise(resolve => setTimeout(resolve, ms));
-}
+// const rpc_url = "https://data-seed-prebsc-1-s1.binance.org:8545";
+const rpc_url = "https://rpc.merlinchain.io";
+const provider = new ethers.JsonRpcProvider(rpc_url);
+const iface = new Interface(abi)
 
-export async function get_events(txid, callback) {
 
-    console.log(process.env.RPC_URL);
+const receipt = await provider.getTransactionReceipt(txid);
+const tx = await provider.getTransaction(txid);
+const result = await tx.wait()
+const logs = result.logs;
 
-    const provider = new ethers.JsonRpcProvider(process.env.RPC_URL);
-    const iface = new Interface(abi)
-    // try {
-    //     provider.getTransaction(txid).then((tx) => {
-    //         tx.wait().then((result) => {
-    //             const logs = result.logs;
-    //             let events = [];
-    //             for (let i = 0; i < logs.length; i++) {
-    //                 events.push(iface.parseLog(logs[i]));
-    //             }
-    //             callback(events);
-    //         })
-    //     });
-    // } catch (e) {
-    //     console.error(e);
-    //     callback([])
-    // }
+// const contract = new ethers.Contract(receipt.contractAddress, abi, provider);
+// const events =
 
-    try {
-        let tx = await provider.getTransaction(txid);
-        if(tx===null){
-            await sleep(5000);
-            tx = await provider.getTransaction(txid);
-        }
-        const receipt = await tx.wait();
-        const logs = receipt.logs;
-        let events = [];
-        for (let i = 0; i < logs.length; i++) {
-            const parsedEvent = iface.parseLog(logs[i])
-            if(parsedEvent != null) {
-                events.push(parsedEvent);
-            }
-        }
-        return {
-            tx: tx,
-            receipt: receipt,
-            logs: logs,
-            events: events
-        }
-    } catch (e) {
-        console.error(e);
-        return null;
+// const events =
+
+console.log("receipt", receipt);
+console.log("response", logs);
+
+let parsed = [];
+for (let i = 0; i < logs.length; i++) {
+    const log = logs[i];
+    const parsedLog = iface.parseLog(log);
+    if (parsedLog) {
+        parsed.push(parsedLog);
     }
 }
+
+console.log("parsed", parsed);
+const virus_price = parseEther("0.00003").toString();
+let value = BigInt("30000000000000");
+let amount = value / BigInt(virus_price);
+console.log("amount", amount.toString());

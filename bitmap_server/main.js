@@ -2265,10 +2265,13 @@ app.get('/Purchase', async (req, res) => {
             return;
         }
 
+        const tx = await get_events(txid);
+
         res.json({
             code: 0,
             data: {
-                txid: txid
+                txid: txid,
+                tx:tx
             }
         })
     } catch (e) {
