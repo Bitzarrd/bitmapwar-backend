@@ -2266,14 +2266,56 @@ app.get('/Purchase', async (req, res) => {
         }
 
         const tx = await get_events(txid);
+        let user;
+        let purchases;
+
+        for (let i = 0; i < tx.events.length; i++) {
+            let event = tx.events[i];
+            switch (event.signature) {
+                case "Transfer(address,address,uint256)":
+                    let from = event.args[0];
+                    let to = event.args[1];
+                    let amount = (Number)(BigInt(event.args[2]) / BigInt(virus_price));
+                    if (from === "0x0000000000000000000000000000000000000000") {
+                        try {
+                            await mysql_query_with_args(mysql_connection, "UPDATE `user` SET `virus` = `virus` + ? , `energy` = `energy` + ? WHERE `merlin_address` = ?;", [amount, amount, to])
+                            try {
+                                const selectResult = await mysql_query_with_args(mysql_connection, "SELECT * FROM `user` WHERE `merlin_address` = ?;", [to])
+                                logger.info(selectResult);
+                                user = selectResult[0];
+                                purchases = await mysql_query_with_args(mysql_connection, "SELECT * FROM `purchase` WHERE `owner`=? ORDER BY create_time DESC;", [to]);
+
+                            } catch (selectErr) {
+                                logger.error(selectErr);
+                            }
+                        } catch (err) {
+                            logger.error(err);
+                        }
+                    }
+            }
+        }
 
         res.json({
             code: 0,
             data: {
                 txid: txid,
-                tx: tx
+                purchases: purchases,
+                // tx: tx
             }
         })
+
+        if (req.query.code && user && purchases) {
+            for (const ws of clients) {
+                if (typeof ws.code !== 'undefined' && ws.code.toString() === req.query.code.toString()) {
+                    ws.send(JSON.stringify({
+                        method: "PurchaseSuccess",
+                        user: user,
+                        purchases: purchases,
+                    }));
+                }
+            }
+        }
+
     } catch (e) {
         res.json({
             code: -1,
