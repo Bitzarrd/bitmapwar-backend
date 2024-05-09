@@ -53,7 +53,24 @@ export default function Login() {
   const { isOpen: isOpenExtract, onOpen: onOpenExtract, onOpenChange: onOpenChangeExtract } = useDisclosure();
   const [forceHideModal, setForceHideModal] = useState<boolean>(false);
 
+  let wsUrl = '';
+  let httpUrl = '';
+
   if (typeof window !== 'undefined') {
+    if (window.location.hostname === 'dev.bitmapwar.com') {
+      wsUrl = 'wss://dev-server.bitmapwar.com';
+      httpUrl = 'https://dev-server.bitmapwar.com';
+    } else if (window.location.hostname === 'bitmapwar.com' || window.location.hostname === 'www.bitmapwar.com') {
+      wsUrl = 'wss://server.bitmapwar.com/api';
+      httpUrl = 'https://server.bitmapwar.com';
+    } else if (window.location.hostname === 'localhost') {
+      wsUrl = 'ws://localhost:3000/api';
+      httpUrl = 'http://localhost:3000';
+    } else if (window.location.hostname === 'unity.bitmapwar.com') {
+      wsUrl = 'wss://test.bitmapwar.com/api';
+      httpUrl = 'https://test.bitmapwar.com';
+    }
+    console.log('wsUrl', wsUrl);
     const domain = window.location.hostname;
     if (domain === 'www.bitmapwar.com' || domain === 'bitmapwar.com') {
       switchChain(4200);
@@ -70,7 +87,7 @@ export default function Login() {
   const onOpenPurchaseModal = async () => {
     onOpen();
     const pubkey = await getPublicKey();
-    const resp = await axios.post('http://localhost:3000/GetPurchaseLog', {
+    const resp = await axios.post(httpUrl + '/GetPurchaseLog', {
       pubkey: pubkey,
     });
     console.log('resp', resp.data.data.purchase_log);
@@ -82,7 +99,7 @@ export default function Login() {
   const onOpenExtractProfitModal = async () => {
     onOpenExtract();
     const pubkey = await getPublicKey();
-    const resp = await axios.post('http://localhost:3000/GetExtractLog', {
+    const resp = await axios.post(httpUrl + '/GetExtractLog', {
       pubkey: pubkey,
     });
     console.log('resp', resp.data.data.extract_log);
@@ -122,7 +139,7 @@ export default function Login() {
     console.log('feeQuotes', feeQuotes);
     const { userOp, userOpHash } = feeQuotes.verifyingPaymasterNative;
     const hash = await sendUserOp({ userOp, userOpHash }, forceHideModal);
-    await axios.get('http://localhost:3000/Purchase?txid=' + hash);
+    await axios.get(httpUrl + '/Purchase?txid=' + hash);
 
     toast.success('Transaction sent: ' + hash);
   };
@@ -135,7 +152,7 @@ export default function Login() {
       const sig = await signMessage(message);
       console.log('🚀 ~ onConfirmExtract ~ pubKey:', pubKey);
       console.log('🚀 ~ onConfirmExtract ~ sig:', sig);
-      const resp = await axios.post('http://localhost:3000/ExtractProfit', {
+      const resp = await axios.post(httpUrl + '/ExtractProfit', {
         pubkey: pubKey,
         sig: sig,
         amount: '0.00003',
@@ -221,17 +238,7 @@ export default function Login() {
       console.log('🚀 ~ onGetPubkey ~ pubKey:', pubKey);
       toast.success(pubKey);
       //创建websocket客户端
-      let wsUrl = '';
-      if (window.location.hostname === 'dev.bitmapwar.com') {
-        wsUrl = 'wss://dev-server.bitmapwar.com/api';
-      } else if (window.location.hostname === 'bitmapwar.com' || window.location.hostname === 'www.bitmapwar.com') {
-        wsUrl = 'wss://server.bitmapwar.com/api';
-      } else if (window.location.hostname === 'localhost') {
-        wsUrl = 'ws://localhost:3000/api';
-      } else if (window.location.hostname === 'unity.bitmapwar.com') {
-        wsUrl = 'wss://test.bitmapwar.com/api';
-      }
-      console.log('wsUrl', wsUrl);
+
       const payload = JSON.stringify({
         method: 'LoginFromWeb',
         pubKey: pubKey,
