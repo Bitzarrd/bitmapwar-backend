@@ -68,6 +68,7 @@ export default function Login() {
     setIsLoading(false);
   };
 
+  const [profit, setProfit] = useState('0');
   const onOpenExtractProfitModal = async () => {
     onOpenExtract();
     const pubkey = await getPublicKey();
@@ -76,6 +77,7 @@ export default function Login() {
     });
     console.log('resp', resp.data.data.extract_log);
     setRows(resp.data.data.extract_log);
+    setProfit(resp.data.data.profit);
     setIsLoading(false);
   };
 
@@ -412,7 +414,7 @@ export default function Login() {
                 <Input
                   type="number"
                   label="Your profit:"
-                  placeholder="1.23456"
+                  placeholder={formatEther(profit).toString()}
                   disabled={true}
                   // labelPlacement="outside"
                   endContent={

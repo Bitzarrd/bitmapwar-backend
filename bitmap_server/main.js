@@ -2197,17 +2197,24 @@ app.post('/Join', async (req, res) => {
 app.post('/GetExtractLog', async (req, res) => {
     try {
         let public_key = req.body.pubkey;
+        let btc_address = pubKeyToBtcAddress(public_key);
         let evm_address = pubKeyToEVMAddress(public_key);
         let merlin_address = await evmAddressToMerlinAddress(evm_address);
         let extract_log = await mysql_query_with_args(mysql_connection, "SELECT * FROM `extract` WHERE `address` = ? ORDER BY `create_time` DESC LIMIT 100;", [
             merlin_address
         ]);
 
+        let user = (await mysql_query_with_args(mysql_connection, "SELECT * FROM `user` WHERE `address` = ?;", [
+            btc_address
+        ]))[0];
+
+
         res.json({
             code: 0,
             data: {
                 merlin_address:merlin_address,
                 extract_log: extract_log,
+                profit:user.profit,
             }
         });
     } catch (e) {
