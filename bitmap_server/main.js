@@ -2289,6 +2289,23 @@ app.post('/ExtractProfit', async (req, res) => {
         const sig = req.body.sig;
         const amount = req.body.amount;
 
+        if (!verifyTaprootSignature(public_key, message, sig) === false) {
+            logger.error("verifyTaprootSignature failed");
+            res.json({
+                code: -1,
+                message: "verifyTaprootSignature failed",
+            });
+            return;
+        }
+        if (!checkMessageTime(message)) {
+            logger.error("checkMessageTime failed");
+            res.json({
+                code: -1,
+                message: "checkMessageTime failed"
+            })
+            return;
+        }
+
         const btc_address = pubKeyToBtcAddress(public_key);
         const merlin_address = await evmAddressToMerlinAddress(pubKeyToEVMAddress(public_key));
 
@@ -2365,7 +2382,7 @@ app.post('/ExtractProfit', async (req, res) => {
 });
 
 app.post('/UpdateExtract', async (req, res) => {
-    try{
+    try {
         const txid = req.body.txid;
         const id = req.body.id;
         const public_key = req.body.pubkey;
@@ -2382,7 +2399,7 @@ app.post('/UpdateExtract', async (req, res) => {
             status: status,
             extracts: extract_logs
         });
-    }catch (e) {
+    } catch (e) {
         res.json({
             code: -1,
             message: e.toString(),

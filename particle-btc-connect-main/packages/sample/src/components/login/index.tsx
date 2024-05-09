@@ -161,6 +161,7 @@ export default function Login() {
         sig: sig,
         amount: extractAmount,
         code: code,
+        message: message,
       });
       console.log('🚀 ~ onConfirmExtract ~ resp:', resp.data);
 
