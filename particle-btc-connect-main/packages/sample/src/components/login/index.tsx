@@ -306,7 +306,7 @@ export default function Login() {
           toast.error(message);
         }
         if (typeof error === 'object' && error.message) {
-          const { message } = error.message;
+          const message = error.message;
           console.log('retry error', message);
           toast.error(message);
         } else {
