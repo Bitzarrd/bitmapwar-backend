@@ -227,7 +227,21 @@ export default function Login() {
       toast.success('Extract Profit Success!');
       await refreshPurchase(pubKey);
     } catch (error: any) {
-      console.log('🚀 ~ onConfirmExtract ~ error:', error);
+      if (typeof error === 'object' && error.data && error.data.extraMessage) {
+        const { message } = error.data.extraMessage;
+        console.log('retry error', message);
+        toast.error(message);
+      }
+      if (typeof error === 'object' && error.message) {
+        const { message } = error.message;
+        console.log('retry error', message);
+        toast.error(message);
+      } else {
+        const msg = error.toString();
+        console.log('retry error', msg);
+        toast.error(msg);
+      }
+      throw error;
     }
   };
 
@@ -288,6 +302,11 @@ export default function Login() {
       } catch (error: any) {
         if (typeof error === 'object' && error.data && error.data.extraMessage) {
           const { message } = error.data.extraMessage;
+          console.log('retry error', message);
+          toast.error(message);
+        }
+        if (typeof error === 'object' && error.message) {
+          const { message } = error.message;
           console.log('retry error', message);
           toast.error(message);
         } else {
