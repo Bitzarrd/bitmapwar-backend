@@ -422,6 +422,7 @@ const get_color_by_user = (owner, players) => {
 }
 
 const doSettlement = async () => {
+    logger.info("doSettlement");
     clearInterval(interval);
     next_round = now() + intervalBetweenMatches;
     turn = 0;
@@ -695,13 +696,20 @@ const doSettlement = async () => {
     }, intervalBetweenMatches * 1000);
 }
 
+let inSettlement = false;
 const checkStep = async () => {
 
     //检查是否到结算时间
     try {
-        if (now() === stop_time) {
-            logger.info("stopped on timer")
-            await doSettlement();
+        if (now() >= stop_time) {
+            logger.info("stopped on timer");
+            if (inSettlement) {
+                logger.warn('in settlement');
+            } else {
+                inSettlement = true;
+                await doSettlement();
+                inSettlement = false;
+            }
             return;
         }
     } catch (e) {
