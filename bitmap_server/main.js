@@ -1730,10 +1730,10 @@ wss.on('connection', async (ws, req) => {
                     break;
                 case "GetExtractPurchaseLog":
                     let extract_log = await mysql_query_with_args(mysql_connection, "SELECT * FROM `extract` WHERE `address` = ? ORDER BY `create_time` DESC LIMIT 100;", [
-                        ws.owner
+                        ws.merlin_address
                     ]);
                     let purchase_log = await mysql_query_with_args(mysql_connection, "SELECT * FROM `purchase` WHERE `owner` = ? ORDER BY `create_time` DESC LIMIT 100;", [
-                        ws.owner
+                        ws.merlin_address
                     ])
                     ws.send(JSON.stringify({
                         method: "GetExtractPurchaseLogSuccess",
