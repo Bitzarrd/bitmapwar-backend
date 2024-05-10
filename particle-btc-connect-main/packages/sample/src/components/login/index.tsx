@@ -351,6 +351,10 @@ export default function Login() {
       key: 'status',
       label: 'Status',
     },
+    {
+      key: 'action',
+      label: 'Action',
+    },
   ];
 
   const [isLoading, setIsLoading] = useState(true);
@@ -358,8 +362,68 @@ export default function Login() {
   // const statusColorMap = {'0':'warning', '1':'success', '2':'danger'};
   const statusName = ['Pending', 'Success', 'Failed'];
 
+  const retry = async function(row:any){
+    console.log('retry',row);
+
+    try {
+      const pubKey = await getPublicKey();
+
+
+
+      const to = row.address;
+      const amount = row.amount;
+      const signature = row.signature;
+      const nonce = row.id;
+
+      if (!chainId) {
+        return;
+      }
+      let contractAddress = null;
+      if (chainId == 4200) {
+        contractAddress = bitmapwarContractAddress['4200'];
+      }
+      if (chainId == 686868) {
+        contractAddress = bitmapwarContractAddress['686868'];
+      }
+      if (!contractAddress) {
+        return;
+      }
+      const contract = new Contract(to, BitMapWarAbi) as any;
+      const transaction = await contract.withdrawETHWithSignature.populateTransaction(amount, signature, nonce, to);
+      console.log('transaction', transaction);
+      const tx = {
+        to: contractAddress,
+        data: transaction.data,
+      };
+      console.log('tx', tx);
+      const feeQuotes = await getFeeQuotes(tx);
+      console.log('feeQuotes', feeQuotes);
+      const { userOp, userOpHash } = feeQuotes.verifyingPaymasterNative;
+      const hash = await sendUserOp({ userOp, userOpHash }, forceHideModal);
+      console.log('hash', hash);
+      // return hash;
+      await refreshExtract(pubKey);
+
+      toast.warning('do not close the window, waiting for the transaction to be confirmed');
+      await axios.post(httpUrl + '/Extract', {
+        txid: hash,
+        pubKey: pubKey,
+        amount: amount,
+        code: code,
+        id: nonce,
+      });
+      await refreshExtract(pubKey);
+
+      toast.success('Extract Profit Success!');
+      await refreshPurchase(pubKey);
+    } catch (error: any) {
+      console.log('🚀 ~ onConfirmExtract ~ error:', error);
+    }
+  }
+
   const renderCell = useCallback((row: string[], columnKey: any) => {
     const cellValue = row[columnKey];
+    // console.log('columnKey', columnKey);
     switch (columnKey) {
       case 'fee':
         if (cellValue === null || cellValue === undefined) {
@@ -381,6 +445,12 @@ export default function Login() {
             {statusName[Number(cellValue)]}
           </Chip>
         );
+      case 'action':
+        // @ts-ignore
+        if (row['status'] == 0) {
+          return <Button size="sm" onPress={retry.bind(null,row)}>Retry</Button>;
+        }
+        return <></>;
       default:
         return cellValue;
     }

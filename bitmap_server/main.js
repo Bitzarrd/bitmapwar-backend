@@ -1149,6 +1149,20 @@ const doLogin = async (ws, decode) => {
 //     }
 // }, 1000);
 
+const getPurchaseLog = async (mysql_connection,owner)=>{
+    let purchase_log = await mysql_query_with_args(mysql_connection, "SELECT * FROM `purchase` WHERE `owner` = ? ORDER BY `create_time` DESC LIMIT 100;", [
+        owner
+    ])
+    return purchase_log;
+}
+
+const getExtractLog = async (mysql_connection,merlin_address)=>{
+    let extract_log = await mysql_query_with_args(mysql_connection, "SELECT * FROM `extract` WHERE `address` = ? AND signature !='' ORDER BY `create_time` DESC LIMIT 100;", [
+        merlin_address
+    ]);
+    return extract_log;
+}
+
 // 当有新的连接建立时触发
 wss.on('connection', async (ws, req) => {
     let ip = req.socket.remoteAddress;
