@@ -2137,12 +2137,19 @@ app.get('/', (req, res) => {
 });
 
 app.get('/Status', (req, res) => {
-    res.json({
-        next_round: next_round,
-        now: now(),
-        stop_time: stop_time,
-        player_count: players.length,
-    });
+    try {
+        res.json({
+            next_round: next_round,
+            now: now(),
+            stop_time: stop_time,
+            player_count: players.length,
+        });
+    }catch (e){
+        res.json({
+            code: -1,
+            message: e.toString(),
+        })
+    }
 });
 
 app.post('/Join', async (req, res) => {
