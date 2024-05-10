@@ -1666,6 +1666,9 @@ wss.on('connection', async (ws, req) => {
                     // logger.info("extract_insert_id:" + extract_insert_id);
                     break;
                 case "UpdateExtract":
+                    if(!decode.txid){
+                        return;
+                    }
                     let status = 1;
                     let update_extract_result = await mysql_query_with_args(mysql_connection, "UPDATE extract SET status=? AND txid=? WHERE id=?;", [status, decode.txid, decode.id])
                     logger.info(update_extract_result);
@@ -2417,6 +2420,8 @@ app.post('/ExtractProfit', async (req, res) => {
 
         let signature = await make_signature(process.env.PRIVATE_KEY, wei.toString(), insert_result.insertId, merlin_address);
         logger.info("signature:" + signature);
+
+        await mysql_query_with_args(mysql_connection, "UPDATE extract SET signature=? WHERE id=?;", [signature, insert_result.insertId]);
 
         // ws.send(JSON.stringify({
         //     method: "ExtractProfitSuccess",
