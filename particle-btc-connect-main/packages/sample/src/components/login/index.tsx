@@ -231,14 +231,12 @@ export default function Login() {
     }
   };
 
-  const retry = async function(row:any){
-    console.log('retry',row);
+  const retry = async function (row: any) {
+    console.log('retry', row);
 
     try {
       const pubKey = await getPublicKey();
-      console.log("retry",pubKey);
-
-
+      console.log('retry', pubKey);
 
       const to = row.address;
       const amount = row.amount;
@@ -287,11 +285,11 @@ export default function Login() {
       toast.success('Extract Profit Success!');
       await refreshPurchase(pubKey);
     } catch (error: any) {
-      let msg =  error.toString();
-      console.log('retry error',msg)
+      const msg = error.toString();
+      console.log('retry error', msg);
       toast.error(msg);
     }
-  }
+  };
   // const connect_wallet = async (name: string) => {
   //   await connect(name);
   //   const publicKey = await (window as any).getPublicKey(name);
@@ -423,8 +421,6 @@ export default function Login() {
   // const statusColorMap = {'0':'warning', '1':'success', '2':'danger'};
   const statusName = ['Pending', 'Success', 'Failed'];
 
-
-
   const renderCell = useCallback((row: string[], columnKey: any) => {
     const cellValue = row[columnKey];
     // console.log('columnKey', columnKey);
@@ -452,7 +448,11 @@ export default function Login() {
       case 'action':
         // @ts-ignore
         if (row['status'] == 0) {
-          return <Button size="sm" onPress={retry.bind(null,row)}>Retry</Button>;
+          return (
+            <Button size="sm" onPress={retry.bind(null, row)}>
+              Retry
+            </Button>
+          );
         }
         return <></>;
       default:
