@@ -1149,14 +1149,14 @@ const doLogin = async (ws, decode) => {
 //     }
 // }, 1000);
 
-const getPurchaseLog = async (mysql_connection,owner)=>{
+const getPurchaseLog = async (mysql_connection, owner) => {
     let purchase_log = await mysql_query_with_args(mysql_connection, "SELECT * FROM `purchase` WHERE `owner` = ? ORDER BY `create_time` DESC LIMIT 100;", [
         owner
     ])
     return purchase_log;
 }
 
-const getExtractLog = async (mysql_connection,merlin_address)=>{
+const getExtractLog = async (mysql_connection, merlin_address) => {
     let extract_log = await mysql_query_with_args(mysql_connection, "SELECT * FROM `extract` WHERE `address` = ? AND signature !='' ORDER BY `create_time` DESC LIMIT 100;", [
         merlin_address
     ]);
@@ -1666,11 +1666,11 @@ wss.on('connection', async (ws, req) => {
                     // logger.info("extract_insert_id:" + extract_insert_id);
                     break;
                 case "UpdateExtract":
-                    if(!decode.txid){
+                    if (!decode.txid || decode.txid === '') {
                         return;
                     }
                     let status = 1;
-                    let update_extract_result = await mysql_query_with_args(mysql_connection, "UPDATE extract SET status=? WHERE id=?;", [status, decode.id])
+                    let update_extract_result = await mysql_query_with_args(mysql_connection, "UPDATE extract SET status=? AND txid=? WHERE id=?;", [status, decode.txid, decode.id])
                     logger.info(update_extract_result);
                     let extract_logs = await mysql_query_with_args(mysql_connection, "SELECT * FROM `extract` WHERE `address` = ? ORDER BY `create_time` DESC LIMIT 100;", [ws.merlin_address]);
                     ws.send(JSON.stringify({
@@ -2144,7 +2144,7 @@ app.get('/Status', (req, res) => {
             stop_time: stop_time,
             player_count: players.length,
         });
-    }catch (e){
+    } catch (e) {
         res.json({
             code: -1,
             message: e.toString(),
