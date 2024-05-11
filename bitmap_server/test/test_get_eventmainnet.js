@@ -1,6 +1,6 @@
 import {ethers, FetchRequest, Interface, parseEther} from "ethers";
 
-const txid = "0xccbd5a4c2186be48c5dcb9a137fa550fe9d9133262018216b30128b3d2e27cb3";
+const txid = "0x2a7fb803506049c030c627541d9163fc590d51e47c7a8bd02ffc775a037b37b5";
 const abi = [
     {
         "inputs": [
@@ -471,3 +471,4 @@ const virus_price = parseEther("0.00003").toString();
 let value = BigInt("30000000000000");
 let amount = value / BigInt(virus_price);
 console.log("amount", amount.toString());
+// console.log("tx",tx);
