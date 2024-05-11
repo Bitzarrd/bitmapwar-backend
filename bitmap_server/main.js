@@ -1670,9 +1670,9 @@ wss.on('connection', async (ws, req) => {
                         return;
                     }
                     let status = 1;
-                    let update_extract_result = await mysql_query_with_args(mysql_connection, "UPDATE extract SET status=? AND txid=? WHERE id=?;", [status, decode.txid, decode.id])
+                    let update_extract_result = await mysql_query_with_args(mysql_connection, "UPDATE extract SET status=? WHERE id=?;", [status, decode.id])
                     logger.info(update_extract_result);
-                    let extract_logs = await mysql_query_with_args(mysql_connection, "SELECT * FROM `extract` WHERE `address` = ? ORDER BY `create_time` DESC LIMIT 100;", [ws.owner]);
+                    let extract_logs = await mysql_query_with_args(mysql_connection, "SELECT * FROM `extract` WHERE `address` = ? ORDER BY `create_time` DESC LIMIT 100;", [ws.merlin_address]);
                     ws.send(JSON.stringify({
                         method: "UpdateExtractSuccess",
                         id: decode.id,
