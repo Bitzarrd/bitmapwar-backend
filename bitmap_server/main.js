@@ -2576,13 +2576,7 @@ app.post('/BuyGoodsForRentMap', async (req, res) => {
                     });
 
                     await updateRental(mysql_connection, rental);
-                    // ws.send(JSON.stringify({
-                    //     method: "BuyGoodsForRentMapSuccess",
-                    //     map_id: rental_id,
-                    //     type: "btc",
-                    //     day: day,
-                    //     timeout: time_out,
-                    // }))
+
                     res.json({
                         code:0,
                         args:{
@@ -2597,6 +2591,20 @@ app.post('/BuyGoodsForRentMap', async (req, res) => {
                             day: day,
                         }
                     })
+                    if(code){
+                        for (const ws of clients) {
+                            if (typeof ws.code !== 'undefined' && ws.code.toString() === req.query.code.toString()) {
+                                ws.send(JSON.stringify({
+                                    method: "BuyGoodsForRentMapSuccess",
+                                    map_id: rental_id,
+                                    type: "btc",
+                                    day: day,
+                                    timeout: time_out,
+                                }))
+                            }
+                        }
+                    }
+
                     return;
                     break;
             }
