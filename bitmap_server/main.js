@@ -2530,6 +2530,20 @@ app.post('/LoginFromWeb', async (req, res) => {
     }
 });
 
+app.post('/BuyGoodsForRentMap', async (req, res) => {
+    try {
+        let code = req.body.code;
+        let map_id = req.body.mapId;
+        let txid = req.body.txid;
+
+    }catch (e) {
+        res.json({
+            code: -1,
+            message: e.toString(),
+        })
+    }
+})
+
 // 启动服务器
 const port = process.env.PORT;
 server.listen(port, () => {

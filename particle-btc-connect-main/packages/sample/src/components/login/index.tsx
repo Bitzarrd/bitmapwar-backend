@@ -262,8 +262,8 @@ export default function Login() {
     }
   };
 
-  const [rentMapId, setRentMapId] = useState('0');
-  const [rentDays, setRentDays] = useState(7);
+  const [rentMapId, setRentMapId] = useState<string>('0');
+  const [rentDays, setRentDays] = useState<number>(7);
   const onConfirmRent = async () => {
     console.log('rentMap', rentMapId, rentDays);
     if (!chainId) {
@@ -448,8 +448,15 @@ export default function Login() {
     // 在组件挂载时更新 code 状态
     const searchParams = new URLSearchParams(location.search);
     const code_ = searchParams.get('code');
+    const mapId = searchParams.get('mapId');
+    const days = searchParams.get('days');
     if (code_) {
       setCode(code_);
+    }
+    if (mapId && days) {
+      setRentMapId(mapId.toString());
+      setRentDays(Number(days));
+      onOpenRent();
     }
   }, []);
 
@@ -613,11 +620,11 @@ export default function Login() {
           <Button onPress={onOpenExtractProfitModal} size="lg" className="btn">
             Extract Profit
           </Button>
-          <br />
-          <br />
-          <Button onPress={onOpenRent} size="lg" className="btn">
-            Rent Map
-          </Button>
+          {/*<br />*/}
+          {/*<br />*/}
+          {/*<Button onPress={onOpenRent} size="lg" className="btn">*/}
+          {/*  Rent Map*/}
+          {/*</Button>*/}
         </div>
       )}
 
@@ -743,10 +750,10 @@ export default function Login() {
               <ModalHeader className="flex flex-col gap-1">Leasehold</ModalHeader>
               <ModalBody>
                 <div className="flex w-full flex-wrap md:flex-nowrap gap-4">
-                  <Input type="email" label="Map ID" value="123456" disabled />
+                  <Input type="email" label="Map ID" value={rentMapId} disabled />
                 </div>
                 <div className="flex w-full flex-wrap md:flex-nowrap gap-4">
-                  <Input type="days" label="Days" value="7" disabled />
+                  <Input type="days" label="Days" value={rentDays.toString()} disabled />
                   {/*<Select*/}
                   {/*  label="Select an animal"*/}
                   {/*  className="max-w-xs"*/}
