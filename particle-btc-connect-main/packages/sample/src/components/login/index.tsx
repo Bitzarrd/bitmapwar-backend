@@ -304,20 +304,24 @@ export default function Login() {
       console.log('tx', tx);
       const feeQuotes = await getFeeQuotes(tx);
       console.log('feeQuotes', feeQuotes);
-      const {userOp, userOpHash} = feeQuotes.verifyingPaymasterNative;
+      const { userOp, userOpHash } = feeQuotes.verifyingPaymasterNative;
       console.log('userOp', userOp);
 
-      const hash = await sendUserOp({userOp, userOpHash}, forceHideModal);
+      const hash = await sendUserOp({ userOp, userOpHash }, forceHideModal);
       console.log('hash', hash);
       // return hash;
 
-
       toast.warning('do not close the window, waiting for the transaction to be confirmed');
-      await axios.post(httpUrl + '/BuyGoodsForRentMap', {
+      const rentResp = await axios.post(httpUrl + '/BuyGoodsForRentMap', {
         txid: hash,
         mapId: rentMapId,
         code: code,
       });
+
+      if (rentResp.data.code !== 0) {
+        toast.error(rentResp.data.message);
+        return;
+      }
 
       toast.success('rent map success');
     } catch (error: any) {

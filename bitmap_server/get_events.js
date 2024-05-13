@@ -444,40 +444,38 @@ async function sleep(ms) {
     return new Promise(resolve => setTimeout(resolve, ms));
 }
 
-export async function get_events(txid, callback) {
 
+export async function get_events(txid, callback) {
     console.log(process.env.RPC_URL);
 
     const provider = new ethers.JsonRpcProvider(process.env.RPC_URL);
-    const iface = new Interface(abi)
-    // try {
-    //     provider.getTransaction(txid).then((tx) => {
-    //         tx.wait().then((result) => {
-    //             const logs = result.logs;
-    //             let events = [];
-    //             for (let i = 0; i < logs.length; i++) {
-    //                 events.push(iface.parseLog(logs[i]));
-    //             }
-    //             callback(events);
-    //         })
-    //     });
-    // } catch (e) {
-    //     console.error(e);
-    //     callback([])
-    // }
+    const iface = new Interface(abi);
 
-    try {
+    async function retry(fn, maxRetry) {
+        let retries = 0;
+        while (retries < maxRetry) {
+            try {
+                return await fn();
+            } catch (e) {
+                console.error(e);
+                retries++;
+                await sleep(5000);
+            }
+        }
+        return null;
+    }
+
+    return await retry(async () => {
         let tx = await provider.getTransaction(txid);
-        if(tx===null){
-            await sleep(5000);
-            tx = await provider.getTransaction(txid);
+        if (tx === null) {
+            throw new Error('Transaction not found');
         }
         const receipt = await tx.wait();
         const logs = receipt.logs;
         let events = [];
         for (let i = 0; i < logs.length; i++) {
             const parsedEvent = iface.parseLog(logs[i])
-            if(parsedEvent != null) {
+            if (parsedEvent != null) {
                 events.push(parsedEvent);
             }
         }
@@ -486,9 +484,6 @@ export async function get_events(txid, callback) {
             receipt: receipt,
             logs: logs,
             events: events
-        }
-    } catch (e) {
-        console.error(e);
-        return null;
-    }
+        };
+    }, 3);
 }
