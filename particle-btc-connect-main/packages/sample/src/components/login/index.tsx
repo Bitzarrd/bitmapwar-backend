@@ -8,7 +8,7 @@ import {
   useConnector,
   useETHProvider,
 } from '@particle-network/btc-connectkit';
-import {useCallback, useEffect, useState} from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import {
   Modal,
   ModalContent,
@@ -19,44 +19,44 @@ import {
   useDisclosure,
   Chip,
 } from '@nextui-org/react';
-import {Table, TableHeader, TableColumn, TableBody, TableRow, TableCell, getKeyValue} from '@nextui-org/react';
-import {Input, Spinner} from '@nextui-org/react';
-import {Tooltip} from '@nextui-org/tooltip';
-import {Select, SelectItem} from "@nextui-org/react";
+import { Table, TableHeader, TableColumn, TableBody, TableRow, TableCell, getKeyValue } from '@nextui-org/react';
+import { Input, Spinner } from '@nextui-org/react';
+import { Tooltip } from '@nextui-org/tooltip';
+import { Select, SelectItem } from '@nextui-org/react';
 
-import {toast} from 'react-toastify';
+import { toast } from 'react-toastify';
 // import {bgBlack} from "next/dist/lib/picocolors";
 // import { useLocation } from 'react-router-dom';
 import '../../styles/login.css';
 import BitMapWarAbi from './bitmapwar_abi.json';
-import {Contract, parseEther, formatEther} from 'ethers';
+import { Contract, parseEther, formatEther } from 'ethers';
 import axios from 'axios';
 import Image from 'next/image';
 import logo from '../../assets/login/logo.png';
-import {MerlinTestnet} from '@particle-network/chains';
+import { MerlinTestnet } from '@particle-network/chains';
 
 export default function Login() {
-
   const days = [
     {
-      label: "7 Days",
-      value: 7
+      label: '7 Days',
+      value: 7,
     },
     {
-      label: "15 Days",
-      value: 15
+      label: '15 Days',
+      value: 15,
     },
     {
-      label: "30 Days",
-      value: 30
-    }];
+      label: '30 Days',
+      value: 30,
+    },
+  ];
 
-  const {openConnectModal, disconnect} = useConnectModal();
-  const {accounts} = useAccounts();
-  const {evmAccount, chainId, switchChain, publicClient, getFeeQuotes, sendUserOp} = useETHProvider();
+  const { openConnectModal, disconnect } = useConnectModal();
+  const { accounts } = useAccounts();
+  const { evmAccount, chainId, switchChain, publicClient, getFeeQuotes, sendUserOp } = useETHProvider();
   // const location = useLocation();
 
-  const {provider, getNetwork, switchNetwork, signMessage, getPublicKey, sendBitcoin, sendInscription} =
+  const { provider, getNetwork, switchNetwork, signMessage, getPublicKey, sendBitcoin, sendInscription } =
     useBTCProvider();
   // const [gasless, setGasless] = useState<boolean>(false);
   // const [inscriptionReceiverAddress, setInscriptionReceiverAddress] = useState<string>();
@@ -64,10 +64,10 @@ export default function Login() {
   const [message, setMessage] = useState<string>('Login For Bitmapwar!');
   // const [address, setAddress] = useState<string>();
   // const [satoshis, setSatoshis] = useState<string>('1');
-  const {connectors, connect} = useConnector();
-  const {isOpen, onOpen, onOpenChange} = useDisclosure();
-  const {isOpen: isOpenExtract, onOpen: onOpenExtract, onOpenChange: onOpenChangeExtract} = useDisclosure();
-  const {isOpen: isOpenRent, onOpen: onOpenRent, onOpenChange: onOpenChangeRent} = useDisclosure();
+  const { connectors, connect } = useConnector();
+  const { isOpen, onOpen, onOpenChange } = useDisclosure();
+  const { isOpen: isOpenExtract, onOpen: onOpenExtract, onOpenChange: onOpenChangeExtract } = useDisclosure();
+  const { isOpen: isOpenRent, onOpen: onOpenRent, onOpenChange: onOpenChangeRent } = useDisclosure();
   const [forceHideModal, setForceHideModal] = useState<boolean>(false);
 
   let wsUrl = '';
@@ -164,8 +164,8 @@ export default function Login() {
     console.log('tx', tx);
     const feeQuotes = await getFeeQuotes(tx);
     console.log('feeQuotes', feeQuotes);
-    const {userOp, userOpHash} = feeQuotes.verifyingPaymasterNative;
-    const hash = await sendUserOp({userOp, userOpHash}, forceHideModal);
+    const { userOp, userOpHash } = feeQuotes.verifyingPaymasterNative;
+    const hash = await sendUserOp({ userOp, userOpHash }, forceHideModal);
 
     toast.warning('do not close the window, waiting for the transaction to be confirmed');
 
@@ -225,8 +225,8 @@ export default function Login() {
       console.log('tx', tx);
       const feeQuotes = await getFeeQuotes(tx);
       console.log('feeQuotes', feeQuotes);
-      const {userOp, userOpHash} = feeQuotes.verifyingPaymasterNative;
-      const hash = await sendUserOp({userOp, userOpHash}, forceHideModal);
+      const { userOp, userOpHash } = feeQuotes.verifyingPaymasterNative;
+      const hash = await sendUserOp({ userOp, userOpHash }, forceHideModal);
       console.log('hash', hash);
       // return hash;
       await refreshExtract(pubKey);
@@ -245,12 +245,12 @@ export default function Login() {
       await refreshPurchase(pubKey);
     } catch (error: any) {
       if (typeof error === 'object' && error.data && error.data.extraMessage) {
-        const {message} = error.data.extraMessage;
+        const { message } = error.data.extraMessage;
         console.log('retry error', message);
         toast.error(message);
       }
       if (typeof error === 'object' && error.message) {
-        const {message} = error.message;
+        const { message } = error.message;
         console.log('retry error', message);
         toast.error(message);
       } else {
@@ -260,6 +260,53 @@ export default function Login() {
       }
       throw error;
     }
+  };
+
+  const [rentMapId, setRentMapId] = useState('0');
+  const [rentDays, setRentDays] = useState(7);
+  const onConfirmRent = async () => {
+    console.log('rentMap', rentMapId, rentDays);
+    if (!chainId) {
+      return;
+    }
+    let contractAddress = null;
+    if (chainId == 4200) {
+      contractAddress = bitmapwarContractAddress['4200'];
+    }
+    if (chainId == 686868) {
+      contractAddress = bitmapwarContractAddress['686868'];
+    }
+    if (!contractAddress) {
+      return;
+    }
+    const contract = new Contract(contractAddress, BitMapWarAbi) as any;
+    const transaction = await contract.rentMap.populateTransaction(rentMapId, rentDays);
+    console.log('transaction', transaction);
+    let price = parseEther('0') as bigint;
+    switch (rentDays) {
+      case 7:
+        price = parseEther('0.0004') as bigint;
+        break;
+      case 15:
+        price = parseEther('0.0006') as bigint;
+        break;
+      case 30:
+        price = parseEther('0.001') as bigint;
+        break;
+    }
+    const tx = {
+      to: contractAddress,
+      data: transaction.data,
+      value: price.toString(),
+    };
+    console.log('tx', tx);
+    const feeQuotes = await getFeeQuotes(tx);
+    console.log('feeQuotes', feeQuotes);
+    const { userOp, userOpHash } = feeQuotes.verifyingPaymasterNative;
+    console.log('userOp', userOp);
+    const hash = await sendUserOp({ userOp, userOpHash }, forceHideModal);
+    console.log('hash', hash);
+    return hash;
   };
 
   const retry = useCallback(
@@ -298,8 +345,8 @@ export default function Login() {
         console.log('tx', tx);
         const feeQuotes = await getFeeQuotes(tx);
         console.log('feeQuotes', feeQuotes);
-        const {userOp, userOpHash} = feeQuotes.verifyingPaymasterNative;
-        const hash = await sendUserOp({userOp, userOpHash}, forceHideModal);
+        const { userOp, userOpHash } = feeQuotes.verifyingPaymasterNative;
+        const hash = await sendUserOp({ userOp, userOpHash }, forceHideModal);
         console.log('hash', hash);
         // return hash;
         await refreshExtract(pubKey);
@@ -318,7 +365,7 @@ export default function Login() {
         await refreshPurchase(pubKey);
       } catch (error: any) {
         if (typeof error === 'object' && error.data && error.data.extraMessage) {
-          const {message} = error.data.extraMessage;
+          const { message } = error.data.extraMessage;
           console.log('retry error', message);
           toast.error(message);
         }
@@ -516,7 +563,7 @@ export default function Login() {
       {/*</Button>*/}
 
       <div className="logo">
-        <Image src={logo} alt="logo"/>
+        <Image src={logo} alt="logo" />
       </div>
 
       {!code && (
@@ -529,10 +576,10 @@ export default function Login() {
 
       {code && accounts.length === 0 && (
         <div className="btnBox codeBox">
-          <div className="code-123456" style={{backgroundImage: 'url(code_bg.png)', backgroundSize: '100% 46px'}}>
+          <div className="code-123456" style={{ backgroundImage: 'url(code_bg.png)', backgroundSize: '100% 46px' }}>
             CODE: {code}
           </div>
-          <br/> <br/>
+          <br /> <br />
           <Button color="warning" size="lg" onClick={openConnectModal} className="btn">
             Connect Wallet
           </Button>
@@ -541,33 +588,33 @@ export default function Login() {
 
       {code && accounts.length !== 0 && (
         <div className="btnBox">
-          <br/>
-          <br/>
-          <div className="address" style={{backgroundImage: 'url(ID_bg.png)'}}>
+          <br />
+          <br />
+          <div className="address" style={{ backgroundImage: 'url(ID_bg.png)' }}>
             {accounts}
           </div>
-          <br/>
-          <br/>
+          <br />
+          <br />
           <Button color="primary" onClick={disconnect} size="lg" className="btn">
             Disconnect Wallet
           </Button>
-          <br/>
-          <br/>
+          <br />
+          <br />
           <Button color="primary" onClick={onGetPubkey} size="lg" className="btn">
             Enter Game
           </Button>
-          <br/>
-          <br/>
+          <br />
+          <br />
           <Button onPress={onOpenPurchaseModal} size="lg" className="btn">
             Purchase Soldier
           </Button>
-          <br/>
-          <br/>
+          <br />
+          <br />
           <Button onPress={onOpenExtractProfitModal} size="lg" className="btn">
             Extract Profit
           </Button>
-          <br/>
-          <br/>
+          <br />
+          <br />
           <Button onPress={onOpenRent} size="lg" className="btn">
             Rent Map
           </Button>
@@ -582,7 +629,7 @@ export default function Login() {
               <ModalBody>
                 <Button color="warning" variant="flat">
                   Please do not close the browser or fresh the page during the recharge process.
-                  <br/>
+                  <br />
                   If you encounter any issues, please contact our customer service.
                 </Button>
                 <Tooltip content="1 Soilder = 0.00003 BTC">
@@ -604,7 +651,7 @@ export default function Login() {
                   <TableHeader columns={columns}>
                     {(column) => <TableColumn key={column.key}>{column.label}</TableColumn>}
                   </TableHeader>
-                  <TableBody items={rows} isLoading={isLoading} loadingContent={<Spinner label="Loading..."/>}>
+                  <TableBody items={rows} isLoading={isLoading} loadingContent={<Spinner label="Loading..." />}>
                     {(item: any) => (
                       // <TableRow key={item.key}>
                       //   {(columnKey) => <TableCell>{getKeyValue(item, columnKey)}</TableCell>}
@@ -628,7 +675,7 @@ export default function Login() {
           )}
         </ModalContent>
       </Modal>
-      <Modal isOpen={isOpenExtract} onOpenChange={onOpenChangeExtract} className="dark" size="3xl">
+      <Modal isOpen={isOpenExtract} onOpenChange={onOpenChangeExtract} className="dark" size="5xl">
         <ModalContent>
           {(onCloseExtract) => (
             <>
@@ -636,7 +683,7 @@ export default function Login() {
               <ModalBody>
                 <Button color="warning" variant="flat">
                   Please do not close the browser or fresh the page during the recharge process.
-                  <br/>
+                  <br />
                   If you encounter any issues, please contact our customer service.
                 </Button>
                 <Input
@@ -668,7 +715,7 @@ export default function Login() {
                   <TableHeader columns={columnsExtract}>
                     {(column) => <TableColumn key={column.key}>{column.label}</TableColumn>}
                   </TableHeader>
-                  <TableBody items={rows} isLoading={isLoading} loadingContent={<Spinner label="Loading..."/>}>
+                  <TableBody items={rows} isLoading={isLoading} loadingContent={<Spinner label="Loading..." />}>
                     {(item: any) => (
                       <TableRow key={item.id}>
                         {(columnKey) => <TableCell>{renderCell(item, columnKey)}</TableCell>}
@@ -689,17 +736,17 @@ export default function Login() {
           )}
         </ModalContent>
       </Modal>
-      <Modal isOpen={isOpenRent} className="dark" size="5xl">
+      <Modal isOpen={isOpenRent} onOpenChange={onOpenChangeRent} className="dark" size="2xl">
         <ModalContent>
-          {(onClose) => (
+          {(onCloseRent) => (
             <>
               <ModalHeader className="flex flex-col gap-1">Leasehold</ModalHeader>
               <ModalBody>
                 <div className="flex w-full flex-wrap md:flex-nowrap gap-4">
-                  <Input type="email" label="Map ID" value="123456" disabled/>
+                  <Input type="email" label="Map ID" value="123456" disabled />
                 </div>
                 <div className="flex w-full flex-wrap md:flex-nowrap gap-4">
-                  <Input type="days" label="Days" value="7" disabled/>
+                  <Input type="days" label="Days" value="7" disabled />
                   {/*<Select*/}
                   {/*  label="Select an animal"*/}
                   {/*  className="max-w-xs"*/}
@@ -713,10 +760,10 @@ export default function Login() {
                 </div>
               </ModalBody>
               <ModalFooter>
-                <Button color="danger" variant="light" onPress={onClose}>
+                <Button color="danger" variant="light" onPress={onCloseRent}>
                   Close
                 </Button>
-                <Button color="primary" onPress={onClose}>
+                <Button color="primary" onPress={onConfirmRent}>
                   Action
                 </Button>
               </ModalFooter>
