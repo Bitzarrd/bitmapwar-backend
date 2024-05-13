@@ -1055,7 +1055,7 @@ const doLogin = async (ws, decode) => {
                     has_login_gift: true,
                     action_logs: [],
                     message_global: messages.global,
-                    message_team: messages.team,
+                    message_team: [],
                     rentals: []
                 }));
                 await action_log(address, "register", user);
