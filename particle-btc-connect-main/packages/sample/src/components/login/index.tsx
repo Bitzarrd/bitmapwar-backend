@@ -266,47 +266,77 @@ export default function Login() {
   const [rentDays, setRentDays] = useState<number>(7);
   const onConfirmRent = async () => {
     console.log('rentMap', rentMapId, rentDays);
-    if (!chainId) {
-      return;
+
+    try {
+      if (!chainId) {
+        return;
+      }
+      let contractAddress = null;
+      if (chainId == 4200) {
+        contractAddress = bitmapwarContractAddress['4200'];
+      }
+      if (chainId == 686868) {
+        contractAddress = bitmapwarContractAddress['686868'];
+      }
+      if (!contractAddress) {
+        return;
+      }
+      const contract = new Contract(contractAddress, BitMapWarAbi) as any;
+      const transaction = await contract.rentMap.populateTransaction(rentMapId, rentDays);
+      console.log('transaction', transaction);
+      let price = parseEther('0') as bigint;
+      switch (rentDays) {
+        case 7:
+          price = parseEther('0.0004') as bigint;
+          break;
+        case 15:
+          price = parseEther('0.0006') as bigint;
+          break;
+        case 30:
+          price = parseEther('0.001') as bigint;
+          break;
+      }
+      const tx = {
+        to: contractAddress,
+        data: transaction.data,
+        value: price.toString(),
+      };
+      console.log('tx', tx);
+      const feeQuotes = await getFeeQuotes(tx);
+      console.log('feeQuotes', feeQuotes);
+      const {userOp, userOpHash} = feeQuotes.verifyingPaymasterNative;
+      console.log('userOp', userOp);
+
+      const hash = await sendUserOp({userOp, userOpHash}, forceHideModal);
+      console.log('hash', hash);
+      // return hash;
+
+
+      toast.warning('do not close the window, waiting for the transaction to be confirmed');
+      await axios.post(httpUrl + '/BuyGoodsForRentMap', {
+        txid: hash,
+        mapId: rentMapId,
+        code: code,
+      });
+
+      toast.success('rent map success');
+    } catch (error: any) {
+      if (typeof error === 'object' && error.data && error.data.extraMessage) {
+        const { message } = error.data.extraMessage;
+        console.log('rent error', message);
+        toast.error(message);
+      }
+      if (typeof error === 'object' && error.message) {
+        const { message } = error.message;
+        console.log('rent error', message);
+        toast.error(message);
+      } else {
+        const msg = error.toString();
+        console.log('rent error', msg);
+        toast.error(msg);
+      }
+      throw error;
     }
-    let contractAddress = null;
-    if (chainId == 4200) {
-      contractAddress = bitmapwarContractAddress['4200'];
-    }
-    if (chainId == 686868) {
-      contractAddress = bitmapwarContractAddress['686868'];
-    }
-    if (!contractAddress) {
-      return;
-    }
-    const contract = new Contract(contractAddress, BitMapWarAbi) as any;
-    const transaction = await contract.rentMap.populateTransaction(rentMapId, rentDays);
-    console.log('transaction', transaction);
-    let price = parseEther('0') as bigint;
-    switch (rentDays) {
-      case 7:
-        price = parseEther('0.0004') as bigint;
-        break;
-      case 15:
-        price = parseEther('0.0006') as bigint;
-        break;
-      case 30:
-        price = parseEther('0.001') as bigint;
-        break;
-    }
-    const tx = {
-      to: contractAddress,
-      data: transaction.data,
-      value: price.toString(),
-    };
-    console.log('tx', tx);
-    const feeQuotes = await getFeeQuotes(tx);
-    console.log('feeQuotes', feeQuotes);
-    const { userOp, userOpHash } = feeQuotes.verifyingPaymasterNative;
-    console.log('userOp', userOp);
-    const hash = await sendUserOp({ userOp, userOpHash }, forceHideModal);
-    console.log('hash', hash);
-    return hash;
   };
 
   const retry = useCallback(
