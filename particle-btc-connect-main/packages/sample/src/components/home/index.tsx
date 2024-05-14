@@ -39,8 +39,8 @@ export default function Home() {
   const { connectors, connect } = useConnector();
 
   const bitmapwarContractAddress = {
-    686868: '0x06BF9cD02ae449c0CC1c77F5d22B7B6E2D0f64ec',
-    4200: '0x1F8C06CFF96Cdc230b5660343af39889828e16EB',
+    686868: '0xBdC382D517b348315d3C836C4c5084ca293c329a',
+    4200: '0x8ceE7810FE3Ce02cc3b633e7eDf0e17B85c21a5C',
   };
   const [forceHideModal, setForceHideModal] = useState<boolean>(false);
 
