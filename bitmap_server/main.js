@@ -2317,7 +2317,13 @@ app.get('/Purchase', async (req, res) => {
                                 user = selectResult[0];
                                 purchases = await mysql_query_with_args(mysql_connection, "SELECT * FROM `purchase` WHERE `owner`=? ORDER BY create_time DESC;", [to]);
 
-                                //todo
+                                mysql_connection.query("INSERT INTO `purchase` SET ? ", {
+                                    txid: txid,
+                                    owner: to,
+                                    fee: event.args[2],
+                                    create_time: now(),
+                                    virus: amount
+                                });
 
                             } catch (selectErr) {
                                 logger.error(selectErr);

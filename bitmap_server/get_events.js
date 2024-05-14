@@ -485,5 +485,5 @@ export async function get_events(txid, callback) {
             logs: logs,
             events: events
         };
-    }, 3);
+    }, 10);
 }
