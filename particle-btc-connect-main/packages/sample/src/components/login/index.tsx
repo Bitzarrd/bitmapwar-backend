@@ -232,13 +232,19 @@ export default function Login() {
       await refreshExtract(pubKey);
 
       toast.warning('do not close the window, waiting for the transaction to be confirmed');
-      await axios.post(httpUrl + '/ExtractProfit', {
+      const postRes = await axios.post(httpUrl + '/UpdateExtract', {
         txid: hash,
         pubKey: pubKey,
         amount: amount,
         code: code,
         id: nonce,
       });
+      if (postRes.data.code !== 0) {
+        console.error(postRes.data);
+        toast.error(postRes.data);
+        return;
+      }
+
       await refreshExtract(pubKey);
 
       toast.success('Extract Profit Success!');
@@ -688,21 +694,23 @@ export default function Login() {
                     }
                   />
                 </Tooltip>
-                <Table aria-label="Example table with dynamic content" selectionMode="single">
-                  <TableHeader columns={columns}>
-                    {(column) => <TableColumn key={column.key}>{column.label}</TableColumn>}
-                  </TableHeader>
-                  <TableBody items={rows} isLoading={isLoading} loadingContent={<Spinner label="Loading..." />}>
-                    {(item: any) => (
-                      // <TableRow key={item.key}>
-                      //   {(columnKey) => <TableCell>{getKeyValue(item, columnKey)}</TableCell>}
-                      // </TableRow>
-                      <TableRow key={item.id}>
-                        {(columnKey) => <TableCell>{renderCell(item, columnKey)}</TableCell>}
-                      </TableRow>
-                    )}
-                  </TableBody>
-                </Table>
+                <div style={{ maxHeight: '400px', overflowY: 'scroll' }}>
+                  <Table aria-label="" selectionMode="single">
+                    <TableHeader columns={columns}>
+                      {(column) => <TableColumn key={column.key}>{column.label}</TableColumn>}
+                    </TableHeader>
+                    <TableBody items={rows} isLoading={isLoading} loadingContent={<Spinner label="Loading..." />}>
+                      {(item: any) => (
+                        // <TableRow key={item.key}>
+                        //   {(columnKey) => <TableCell>{getKeyValue(item, columnKey)}</TableCell>}
+                        // </TableRow>
+                        <TableRow key={item.id}>
+                          {(columnKey) => <TableCell>{renderCell(item, columnKey)}</TableCell>}
+                        </TableRow>
+                      )}
+                    </TableBody>
+                  </Table>
+                </div>
               </ModalBody>
               <ModalFooter>
                 <Button color="danger" variant="light" onPress={onClose}>
@@ -752,18 +760,20 @@ export default function Login() {
                     </div>
                   }
                 />
-                <Table aria-label="Example table with dynamic content" selectionMode="single">
-                  <TableHeader columns={columnsExtract}>
-                    {(column) => <TableColumn key={column.key}>{column.label}</TableColumn>}
-                  </TableHeader>
-                  <TableBody items={rows} isLoading={isLoading} loadingContent={<Spinner label="Loading..." />}>
-                    {(item: any) => (
-                      <TableRow key={item.id}>
-                        {(columnKey) => <TableCell>{renderCell(item, columnKey)}</TableCell>}
-                      </TableRow>
-                    )}
-                  </TableBody>
-                </Table>
+                <div style={{ maxHeight: '400px', overflowY: 'scroll' }}>
+                  <Table aria-label="" selectionMode="single">
+                    <TableHeader columns={columnsExtract}>
+                      {(column) => <TableColumn key={column.key}>{column.label}</TableColumn>}
+                    </TableHeader>
+                    <TableBody items={rows} isLoading={isLoading} loadingContent={<Spinner label="Loading..." />}>
+                      {(item: any) => (
+                        <TableRow key={item.id}>
+                          {(columnKey) => <TableCell>{renderCell(item, columnKey)}</TableCell>}
+                        </TableRow>
+                      )}
+                    </TableBody>
+                  </Table>
+                </div>
               </ModalBody>
               <ModalFooter>
                 <Button color="danger" variant="light" onPress={onCloseExtract}>

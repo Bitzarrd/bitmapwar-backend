@@ -2463,19 +2463,36 @@ app.post('/UpdateExtract', async (req, res) => {
     try {
         const txid = req.body.txid;
         const id = req.body.id;
-        const public_key = req.body.pubkey;
+        const public_key = req.body.pubKey;
+        const code = req.body.code;
         const evmAddress = pubKeyToEVMAddress(public_key);
-        const owner = await evmAddressToMerlinAddress(evmAddress);
+        const merlin_address = await evmAddressToMerlinAddress(evmAddress);
+
+
         let status = 1;
-        let update_extract_result = await mysql_query_with_args(mysql_connection, "UPDATE extract SET status=? AND txid=? WHERE id=?;",
-            [status, txid, id])
+        let update_extract_result = await mysql_query_with_args(mysql_connection, "UPDATE extract SET status=?, txid=? WHERE id=?;", [status, txid, id])
         logger.info(update_extract_result);
-        let extract_logs = await mysql_query_with_args(mysql_connection, "SELECT * FROM `extract` WHERE `address` = ? ORDER BY `create_time` DESC LIMIT 100;", [owner]);
+        let extract_logs = await mysql_query_with_args(mysql_connection, "SELECT * FROM `extract` WHERE `address` = ? ORDER BY `create_time` DESC LIMIT 100;", [merlin_address]);
+
+        if (code ) {
+            for (const ws of clients) {
+                if (typeof ws.code !== 'undefined' && ws.code.toString() === code.toString()) {
+                    ws.send(JSON.stringify({
+                        method: "UpdateExtractSuccess",
+                        id: id,
+                        txid: txid,
+                        status: status,
+                        extracts: extract_logs
+                    }));
+                }
+            }
+        }
+
         res.json({
             id: id,
             txid: txid,
             status: status,
-            extracts: extract_logs
+            // extracts: extract_logs
         });
     } catch (e) {
         res.json({
